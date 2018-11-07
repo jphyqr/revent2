@@ -129,7 +129,7 @@ async componentWillUnmount(){
     return (
       <Grid>
         <Script
-          url="https://maps.googleapis.com/maps/api/js?key=AIzaSyBeJlBUVhFnJrXS5flaYydbj5AmbuGCNBQ&libraries=places"
+          url="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQc2wDlRKjT6P-SV4vl_lq-YyFFnbqujw&libraries=places"
           onLoad={this.handleScriptLoaded}
         />
         <Grid.Column width={10}>
