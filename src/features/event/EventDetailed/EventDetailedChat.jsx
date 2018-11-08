@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Segment, Header, Comment, Form, Button } from "semantic-ui-react";
+import { Segment, Header, Comment} from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import EventDetailedChatForm from "./EventDetailedChatForm";
 import distanceInWords from "date-fns/distance_in_words";
