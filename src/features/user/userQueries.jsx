@@ -1,4 +1,25 @@
-export const userDetailedQuery = ({ auth, userUid }) => {
+export const PeopleDashboardQuery = ({ userUid }) => {
+  if (userUid !== null) {
+    return [
+      // {
+      //   collection: "users",
+      //   doc: userUid,
+      //   subcollections: [{ collection: "followers" }],
+      //   storeAs: "followers"
+      // },
+      {
+        collection: "users",
+        doc: userUid,
+        subcollections: [{ collection: "following" }],
+        storeAs: "following"
+      }
+    ];
+  } else {
+    return [{}];
+  }
+};
+
+export const userDetailedQuery = ({ auth, userUid, match }) => {
   if (userUid !== null) {
     return [
       {
@@ -11,6 +32,12 @@ export const userDetailedQuery = ({ auth, userUid }) => {
         doc: userUid,
         subcollections: [{ collection: "photos" }],
         storeAs: "photos"
+      },
+      {
+        collection: "users",
+        doc: auth.uid,
+        subcollections: [{ collection: "following", doc: match.params.id }],
+        storeAs: "following"
       }
     ];
   } else {

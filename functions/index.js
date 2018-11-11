@@ -1,6 +1,16 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+
 admin.initializeApp(functions.config().firebase);
+
+const newFollow = (type, event, id) => {
+  return {
+    type: type,
+    followerId: id,
+    photoURL: event.hostPhotoURL,
+    displayName: event.displayName
+  };
+};
 
 const newActivity = (type, event, id) => {
   return {
@@ -11,9 +21,61 @@ const newActivity = (type, event, id) => {
     photoURL: event.hostPhotoURL,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
     hostUid: event.hostUid,
-    eventId:id
+    eventId: id
   };
 };
+
+
+exports.unfollowUser = functions.firestore
+.document("users/{unfollowerUid}/following/{unfollowedUid}")
+.onDelete((info,context) => {
+ const unfollowerUid = context.params.unfollowerUid;
+ const unfollowedUid = context.params.unfollowedUid;
+ console.log("v1");
+ return admin
+ .firestore()
+ .collection("users")
+ .doc(unfollowedUid)
+ .collection("followers")
+ .doc(unfollowerUid)
+ .delete()
+ .then(() => {
+   return console.log('doc deleted')
+ })
+
+})
+
+exports.followUser = functions.firestore
+  .document("users/{followerUid}/following/{followingUid}")
+  .onCreate((info, context) => {
+    const followingUid = context.params.followingUid;
+    const followerUid = context.params.followerUid;
+    console.log("v1");
+    const followerDoc = admin
+      .firestore()
+      .collection("users")
+      .doc(followerUid);
+
+    console.log(followerDoc);
+
+    return followerDoc.get().then(doc => {
+      let userData = doc.data();
+      console.log({ userData });
+
+      let follower = {
+        displayName: userData.displayName,
+        photoURL: userData.photoURL || "/assets/user.png",
+        city: userData.city || "Unknown City"
+      };
+      return admin
+        .firestore()
+        .collection("users")
+        .doc(followingUid)
+        .collection("followers")
+        .doc(followerUid)
+        .set(follower);
+    });
+  });
 
 exports.createActivity = functions.firestore
   .document("events/{eventId}")

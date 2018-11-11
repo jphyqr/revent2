@@ -19,8 +19,7 @@ import DateInput from "../../../app/common/form/DateInput";
 import PlaceInput from "../../../app/common/form/PlaceInput";
 import { withFirestore } from "react-redux-firebase";
 
-const mapState = (state) => {
-
+const mapState = state => {
   let event = {};
 
   if (state.firestore.ordered.events && state.firestore.ordered.events[0]) {
@@ -29,7 +28,8 @@ const mapState = (state) => {
 
   return {
     initialValues: event,
-    event : event
+    event: event,
+    loading: state.async.loading
   };
 };
 
@@ -69,18 +69,15 @@ class EventForm extends Component {
     scriptLoaded: false
   };
 
+  async componentDidMount() {
+    const { firestore, match } = this.props;
+    await firestore.setListener(`events/${match.params.id}`);
+  }
 
-async componentDidMount() {
-  const {firestore, match} = this.props;
-await firestore.setListener(`events/${match.params.id}`)
-
-}
-
-async componentWillUnmount(){
-  const {firestore, match} = this.props;
-  await firestore.unsetListener(`events/${match.params.id}`)
-   
-}
+  async componentWillUnmount() {
+    const { firestore, match } = this.props;
+    await firestore.unsetListener(`events/${match.params.id}`);
+  }
 
   handleScriptLoaded = () => this.setState({ scriptLoaded: true });
 
@@ -110,13 +107,13 @@ async componentWillUnmount(){
       });
   };
 
-  onFormSubmit = values => {
+  onFormSubmit = async values => {
     values.venueLatLng = this.state.venueLatLng;
-    if(Object.keys(values.venueLatLng).length ===0){
-      values.venueLatLng = this.props.event.venueLatLng
+    if (Object.keys(values.venueLatLng).length === 0) {
+      values.venueLatLng = this.props.event.venueLatLng;
     }
     if (this.props.initialValues.id) {
-      this.props.updateEvent(values);
+      await this.props.updateEvent(values);
       this.props.history.goBack();
     } else {
       this.props.createEvent(values);
@@ -125,7 +122,14 @@ async componentWillUnmount(){
   };
 
   render() {
-    const { invalid, submitting, pristine , event, cancelToggle} = this.props;
+    const {
+      invalid,
+      submitting,
+      pristine,
+      event,
+      cancelToggle,
+      loading
+    } = this.props;
     return (
       <Grid>
         <Script
@@ -191,23 +195,26 @@ async componentWillUnmount(){
               <Button
                 disabled={invalid || submitting || pristine}
                 positive
+                loading={loading}
                 type="submit"
               >
                 Submit
               </Button>
-              <Button onClick={this.props.history.goBack} type="button">
+              <Button
+                disabled={loading}
+                onClick={this.props.history.goBack}
+                type="button"
+              >
                 Cancel
               </Button>
-              <Button 
-                    onClick={()=> cancelToggle(!event.cancelled, event.id)}
-                    type='button' //need type to avoid auto form submission
-                    color={event.cancelled? 'green' : 'red'}
-                    floated='right'
-                    content={event.cancelled? 'Reactivate Event' : 'Cancel event'}
-
-/>
-
-</Form>
+              <Button
+                onClick={() => cancelToggle(!event.cancelled, event.id)}
+                type="button" //need type to avoid auto form submission
+                color={event.cancelled ? "green" : "red"}
+                floated="right"
+                content={event.cancelled ? "Reactivate Event" : "Cancel event"}
+              />
+            </Form>
           </Segment>
         </Grid.Column>
       </Grid>
