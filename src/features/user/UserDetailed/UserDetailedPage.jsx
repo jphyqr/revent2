@@ -45,9 +45,9 @@ class UserDetailedPage extends Component {
     console.log(events);
   }
 
-changeTab = (e, data) => {
-  this.props.getUserEvents(this.props.userUid, data.activeIndex)
-}
+  changeTab = (e, data) => {
+    this.props.getUserEvents(this.props.userUid, data.activeIndex)
+  }
 
 
   render() {

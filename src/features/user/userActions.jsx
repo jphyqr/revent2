@@ -276,7 +276,6 @@ export const unfollowUser = userToUnfollow => async (
       subcollections: [{ collection: "following", doc: userToUnfollow }]
     });
   } catch (error) {
-    console.log(error);
     dispatch(asyncActionError());
     throw new Error("Problem unfollowing user");
   }
@@ -311,5 +310,148 @@ export const followUser = userToFollow => async (
     console.log(error);
     dispatch(asyncActionError());
     throw new Error("Problem following user");
+  }
+};
+
+export const messageUser = userToMessage => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
+  const firestore = getFirestore();
+  const user = firestore.auth().currentUser;
+  console.log({ userToMessage });
+  const messaging = {
+    id: userToMessage.id,
+    photoURL: userToMessage.photoURL || "/assets/user.png",
+    city: userToMessage.city || "Unknown city",
+    displayName: userToMessage.displayName
+  };
+
+  try {
+    dispatch(asyncActionStart());
+
+    await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "messaging", doc: userToMessage.id }]
+      },
+      messaging
+    );
+
+    await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "last_message", doc: user.uid }]
+      },
+      {
+        id: userToMessage.id,
+        photoURL: userToMessage.photoURL || "/assets/user.png",
+        city: userToMessage.city || "Unknown city",
+        displayName: userToMessage.displayName
+      }
+    );
+
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+    throw new Error("Problem messaging user");
+  }
+};
+
+export const selectLastMessage = lastRecipient => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
+  const firestore = getFirestore();
+  const profile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+  console.log({ lastRecipient });
+  try {
+    await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "last_message", doc: user.uid }]
+      },
+      {
+        id: lastRecipient.id,
+        photoURL: lastRecipient.photoURL || "/assets/user.png",
+        city: lastRecipient.city || "Unknown city",
+        displayName: lastRecipient.displayName
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const addDirectMessage = (receiverId, values) => async (
+  dispatch,
+  getState,
+  { getFirebase }
+) => {
+  const firebase = getFirebase();
+  const profile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+
+  let newComment = {
+    displayName: profile.displayName,
+    photoURL: profile.photoURL || "/assets/user.png",
+    uid: user.uid,
+    text: values.comment,
+    date: Date.now()
+  };
+
+  let threadId = "";
+  if (user.uid < receiverId) {
+    threadId = `${user.uid}_${receiverId}`;
+  } else {
+    threadId = `${receiverId}_${user.uid}`;
+  }
+
+  try {
+    await firebase.push(`direct_messages/${threadId}`, newComment);
+    toastr.success("Success", "Message Sent");
+  } catch (error) {
+    console.log(error);
+    toastr.error("Oops", "Problem adding direct message");
+  }
+};
+
+export const getLastMessage = () => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
+  const firestore = getFirestore();
+  const user = firebase.auth().currentUser;
+  console.log({ user });
+  try {
+    dispatch(asyncActionStart());
+
+    let nextMessage = await firestore.get({
+      collection: "users",
+      doc: user.uid,
+      subcollections: [{ collection: "last_message", doc: user.uid }]
+    });
+let data;
+    if(nextMessage){
+       data = nextMessage.data()
+      console.log({data})
+    }
+
+
+    console.log({ nextMessage });
+
+    dispatch(asyncActionFinish());
+    return data;
+  } catch (error) {
+    dispatch(asyncActionError());
+    console.log(error);
   }
 };

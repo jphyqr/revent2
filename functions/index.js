@@ -25,25 +25,68 @@ const newActivity = (type, event, id) => {
   };
 };
 
+const createMessage = (type, message) => {
+  return {
+    type: type,
+    date: message.date,
+    displayName: message.displayName,
+    photoURL: message.photoURL,
+    text: message.text,
+    uid: message.uid
+  };
+};
 
 exports.unfollowUser = functions.firestore
-.document("users/{unfollowerUid}/following/{unfollowedUid}")
-.onDelete((info,context) => {
- const unfollowerUid = context.params.unfollowerUid;
- const unfollowedUid = context.params.unfollowedUid;
- console.log("v1");
- return admin
- .firestore()
- .collection("users")
- .doc(unfollowedUid)
- .collection("followers")
- .doc(unfollowerUid)
- .delete()
- .then(() => {
-   return console.log('doc deleted')
- })
+  .document("users/{unfollowerUid}/following/{unfollowedUid}")
+  .onDelete((info, context) => {
+    const unfollowerUid = context.params.unfollowerUid;
+    const unfollowedUid = context.params.unfollowedUid;
+    console.log("v1");
+    return admin
+      .firestore()
+      .collection("users")
+      .doc(unfollowedUid)
+      .collection("followers")
+      .doc(unfollowerUid)
+      .delete()
+      .then(() => {
+        return console.log("doc deleted");
+      });
+  });
 
-})
+exports.messageUser = functions.firestore
+  .document("users/{senderId}/messaging/{receiverId}")
+  .onCreate((info, context) => {
+    const senderId = context.params.senderId;
+    const receiverId = context.params.receiverId;
+    console.log("v3");
+    const senderDoc = admin
+      .firestore()
+      .collection("users")
+      .doc(senderId);
+
+    console.log({senderDoc});
+    console.log({senderId});
+    console.log({receiverId});
+    return senderDoc.get().then(doc => {
+      let userData = doc.data();
+      console.log({userData});
+      let receivingMessagesFrom = {
+        displayName: userData.displayName,
+        photoURL: userData.photoURL || "/assets/user.png",
+        city: userData.city || "Unknown City"
+      };
+
+      console.log({receivingMessagesFrom});
+      return admin
+        .firestore()
+        .collection("users")
+        .doc(receiverId)
+        .collection("messaging")
+        .doc(senderId)
+        .set(receivingMessagesFrom);
+    });
+  });
 
 exports.followUser = functions.firestore
   .document("users/{followerUid}/following/{followingUid}")
