@@ -1,0 +1,66 @@
+1) User signs up.
+
+exports.newUser listens
+to users/userid onCreate.
+
+Creates a welcome message 
+that is pushed to direct_messages/thread_id
+(does this trigger another event???)
+
+creates a nowMessaging object
+with false new message and SETS
+the users/userid/messaging/admin to 
+this nowMessaging (admin/false
+(does this trigger??))
+
+in users/userid/last_message/userid
+set to nowMessaging (admin/false)
+
+// testing.
+created jennifer.
+kq8x...
+messaging: admin
+new message = true
+last message: admin
+Admin is messaging jennifer
+admin has no last message. (bug to fix later)
+
+
+....
+
+now when i click on the item,
+it should set the message new = false
+through selectLastMessage action,
+and pass back selectMEssage to UI to set state
+
+
+selectLastMessage:
+set in users/last_message to this message.
+update users/uid/messaging/receiver for
+newMessage: false.
+
+update 
+.....
+now i think this triggers
+exports.messageUser.
+
+if it does then there should
+be console.log of senderDoc/rsenderId/receiverId
+
+messageUser:
+ {
+     if users/sender/messaging/receiver onCreate
+     set users/receiver/messaging/sender 
+     to sender
+ }
+
+
+ BUG: 
+ Jeff messages jennifer
+ and its new in jeffs message model.
+
+ modal calls 
+ addDirectMessage
+ and
+ messageUser
+ 

@@ -1,63 +1,42 @@
 const sampleData = {
-  events: [
+  jobs: [
     {
       id: "1",
-      title: "Trip to Empire State building",
-      date: "2018-03-21T18:00:00",
-      category: "culture",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sollicitudin ligula eu leo tincidunt, quis scelerisque magna dapibus. Sed eget ipsum vel arcu vehicula ullamcorper.",
+      dateCreated: "2018-03-21T18:00:00",
+      category: "snowremoval",
+      description: "double driveway",
       city: "NY, USA",
       venue: "Empire State Building, 5th Avenue, New York, NY, USA",
       venueLatLng: {
         lat: 40.7484405,
         lng: -73.98566440000002
       },
-      hostedBy: "Bob",
-      hostPhotoURL: "https://randomuser.me/api/portraits/men/20.jpg",
-      attendees: [
-        {
-          id: "a",
-          name: "Bob",
-          photoURL: "https://randomuser.me/api/portraits/men/20.jpg"
-        },
-        {
-          id: "b",
-          name: "Tom",
-          photoURL: "https://randomuser.me/api/portraits/men/22.jpg"
-        }
-      ]
+      owner: "Bob",
+      recurringEvery: "",
+      agreedPrice: "",
+      ownerPhotoUrl: "https://randomuser.me/api/portraits/men/20.jpg",
+      windowOpen: "2018-03-21T14:00:00",
+      windowClosed: "2018-03-21T18:00:00"
     },
     {
       id: "2",
-      title: "Trip to Punch and Judy Pub",
-      date: "2018-03-18T14:00:00",
-      category: "drinks",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sollicitudin ligula eu leo tincidunt, quis scelerisque magna dapibus. Sed eget ipsum vel arcu vehicula ullamcorper.",
-      city: "London, UK",
-      venue: "Punch & Judy, Henrietta Street, London, UK",
+      dateCreated: "2018-03-22T18:00:00",
+      category: "carpentry",
+      description: "50 ft",
+      city: "NY, USA",
+      venue: "Empire State Building, 5th Avenue, New York, NY, USA",
       venueLatLng: {
-        lat: 51.5118074,
-        lng: -0.12300089999996544
+        lat: 40.7584405,
+        lng: -73.99566440000002
       },
-      hostedBy: "Tom",
-      hostPhotoURL: "https://randomuser.me/api/portraits/men/22.jpg",
-      attendees: [
-        {
-          id: "a",
-          name: "Bob",
-          photoURL: "https://randomuser.me/api/portraits/men/20.jpg"
-        },
-        {
-          id: "b",
-          name: "Tom",
-          photoURL: "https://randomuser.me/api/portraits/men/22.jpg"
-        }
-      ]
+      owner: "Jeff",
+      recurringEvery: "7",
+      agreedPrice: "",
+      ownerPhotoUrl: "https://randomuser.me/api/portraits/men/21.jpg",
+      windowOpen: "2018-03-22T14:00:00",
+      windowClosed: "2018-03-22T16:00:00"
     }
   ]
 };
-
 
 export default sampleData;

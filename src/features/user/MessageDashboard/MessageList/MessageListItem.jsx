@@ -10,9 +10,9 @@ const actions = {
   selectLastMessage
 };
 class MessageListItem extends Component {
-  handleClick(selectMessage, selectLastMessage, messageId) {
-    selectLastMessage(messageId);
-    selectMessage(messageId);
+  handleClick(selectMessage, selectLastMessage, message) {
+    selectLastMessage(message);
+    selectMessage(message);
    
   }
 
@@ -27,7 +27,7 @@ class MessageListItem extends Component {
                 this.handleClick(selectMessage, selectLastMessage, message)
               }
             >
-              <Item.Image size="tiny" circular src={message.photoURL} />
+              <Item.Image size="mini" square src={message.photoURL} />
               <Item.Content>
                 <Item.Header as={Link} to={`/message/${message.id}`}>
                   {message.displayName}
@@ -37,6 +37,9 @@ class MessageListItem extends Component {
                     {message.company || "No company"}
                   </Link>
                 </Item.Description>
+                {message.newMessage&&<Label color='green' floating>  1 </Label>}
+        
+   
               </Item.Content>
             </Item>
           </Item.Group>

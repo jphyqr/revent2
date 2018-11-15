@@ -83,8 +83,8 @@ class MessageDetail extends Component {
           </Comment.Group>
 
           <MessageForm
+          selectedMessage ={selectedMessage}
             addDirectMessage={addDirectMessage}
-            receiverId={!isEmpty(selectedMessage) && selectedMessage.id}
             form={"newComment"}
           />
         </Segment>

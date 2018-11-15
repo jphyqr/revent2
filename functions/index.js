@@ -36,6 +36,71 @@ const createMessage = (type, message) => {
   };
 };
 
+exports.newUser = functions.firestore
+  .document("users/{newUserUid}")
+  .onCreate((info, context) => {
+    const newUserUid = context.params.newUserUid;
+    console.log({ info });
+    console.log({ context });
+    console.log("v2 newUser");
+    const adminId = "QCQUWoSTnONyaiPfvOCleawwyK93";
+
+    let threadId = "";
+    if (newUserUid < adminId) {
+      threadId = `${newUserUid}_${adminId}`;
+    } else {
+      threadId = `${adminId}_${newUserUid}`;
+    }
+
+    try {
+      const message =
+      "Welcome to Skidsteer. I am the admin for this Region,  You can contact me directly here.";
+  
+      let welcomeMessage =  {
+        displayName: "Admin",
+        photoURL:  "/assets/user.png",
+        uid: adminId,
+        text: message,
+        date: Date.now()
+      }
+       
+        admin
+        .database()
+        .ref(`direct_messages/${threadId}`)
+        .push(welcomeMessage);
+
+
+      const nowMessaging = {
+        id: adminId,
+        photoURL: "/assets/user.png",
+        city: "Regina",
+        displayName: "Admin",
+        newMessage: false
+      };
+
+      console.log({ nowMessaging });
+
+      admin
+      .firestore()
+      .collection("users")
+      .doc(newUserUid)
+      .collection("messaging")
+      .doc(adminId)
+      .set(nowMessaging);
+
+
+      return admin
+        .firestore()
+        .collection("users")
+        .doc(newUserUid)
+        .collection("last_message")
+        .doc(newUserUid)
+        .set(nowMessaging);
+    } catch (error) {
+      console.log({ error });
+    }
+  });
+
 exports.unfollowUser = functions.firestore
   .document("users/{unfollowerUid}/following/{unfollowedUid}")
   .onDelete((info, context) => {
@@ -59,25 +124,27 @@ exports.messageUser = functions.firestore
   .onCreate((info, context) => {
     const senderId = context.params.senderId;
     const receiverId = context.params.receiverId;
-    console.log("v3");
+    console.log("v4");
     const senderDoc = admin
       .firestore()
       .collection("users")
       .doc(senderId);
 
-    console.log({senderDoc});
-    console.log({senderId});
-    console.log({receiverId});
+    console.log({ senderDoc });
+    console.log({ senderId });
+    console.log({ receiverId });
     return senderDoc.get().then(doc => {
       let userData = doc.data();
-      console.log({userData});
+      console.log({ userData });
       let receivingMessagesFrom = {
         displayName: userData.displayName,
         photoURL: userData.photoURL || "/assets/user.png",
-        city: userData.city || "Unknown City"
+        city: userData.city || "Unknown City",
+        id: senderId,
+        newMessage: true
       };
 
-      console.log({receivingMessagesFrom});
+      console.log({ receivingMessagesFrom });
       return admin
         .firestore()
         .collection("users")

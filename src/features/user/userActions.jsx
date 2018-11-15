@@ -325,11 +325,17 @@ export const messageUser = userToMessage => async (
     id: userToMessage.id,
     photoURL: userToMessage.photoURL || "/assets/user.png",
     city: userToMessage.city || "Unknown city",
-    displayName: userToMessage.displayName
+    displayName: userToMessage.displayName,
+    newMessage: false
   };
+
+  console.log({messaging})
 
   try {
     dispatch(asyncActionStart());
+
+
+
 
     await firestore.set(
       {
@@ -368,8 +374,8 @@ export const selectLastMessage = lastRecipient => async (
   { getFirestore }
 ) => {
   const firestore = getFirestore();
-  const profile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
+  console.log("selectLastMessage:")
   console.log({ lastRecipient });
   try {
     await firestore.set(
@@ -385,6 +391,22 @@ export const selectLastMessage = lastRecipient => async (
         displayName: lastRecipient.displayName
       }
     );
+
+
+
+    await firestore.update(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "messaging", doc: lastRecipient.id }]
+      },
+      {
+        newMessage: false
+      }
+    );
+
+      
+
   } catch (error) {
     console.log(error);
   }
@@ -408,6 +430,7 @@ export const addDirectMessage = (receiverId, values) => async (
   };
 
   let threadId = "";
+ 
   if (user.uid < receiverId) {
     threadId = `${user.uid}_${receiverId}`;
   } else {
