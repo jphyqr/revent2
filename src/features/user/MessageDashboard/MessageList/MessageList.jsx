@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import MessageListItem from "./MessageListItem";
 import InfiniteScroll from "react-infinite-scroller";
-import {List} from 'semantic-ui-react'
+import {List, Sticky} from 'semantic-ui-react'
 
 class MessageList extends Component {
   render() {
-    const { messaging ,loading, selectMessage} = this.props;
+    const { messaging ,loading, selectMessage, contextRef}= this.props;
     return (
-      <div>
+      <Sticky  offset={100}>
         {messaging && messaging.length !== 0 && (
-          <List loading={loading} selection verticalAlign='middle'>
+          <List selection verticalAlign='middle'>
           
             {messaging &&
               messaging.map(message => (
@@ -17,7 +17,7 @@ class MessageList extends Component {
               ))}
          </List>
         )}
-      </div>
+    </Sticky>
     );
   }
 }

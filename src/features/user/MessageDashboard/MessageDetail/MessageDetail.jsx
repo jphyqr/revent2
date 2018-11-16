@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Header, Segment, Comment } from "semantic-ui-react";
+import { Header, Segment, Comment, Sticky } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import distanceInWords from "date-fns/distance_in_words";
 import { compose } from "redux";
@@ -54,14 +54,36 @@ const mapState = (state, ownProps) => {
   };
 };
 
+
+
 class MessageDetail extends Component {
+
+
+
+  scrollToBottom()  {
+    const {thing} = this.refs;
+    thing.scrollTop = thing.scrollHeight - thing.clientHeight;
+  }
+
+componentDidUpdate(){
+  this.scrollToBottom()
+
+  
+}
+
+
   render() {
+
+ 
+
+    let messagesEnd = React.createRef()
     const { selectedMessage, addDirectMessage, directMessages } = this.props;
     return (
-      <div>
+      <Sticky offset={100}>
         <MessageNavBar selectedMessage={selectedMessage}/>
 
         <Segment attached>
+          <Segment  style={{overflow: 'auto', maxHeight: 500, minHeight:500 }}>
           <Comment.Group>
             {directMessages &&
               directMessages.map(comment => (
@@ -81,6 +103,8 @@ class MessageDetail extends Component {
                 </Comment>
               ))}
           </Comment.Group>
+          <div ref={`thing`}/>
+          </Segment>
 
           <MessageForm
           selectedMessage ={selectedMessage}
@@ -88,7 +112,7 @@ class MessageDetail extends Component {
             form={"newComment"}
           />
         </Segment>
-      </div>
+      </Sticky>
     );
   }
 }

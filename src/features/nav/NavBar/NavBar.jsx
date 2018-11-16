@@ -1,39 +1,38 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux'
-import {withFirebase} from 'react-redux-firebase'
-import { Menu, Container, Button } from 'semantic-ui-react';
-import { NavLink, Link, withRouter } from 'react-router-dom';
-import SignedOutMenu from '../Menus/SignedOutMenu';
-import SignedInMenu from '../Menus/SignedInMenu';
-import { openModal } from '../../modals/modalActions'
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { withFirebase } from "react-redux-firebase";
+import { Menu, Container, Button } from "semantic-ui-react";
+import { NavLink, Link, withRouter } from "react-router-dom";
+import SignedOutMenu from "../Menus/SignedOutMenu";
+import SignedInMenu from "../Menus/SignedInMenu";
+import { openModal } from "../../modals/modalActions";
 
 const actions = {
   openModal
-}
+};
 
-const mapState = (state) => ({
+const mapState = state => ({
   auth: state.firebase.auth,
   profile: state.firebase.profile
-})
+});
 
 class NavBar extends Component {
-
   handleSignIn = () => {
-    this.props.openModal('LoginModal')
+    this.props.openModal("LoginModal");
   };
 
   handleRegister = () => {
-    this.props.openModal('RegisterModal')
-  }
+    this.props.openModal("RegisterModal");
+  };
 
   handleSignOut = () => {
     this.props.firebase.logout();
-    this.props.history.push('/')
+    this.props.history.push("/");
   };
 
   render() {
-    const { auth, profile} = this.props;
-    const authenticated = auth.isLoaded && !auth.isEmpty
+    const { auth, profile } = this.props;
+    const authenticated = auth.isLoaded && !auth.isEmpty;
     return (
       <Menu inverted fixed="top">
         <Container>
@@ -44,28 +43,51 @@ class NavBar extends Component {
           <Menu.Item as={NavLink} to="/events" name="Events" />
           <Menu.Item as={NavLink} to="/jobs" name="Jobs" />
           <Menu.Item as={NavLink} to="/test" name="Test" />
-          {authenticated &&
-          <Menu.Item as={NavLink} to="/people" name="People" />
-        }
-                  {authenticated &&
-          <Menu.Item as={NavLink} to="/messages" name="Messages" />
-        }
-
-          {authenticated &&
-          <Menu.Item>
-            <Button
-              as={Link}
-              to="/createEvent"
-              floated="right"
-              positive
-              inverted
-              content="Create Event"
-            />
-          </Menu.Item>}
+          {authenticated && (
+            <Menu.Item as={NavLink} to="/people" name="People" />
+          )}
+          {authenticated && (
+            <Menu.Item as={NavLink} to="/messages" name="Messages" />
+          )}
+          {authenticated && (
+            <Menu.Item as={NavLink} to="/newmessages" name="New Messages" />
+          )}
+          }
+          {authenticated && (
+            <Menu.Item>
+              <Button
+                as={Link}
+                to="/createEvent"
+                floated="right"
+                positive
+                inverted
+                content="Create Event"
+              />
+            </Menu.Item>
+          )}
+                    {authenticated && (
+            <Menu.Item>
+              <Button
+                as={Link}
+                to="/createJob"
+                floated="right"
+                positive
+                inverted
+                content="Create Job"
+              />
+            </Menu.Item>
+          )}
           {authenticated ? (
-            <SignedInMenu auth={auth} profile={profile} signOut={this.handleSignOut} />
+            <SignedInMenu
+              auth={auth}
+              profile={profile}
+              signOut={this.handleSignOut}
+            />
           ) : (
-            <SignedOutMenu register={this.handleRegister} signIn={this.handleSignIn} />
+            <SignedOutMenu
+              register={this.handleRegister}
+              signIn={this.handleSignIn}
+            />
           )}
         </Container>
       </Menu>
@@ -73,4 +95,11 @@ class NavBar extends Component {
   }
 }
 
-export default withRouter(withFirebase(connect(mapState, actions)(NavBar)));
+export default withRouter(
+  withFirebase(
+    connect(
+      mapState,
+      actions
+    )(NavBar)
+  )
+);

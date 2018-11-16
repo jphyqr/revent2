@@ -36,7 +36,8 @@ const mapState = state => ({
 
 class MessageDashboard extends Component {
   state = {
-    selectedMessage: {}
+    selectedMessage: {},
+    contextRef: {}
   };
 
   selectMessage = selectedMessage => {
@@ -45,16 +46,19 @@ class MessageDashboard extends Component {
 
   async componentDidMount() {
     let lastMessage = await this.props.getLastMessage(this.props.auth.uid);
-    console.log({lastMessage})
     if (lastMessage) {
       this.setState({ selectedMessage: lastMessage });
     }
   }
 
+  handleContextRef = contextRef =>
+  this.setState({
+    contextRef
+  });
+
   render() {
     const { loading, messaging, auth, lastmessage } = this.props;
     const { selectedMessage } = this.state;
-    console.log({ selectedMessage });
      if (!isLoaded(messaging) || isEmpty(messaging) ||!isLoaded(selectedMessage) || isEmpty(selectedMessage))
        return <LoadingComponent inverted={true} />;
 
@@ -67,11 +71,14 @@ class MessageDashboard extends Component {
               selectMessage={this.selectMessage}
               messaging={messaging}
               loading={loading}
+              contextRef={this.state.contextRef}
             />
           </div>
         </Grid.Column>
         <Grid.Column width={12}>
+        <div ref={this.handleContextRef}>
            <MessageDetail  selectedMessage={selectedMessage} />
+           </div>
         </Grid.Column>
       </Grid>
     );

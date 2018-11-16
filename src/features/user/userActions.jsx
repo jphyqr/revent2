@@ -142,6 +142,48 @@ export const deletePhoto = photo => async (
   }
 };
 
+export const goingToJob = job => async (dispatch, getState) => {
+  dispatch(asyncActionStart());
+  const firestore = firebase.firestore();
+  const user = firebase.auth().currentUser;
+  const photoURL = getState().firebase.profile.photoURL;
+  const attendee = {
+    going: true,
+    joinDate: Date.now(),
+    photoURL: photoURL || "/assets/user.png",
+    displayName: user.displayName,
+    host: false
+  };
+
+  try {
+    let jobDocRef = firestore.collection("jobs").doc(job.id);
+    let jobAttendeeDocRef = firestore
+      .collection("job_attendee")
+      .doc(`${job.id}_${user.uid}`);
+
+    await firestore.runTransaction(async transaction => {
+      await transaction.get(jobDocRef);
+      await transaction.update(jobDocRef, {
+        [`attendees.${user.uid}`]: attendee
+      });
+      await transaction.set(jobAttendeeDocRef, {
+        jobId: job.id,
+        userUid: user.uid,
+        jobDate: job.date,
+        host: false
+      });
+    });
+
+    dispatch(asyncActionFinish());
+    toastr.success("Success", "You have signed up to the job");
+  } catch (error) {
+    dispatch(asyncActionFinish());
+    console.log(error);
+    toastr.error("Oops", "Problem signing up to job");
+  }
+};
+
+
 export const goingToEvent = event => async (dispatch, getState) => {
   dispatch(asyncActionStart());
   const firestore = firebase.firestore();
@@ -182,6 +224,33 @@ export const goingToEvent = event => async (dispatch, getState) => {
     toastr.error("Oops", "Problem signing up to event");
   }
 };
+
+
+export const cancelGoingToJob = job => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
+  const firestore = getFirestore();
+  const user = firestore.auth().currentUser;
+  try {
+    //remove attendee from object map
+    await firestore.update(`jobs/${job.id}`, {
+      [`attendees.${user.uid}`]: firestore.FieldValue.delete()
+    });
+    //remove documennt from lookup
+    await firestore.delete(`job_attendee/${job.id}_${user.uid}`);
+    toastr.success("Success", "You have removed yourself from the job");
+  } catch (error) {
+    console.log(error);
+    toastr.error("Oops", "Something went wrong");
+  }
+};
+
+
+
+
+
 
 export const cancelGoingToEvent = event => async (
   dispatch,
@@ -259,6 +328,65 @@ export const getUserEvents = (userUid, activeTab) => async (
   }
 };
 
+
+export const getUserJobs = (userUid, activeTab) => async (
+  dispatch,
+  getState
+) => {
+  dispatch(asyncActionStart());
+  const firestore = firebase.firestore();
+  const today = new Date(Date.now());
+  let jobsRef = firestore.collection("job_attendee");
+  let query;
+  switch (activeTab) {
+    case 1: //past jobs
+      query = jobsRef
+        .where("userUid", "==", userUid)
+        .where("jobDate", "<=", today)
+        .orderBy("jobDate", "desc");
+      break;
+    case 2: //future jobs
+      query = jobsRef
+        .where("userUid", "==", userUid)
+        .where("jobDate", ">=", today)
+        .orderBy("jobDate");
+      break;
+    case 3: //hosted jobs
+      query = jobsRef
+        .where("userUid", "==", userUid)
+        .where("host", "==", true)
+        .orderBy("jobDate", "desc");
+      break;
+    default:
+      query = jobsRef
+        .where("userUid", "==", userUid)
+        .orderBy("jobDate", "desc");
+  }
+
+  try {
+    let querySnap = await query.get();
+
+    let jobs = [];
+    for (let i = 0; i < querySnap.docs.length; i++) {
+      let evt = await firestore
+        .collection("jobs")
+        .doc(querySnap.docs[i].data().jobId)
+        .get();
+      jobs.push({ ...evt.data(), id: evt.id });
+    }
+
+    dispatch({ type: FETCH_EVENTS, payload: { jobs } });
+
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+  }
+};
+
+
+
+
 export const unfollowUser = userToUnfollow => async (
   dispatch,
   getState,
@@ -320,13 +448,15 @@ export const messageUser = userToMessage => async (
 ) => {
   const firestore = getFirestore();
   const user = firestore.auth().currentUser;
+  console.log("userActions/messageUser")
   console.log({ userToMessage });
   const messaging = {
     id: userToMessage.id,
     photoURL: userToMessage.photoURL || "/assets/user.png",
     city: userToMessage.city || "Unknown city",
     displayName: userToMessage.displayName,
-    newMessage: false
+    newMessage: false,
+    date: new Date(Date.now())
   };
 
   console.log({messaging})
@@ -417,6 +547,8 @@ export const addDirectMessage = (receiverId, values) => async (
   getState,
   { getFirebase }
 ) => {
+
+  console.log("userActions/addDirectMessage")
   const firebase = getFirebase();
   const profile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
@@ -453,7 +585,7 @@ export const getLastMessage = () => async (
 ) => {
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
-  console.log({ user });
+  
   try {
     dispatch(asyncActionStart());
 
@@ -465,11 +597,12 @@ export const getLastMessage = () => async (
 let data;
     if(nextMessage){
        data = nextMessage.data()
+       console.log("userActions/getLastMessage")
       console.log({data})
+      console.log({ user });
     }
 
 
-    console.log({ nextMessage });
 
     dispatch(asyncActionFinish());
     return data;

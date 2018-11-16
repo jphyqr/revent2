@@ -40,8 +40,6 @@ exports.newUser = functions.firestore
   .document("users/{newUserUid}")
   .onCreate((info, context) => {
     const newUserUid = context.params.newUserUid;
-    console.log({ info });
-    console.log({ context });
     console.log("v2 newUser");
     const adminId = "QCQUWoSTnONyaiPfvOCleawwyK93";
 
@@ -54,21 +52,20 @@ exports.newUser = functions.firestore
 
     try {
       const message =
-      "Welcome to Skidsteer. I am the admin for this Region,  You can contact me directly here.";
-  
-      let welcomeMessage =  {
+        "Welcome to Skidsteer. I am the admin for this Region,  You can contact me directly here.";
+
+      let welcomeMessage = {
         displayName: "Admin",
-        photoURL:  "/assets/user.png",
+        photoURL: "/assets/user.png",
         uid: adminId,
         text: message,
         date: Date.now()
-      }
-       
-        admin
+      };
+
+      admin
         .database()
         .ref(`direct_messages/${threadId}`)
         .push(welcomeMessage);
-
 
       const nowMessaging = {
         id: adminId,
@@ -81,13 +78,12 @@ exports.newUser = functions.firestore
       console.log({ nowMessaging });
 
       admin
-      .firestore()
-      .collection("users")
-      .doc(newUserUid)
-      .collection("messaging")
-      .doc(adminId)
-      .set(nowMessaging);
-
+        .firestore()
+        .collection("users")
+        .doc(newUserUid)
+        .collection("messaging")
+        .doc(adminId)
+        .set(nowMessaging);
 
       return admin
         .firestore()
@@ -121,38 +117,49 @@ exports.unfollowUser = functions.firestore
 
 exports.messageUser = functions.firestore
   .document("users/{senderId}/messaging/{receiverId}")
-  .onCreate((info, context) => {
+  .onWrite((info, context) => {
     const senderId = context.params.senderId;
     const receiverId = context.params.receiverId;
-    console.log("v4");
-    const senderDoc = admin
-      .firestore()
-      .collection("users")
-      .doc(senderId);
+    const before = info.before.data();
+    const after = info.after.data();
 
-    console.log({ senderDoc });
-    console.log({ senderId });
-    console.log({ receiverId });
-    return senderDoc.get().then(doc => {
-      let userData = doc.data();
-      console.log({ userData });
-      let receivingMessagesFrom = {
-        displayName: userData.displayName,
-        photoURL: userData.photoURL || "/assets/user.png",
-        city: userData.city || "Unknown City",
-        id: senderId,
-        newMessage: true
-      };
-
-      console.log({ receivingMessagesFrom });
-      return admin
+    if (before.newMessage === true || after.newMessage === true) {
+      console.log("just flipped flag, skip rest")
+    } else {
+      console.log("v6");
+      const senderDoc = admin
         .firestore()
         .collection("users")
-        .doc(receiverId)
-        .collection("messaging")
-        .doc(senderId)
-        .set(receivingMessagesFrom);
-    });
+        .doc(senderId);
+      console.log("messageUser");
+      console.log({ info });
+      console.log({ context });
+      console.log({ before });
+      console.log({ after });
+      console.log({ senderId });
+      console.log({ receiverId });
+      console.log({ senderDoc });
+      return senderDoc.get().then(doc => {
+        let userData = doc.data();
+        let receivingMessagesFrom = {
+          displayName: userData.displayName,
+          photoURL: userData.photoURL || "/assets/user.png",
+          city: userData.city || "Unknown City",
+          id: senderId,
+          newMessage: true,
+          date: new Date(Date.now())
+        };
+
+        console.log({ receivingMessagesFrom });
+        return admin
+          .firestore()
+          .collection("users")
+          .doc(receiverId)
+          .collection("messaging")
+          .doc(senderId)
+          .set(receivingMessagesFrom);
+      });
+    }
   });
 
 exports.followUser = functions.firestore
