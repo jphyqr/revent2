@@ -16,7 +16,7 @@ const jobImageTextStyle = {
   color: "white"
 };
 
-const JobDetailedHeader = ({ loading, job, isHost, isGoing, goingToJob, cancelGoingToJob }) => {
+const JobDetailedHeader = ({ loading, job, isHost, hasBid, bidJob, cancelBidForJob }) => {
   let jobDate;
   if (job.date) {
     jobDate = job.date.toDate();
@@ -41,7 +41,7 @@ const JobDetailedHeader = ({ loading, job, isHost, isGoing, goingToJob, cancelGo
                 />
                 <p>{format(jobDate, "dddd Do MMMM")}</p>
                 <p>
-                  Hosted by <strong>{job.hostedBy}</strong>
+                  Hosted by <strong>{job.owneredBy}</strong>
                 </p>
               </Item.Content>
             </Item>
@@ -52,10 +52,10 @@ const JobDetailedHeader = ({ loading, job, isHost, isGoing, goingToJob, cancelGo
       <Segment attached="bottom">
         {!isHost && (
           <div>
-            {isGoing ? (
-              <Button onClick={() => cancelGoingToJob(job)}>Cancel My Place</Button>
+            {hasBid ? (
+              <Button onClick={() => cancelBidForJob(job)}>Cancel My Place</Button>
             ) : (
-              <Button loading={loading} onClick={() => goingToJob(job)} color="teal">JOIN THIS EVENT</Button>
+              <Button loading={loading} onClick={() => bidJob(job)} color="teal">BID THIS JOB</Button>
             )}
           </div>
         )}

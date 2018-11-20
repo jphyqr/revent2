@@ -14,6 +14,7 @@ import {
 import { createJob, updateJob, cancelToggle } from "../jobActions";
 import TextInput from "../../../app/common/form/TextInput";
 import TextArea from "../../../app/common/form/TextArea";
+import RadioInput from "../../../app/common/form/RadioInput";
 import SelectInput from "../../../app/common/form/SelectInput";
 import DateInput from "../../../app/common/form/DateInput";
 import PlaceInput from "../../../app/common/form/PlaceInput";
@@ -151,7 +152,7 @@ class JobForm extends Component {
                 type="text"
                 component={SelectInput}
                 options={category}
-                placeholder="What is your jobjob about"
+                placeholder="Category"
               />
               <Field
                 name="description"
@@ -177,9 +178,9 @@ class JobForm extends Component {
                   options={{
                     location: new google.maps.LatLng(this.state.cityLatLng),
                     radius: 1000,
-                    types: ["establishment"]
+                    types: ["address"]
                   }}
-                  placeholder="Job venue"
+                  placeholder="Street Address"
                   onSelect={this.handleVenueSelect}
                 />
               )}

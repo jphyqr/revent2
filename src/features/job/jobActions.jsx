@@ -26,7 +26,7 @@ export const createJob = job => {
         jobId: createdJob.id,
         userUid: user.uid,
         jobDate: job.date,
-        host: true
+        owner: true
       });
       toastr.success("Success", "Job has been created");
     } catch (error) {
@@ -126,11 +126,11 @@ export const getJobsForDashboard = lastJob => async (
           .where("date", ">=", today)
           .orderBy("date")
           .startAfter(startAfter)
-          .limit(2))
+          .limit(4))
       : (query = jobsRef
           .where("date", ">=", today)
           .orderBy("date")
-          .limit(2));
+          .limit(4));
 
     let querySnap = await query.get();
 

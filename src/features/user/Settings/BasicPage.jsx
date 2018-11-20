@@ -21,6 +21,29 @@ class BasicPage extends Component {
             component={TextInput}
             placeholder="Known As"
           />
+                    <Field
+            width={8}
+            name="billingName"
+            type="text"
+            component={TextInput}
+            placeholder="Billing Name"
+          />
+    
+                                        <Field
+            width={8}
+            name="billingAddress"
+            type="text"
+            component={TextInput}
+            placeholder="Billing Address"
+          />
+                                                  <Field
+            width={8}
+            name="billingPostalCode"
+            type="text"
+            component={TextInput}
+            placeholder="Billing Postal Code"
+          />
+
           <Form.Group inline>
           <label> Gender: </label>
             <Field

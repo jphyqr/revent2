@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Button } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-// import Script from 'react-load-script';
+import Script from 'react-load-script';
+
+import {Elements, StripeProvider} from 'react-stripe-elements'
 // import GoogleMapReact from 'google-map-react';
 import PlacesAutocomplete, {
   geocodeByAddress,
@@ -9,6 +11,7 @@ import PlacesAutocomplete, {
 } from 'react-places-autocomplete';
 import { incrementAsync, decrementAsync } from './testActions';
 import { openModal } from '../modals/modalActions'
+import CheckoutForm from '../../app/common/form/CheckoutForm'
 
 const mapState = state => ({
   data: state.test.data,
@@ -63,7 +66,7 @@ class TestComponent extends Component {
     return (
       <div>
         {/* <Script
-          url="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTN8X_q_xtMYCnacteF4ZQj0RKXodI080&libraries=places"
+          url="https://js.stripe.com/v3/"
           onLoad={this.handleScriptLoad}
         /> */}
         <h1>Test Area</h1>
@@ -73,12 +76,24 @@ class TestComponent extends Component {
         <Button onClick={() => openModal('TestModal', {data: 42})} color="teal" content="Open Modal" />
         <br />
         <br />
-        <form onSubmit={this.handleFormSubmit}>
+
+
+    
+    <StripeProvider apiKey="rk_test_GYNZ5G7RfKnmj16BRTE4lxrs">
+        <div className="example">
+          <h1>React Stripe Elements Example</h1>
+          <Elements>
+            <CheckoutForm />
+          </Elements>
+        </div>
+      </StripeProvider>
+
+        {/* <form onSubmit={this.handleFormSubmit}>
           {this.state.scriptLoaded && (
             <PlacesAutocomplete inputProps={inputProps} />
           )}
           <button type="submit">Submit</button>
-        </form>
+        </form> */}
 
       {/* <div style={{ height: '300px', width: '100%' }}>
         <GoogleMapReact

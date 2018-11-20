@@ -8,7 +8,7 @@ import JobDetailedInfo from "./JobDetailedInfo";
 import JobDetailedChat from "./JobDetailedChat";
 import JobDetailedSidebar from "./JobDetailedSidebar";
 import { objectToArray, createDataTree } from "../../../app/common/util/helpers";
-import { goingToJob, cancelGoingToJob } from "../../user/userActions";
+import { bidJob, cancelBidForJob } from "../../user/userActions";
 import { addJobComment } from "../jobActions";
 
 const mapState = (state, ownProps) => {
@@ -30,8 +30,8 @@ const mapState = (state, ownProps) => {
 };
 
 const actions = {
-  goingToJob,
-  cancelGoingToJob,
+  bidJob,
+  cancelBidForJob,
   addJobComment
 };
 
@@ -49,16 +49,18 @@ class JobDetailedPage extends Component {
     const {
       job,
       auth,
-      goingToJob,
-      cancelGoingToJob,
+      bidJob,
+      cancelBidForJob,
       addJobComment,
       loading,
       jobChat
     } = this.props;
-    const attendees =
-      job && job.attendees && objectToArray(job.attendees);
-    const isHost = job.hostUid === auth.uid;
-    const isGoing = attendees && attendees.some(a => a.id === auth.uid);
+
+
+ const isHost = job.ownerUid === auth.uid;
+    const bids =
+      job && job.bids && objectToArray(job.bids);
+    const hasBid = bids && bids.some(a => a.id === auth.uid);
     const chatTree = !isEmpty(jobChat) && createDataTree(jobChat)
     return (
       <Grid>
@@ -66,10 +68,10 @@ class JobDetailedPage extends Component {
           <JobDetailedHeader
             job={job}
             loading={loading}
+            hasBid={hasBid}
             isHost={isHost}
-            isGoing={isGoing}
-            goingToJob={goingToJob}
-            cancelGoingToJob={cancelGoingToJob}
+            bidJob={bidJob}
+            cancelBidForJob={cancelBidForJob}
           />
           <JobDetailedInfo job={job} />
           <JobDetailedChat
@@ -79,7 +81,7 @@ class JobDetailedPage extends Component {
           />
         </Grid.Column>
         <Grid.Column width={6}>
-          <JobDetailedSidebar attendees={attendees} />
+          <JobDetailedSidebar job={job}/>
         </Grid.Column>
       </Grid>
     );

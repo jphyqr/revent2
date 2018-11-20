@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Segment, Header, Grid, Card, Loader } from "semantic-ui-react";
+import { Segment, Header, Grid, Card, Loader, Sticky } from "semantic-ui-react";
 import JobCard from "./JobCard";
 import { connect } from "react-redux";
 import sampleData from "../../../app/data/sampleData";
@@ -83,11 +83,29 @@ class JobDashboard extends Component {
   render() {
     const { loading, activities , jobs} = this.props;
     const { moreJobs, loadedJobs } = this.state;
-    if (this.state.loadingInitial) return <LoadingComponent inverted={true} />;
+  //  if (this.state.loadingInitial) return <LoadingComponent inverted={true} />;
 
     return (
       <Grid>
-        <Grid.Row>
+                <Grid.Row>
+        <Grid.Column width={10}>
+        <Sticky offset={100}> 
+          <JobMap jobs={loadedJobs} lat={50.44} lng={-104.61} />
+          </Sticky>
+          </Grid.Column>
+          <Grid.Column width={6}>
+          <div ref={this.handleContextRef}>
+    <JobList
+      offset={100}
+      jobs={loadedJobs}
+      loading={loading}
+      moreJobs={moreJobs}       
+      getNextJobs={this.getNextJobs}
+    />
+  </div>
+          </Grid.Column>
+        </Grid.Row>
+        {/* <Grid.Row>
           <Grid.Column width={16}>
             <Segment>
               <Header dividing content="Jobs I am following" />
@@ -108,31 +126,9 @@ class JobDashboard extends Component {
               </Card.Group>
             </Segment>
           </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <JobMap jobs={jobs} lat={50.44} lng={-104.61} />
-        </Grid.Row>
-<Grid.Row>
-        <Grid.Column width={10}>
-  <div ref={this.handleContextRef}>
-    <JobList
-      jobs={loadedJobs}
-      loading={loading}
-      moreJobs={moreJobs}
-      getNextJobs={this.getNextJobs}
-    />
-  </div>
-</Grid.Column>
-<Grid.Column width={6}>
-  <JobActivity
-    activities={activities}
-    contextRef={this.state.contextRef}
-  />
-</Grid.Column>
-<Grid.Column width={10}>
-  <Loader active={loading} />
-</Grid.Column>
-</Grid.Row>
+        </Grid.Row> */}
+
+
       </Grid>
 
 

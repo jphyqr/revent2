@@ -142,12 +142,12 @@ export const deletePhoto = photo => async (
   }
 };
 
-export const goingToJob = job => async (dispatch, getState) => {
+export const bidJob = job => async (dispatch, getState) => {
   dispatch(asyncActionStart());
   const firestore = firebase.firestore();
   const user = firebase.auth().currentUser;
   const photoURL = getState().firebase.profile.photoURL;
-  const attendee = {
+  const bidder = {
     going: true,
     joinDate: Date.now(),
     photoURL: photoURL || "/assets/user.png",
@@ -157,16 +157,16 @@ export const goingToJob = job => async (dispatch, getState) => {
 
   try {
     let jobDocRef = firestore.collection("jobs").doc(job.id);
-    let jobAttendeeDocRef = firestore
-      .collection("job_attendee")
+    let jobBidderDocRef = firestore
+      .collection("job_bid")
       .doc(`${job.id}_${user.uid}`);
 
     await firestore.runTransaction(async transaction => {
       await transaction.get(jobDocRef);
       await transaction.update(jobDocRef, {
-        [`attendees.${user.uid}`]: attendee
+        [`bids.${user.uid}`]: bidder
       });
-      await transaction.set(jobAttendeeDocRef, {
+      await transaction.set(jobBidderDocRef, {
         jobId: job.id,
         userUid: user.uid,
         jobDate: job.date,
@@ -175,11 +175,11 @@ export const goingToJob = job => async (dispatch, getState) => {
     });
 
     dispatch(asyncActionFinish());
-    toastr.success("Success", "You have signed up to the job");
+    toastr.success("Success", "You have bid on job");
   } catch (error) {
     dispatch(asyncActionFinish());
     console.log(error);
-    toastr.error("Oops", "Problem signing up to job");
+    toastr.error("Oops", "Problem bidding on job");
   }
 };
 
@@ -226,7 +226,7 @@ export const goingToEvent = event => async (dispatch, getState) => {
 };
 
 
-export const cancelGoingToJob = job => async (
+export const cancelBidForJob = job => async (
   dispatch,
   getState,
   { getFirestore }
@@ -236,10 +236,10 @@ export const cancelGoingToJob = job => async (
   try {
     //remove attendee from object map
     await firestore.update(`jobs/${job.id}`, {
-      [`attendees.${user.uid}`]: firestore.FieldValue.delete()
+      [`bids.${user.uid}`]: firestore.FieldValue.delete()
     });
     //remove documennt from lookup
-    await firestore.delete(`job_attendee/${job.id}_${user.uid}`);
+    await firestore.delete(`job_bid/${job.id}_${user.uid}`);
     toastr.success("Success", "You have removed yourself from the job");
   } catch (error) {
     console.log(error);
@@ -609,5 +609,61 @@ let data;
   } catch (error) {
     dispatch(asyncActionError());
     console.log(error);
+  }
+};
+
+
+
+
+export const addPaymentCard = (response) => async (
+  dispatch,
+  getState,
+  { getFirebase }
+) => {
+ 
+  const firebase = getFirebase();
+  const profile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+  console.log({user})
+  const pushId = cuid();
+  console.log("addPaymentCard:")
+ console.log({response})
+ console.log({pushId})
+  try {
+    dispatch(asyncActionStart())
+    await firebase.push(`stripe_customers/${user.uid}/sources`, response.source);
+    toastr.success("Success", "Card Added");
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+    toastr.error("Oops", "Problem adding card");
+  }
+
+  
+};
+
+
+
+
+export const chargeCard = (token) => async (
+  dispatch,
+  getState,
+  { getFirebase }
+) => {
+  
+  const firebase = getFirebase();
+  const profile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+  const pushId = cuid();
+  console.log("addPaymentCard:")
+ const id = token.token.id
+  console.log({id})
+ console.log({pushId})
+  try {
+    await firebase.push(`stripe_customers/${user.uid}/charges/`, token);
+  } catch (error) {
+    console.log(error);
+    toastr.error("Oops", "Problem adding card");
   }
 };

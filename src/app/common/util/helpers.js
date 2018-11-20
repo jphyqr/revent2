@@ -11,20 +11,11 @@ export const createNewJob  = (user, photoURL, job) => {
   job.date = moment(job.date).toDate();
   return {
     ...job,
-    hostUid: user.uid,
-    hostedBy: user.displayName,
-    hostPhotoURL: photoURL || "/assets/user.png",
+    ownerUid: user.uid,
+    owneredBy: user.displayName,
+    ownerPhotoURL: photoURL || "/assets/user.png",
     created: Date.now(),
-    attendees: {
-      //nested object inside job [key]
-      [user.uid]: {
-        going: true,
-        joinDate: Date.now(),
-        photoURL: photoURL || "./assets/user.png",
-        displayName: user.displayName,
-        host: true
-      }
-    }
+
   };
 };
 

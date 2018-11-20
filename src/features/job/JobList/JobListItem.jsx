@@ -13,11 +13,11 @@ class JobListItem extends Component {
         <Segment>
           <Item.Group>
             <Item>
-              <Item.Image size="tiny" circular src={job.hostPhotoURL} />
+              <Item.Image size="tiny" circular src={job.ownerPhotoURL} />
               <Item.Content>
                 <Item.Header as={Link} to={`/job/${job.id}`}>{job.title}</Item.Header>
                 <Item.Description>
-                  Hosted by <Link to={`/profile/${job.hostUid}`}>{job.hostedBy}</Link>
+                  Hosted by <Link to={`/profile/${job.ownerUid}`}>{job.owneredBy}</Link>
                 </Item.Description>
                 {job.cancelled&&
                 <Label style={{top: '-40px'}} ribbon='right' color='red' content='This job has been cancelled'/>}
