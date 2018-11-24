@@ -6,26 +6,12 @@ import firebase from "../../config/firebase";
 import { toastr } from "react-redux-toastr";
 import { Field, reduxForm } from "redux-form";
 import TextInput from "../../../app/common/form/TextInput";
+import PaymentTextInput from '../../../app/common/form/PaymentTextInput'
 import {addPaymentCard} from '../../../features/user/userActions'
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import {Divider, Button} from 'semantic-ui-react'
 
-const style = {
-  base: {
-    color: '#32325d',
-    lineHeight: '18px',
-    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-    fontSmoothing: 'antialiased',
-    fontSize: '16px',
-    '::placeholder': {
-      color: '#aab7c4'
-    }
-  },
-  invalid: {
-    color: '#fa755a',
-    iconColor: '#fa755a'
-  }
-};
+
 
 const mapState = state => {
   return  { 
@@ -36,7 +22,7 @@ const actions = {
   chargeCard,
   addPaymentCard
 };
-class CheckoutForm extends Component {
+class AddCardForm extends Component {
   constructor(props) {
     super(props);
     this.submit = this.submit.bind(this);
@@ -45,27 +31,25 @@ class CheckoutForm extends Component {
   async submit() {
     const {billingAddress, billingName, billingPostalCode, city} = this.props.billingProfile
  
-    let response = await this.props.stripe.createSource({ type: "card", owner:{name: billingName, address:{city:city, line1:billingAddress} }});
-    console.log("Checkout Form");
-    // console.log({status})
-    console.log({ response });
-    //   let response = await this.props.chargeCard(token)
-    //  console.log({response})
-    //  if (response && response.ok) console.log("Card Add Complete!")
-
-    if (response.error) {
-      console.log(response.error.message);
+    let {token, error} = await this.props.stripe.createToken({ type: "card", owner:{name: billingName, address:{city:city, line1:billingAddress} }});
+    
+  
+    
+    // console.log("Checkout Form");
+ 
+   // let token = await this.props.stripe.createToken({ type: "card", card:{metadata:{name: billingName}, address_line1:billingAddress} });
+       // console.log({ token });
+    if (error) {
+      console.log(error.message);
       toastr.error("Oops", "Problem adding card");
     } else {
-      // firebase
-      //   .database()
-      //   .ref(`/stripe_customers/${firebase.auth().currentUser.uid}/sources`)
-      //   .push({ token: response.source.id })
-      //   .then(() => {
-      //     toastr.success("Success", "Card Added");
-      //   });
-      this.props.addPaymentCard(response)
+ 
+      this.props.addPaymentCard(token)
     }
+
+
+
+
   }
 
   render() {
@@ -79,7 +63,7 @@ class CheckoutForm extends Component {
           width={8}
           name="billingName"
           type="text"
-          component={TextInput}
+          component={PaymentTextInput}
           placeholder="Billing Name"
         />
 
@@ -98,7 +82,7 @@ class CheckoutForm extends Component {
           placeholder="Billing Postal Code"
         />
      <Divider horizontal> Credit Card Information </Divider>
-        <CardElement />
+        <CardElement hidePostalCode/>
         <br></br>
         <Button primary onClick={this.submit}>Add Card</Button>
       </div>
@@ -115,6 +99,6 @@ export default connect(
       form: "userProfile",
       enableReinitialize: true,
       destroyOnUnmount: false
-    })(CheckoutForm)
+    })(AddCardForm)
   )
 );

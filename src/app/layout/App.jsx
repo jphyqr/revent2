@@ -16,6 +16,7 @@ import MessageDashboard from '../../features/user/MessageDashboard/MessageDashbo
 import NewMessageDashboard from '../../features/message/NewMessageDashboard'
 import HomePage from '../../features/home/HomePage';
 import TestComponent from '../../features/testarea/TestComponent';
+import TestBankConnect from '../../features/testarea/TestBankConnect';
 import ModalManager from '../../features/modals/ModalManager';
 
 class App extends Component {
@@ -37,6 +38,7 @@ class App extends Component {
                 <Route path="/jobs" component={JobDashboard} />
                   <Route path="/events" component={EventDashboard} />
                   <Route path="/test" component={TestComponent} />
+                  <Route path="/testBankConnect" component={TestBankConnect} />
                   <Route path="/event/:id" component={EventDetailedPage} />
                   <Route path="/manage/:id" component={EventForm} />
                   <Route path="/people" component={PeopleDashboard} />

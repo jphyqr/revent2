@@ -40,9 +40,10 @@ class NavBar extends Component {
             <img src="/assets/logo.png" alt="logo" />
             Re-vents
           </Menu.Item>
-          <Menu.Item as={NavLink} to="/events" name="Events" />
+          {/* <Menu.Item as={NavLink} to="/events" name="Events" /> */}
           <Menu.Item as={NavLink} to="/jobs" name="Jobs" />
           <Menu.Item as={NavLink} to="/test" name="Test" />
+          <Menu.Item as={NavLink} to="/testBankConnect" name="TestBankConnect" />
           {authenticated && (
             <Menu.Item as={NavLink} to="/people" name="People" />
           )}
@@ -53,7 +54,7 @@ class NavBar extends Component {
             <Menu.Item as={NavLink} to="/newmessages" name="New Messages" />
           )}
           }
-          {authenticated && (
+          {/* {authenticated && (
             <Menu.Item>
               <Button
                 as={Link}
@@ -64,7 +65,7 @@ class NavBar extends Component {
                 content="Create Event"
               />
             </Menu.Item>
-          )}
+          )} */}
                     {authenticated && (
             <Menu.Item>
               <Button

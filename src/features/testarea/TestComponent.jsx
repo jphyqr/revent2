@@ -11,7 +11,6 @@ import PlacesAutocomplete, {
 } from 'react-places-autocomplete';
 import { incrementAsync, decrementAsync } from './testActions';
 import { openModal } from '../modals/modalActions'
-import CheckoutForm from '../../app/common/form/CheckoutForm'
 
 const mapState = state => ({
   data: state.test.data,
@@ -79,11 +78,10 @@ class TestComponent extends Component {
 
 
     
-    <StripeProvider apiKey="rk_test_GYNZ5G7RfKnmj16BRTE4lxrs">
+    <StripeProvider apiKey="pk_test_Y9DV2lcx7cuPwunYtda4wGyu">
         <div className="example">
           <h1>React Stripe Elements Example</h1>
           <Elements>
-            <CheckoutForm />
           </Elements>
         </div>
       </StripeProvider>

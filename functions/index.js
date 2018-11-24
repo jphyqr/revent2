@@ -40,6 +40,9 @@ const createMessage = (type, message) => {
 
 
 
+
+
+
 // When a user is created, register them with Stripe
 exports.createStripeCustomer = functions.auth.user().onCreate((user) => {
   console.log("Stripe Customer function reached")
@@ -114,15 +117,20 @@ exports.createStripeCharge = functions.database.ref('/stripe_customers/{userId}/
 exports.addPaymentSource = functions.database
 .ref('/stripe_customers/{userId}/sources/{pushId}/token').onWrite((change, context) => {
   const source = change.after.val();
+  console.log("Stripe Payment source reached v8")
+  console.log({source})
   if (source === null){
     return null;
   }
-  console.log("Stripe Payment source reached")
-  console.log({source})
+
   return admin.database().ref(`/stripe_customers/${context.params.userId}/customer_id`)
       .once('value').then((snapshot) => {
+        const val = snapshot.val()
+        console.log({val})
         return snapshot.val();
+        
       }).then((customer) => {
+        console.log({customer})
         return stripe.customers.createSource(customer, {source});
       }).then((response) => {
         return change.after.ref.parent.set(response);
@@ -395,4 +403,48 @@ exports.cancelActivity = functions.firestore
       .catch(err => {
         return console.log("Error adding activity", err);
       });
+  });
+
+
+
+
+//new constractor account
+
+
+  // When a user is created, register them with Stripe
+// exports.createStripeCustomer = functions.auth.user().onCreate((user) => {
+//   console.log("Stripe Customer function reached")
+//   console.log({user})
+//   return stripe.customers.create({
+//     email: user.email,
+//   }).then((customer) => {
+//     console.log("Stripe Customer created")
+//     console.log({customer})
+//     return admin.database().ref(`/stripe_customers/${user.uid}/customer_id`).set(customer.id);
+//   });
+// });
+
+
+
+exports.createContractorAccount = functions.firestore
+  .document("users/{userUid}/registeredContractorFor/{userUid2}")
+  .onCreate((info, context) => {
+    const userUid = context.params.userUid;
+    console.log("v2 createContractorAccount");
+    console.log({context})
+    const val = info.data();
+    console.log({val})
+
+    return stripe.accounts.create({
+      type: 'custom',
+      country: val.countryCode
+
+    }).then((account)=>{
+      console.log("creating account")
+      console.log({account})
+      return admin.database().ref(`/stripe_accounts/${userUid}/account_token`).set(account.id);
+  
+    })
+
+    
   });

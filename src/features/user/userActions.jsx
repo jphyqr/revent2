@@ -183,7 +183,6 @@ export const bidJob = job => async (dispatch, getState) => {
   }
 };
 
-
 export const goingToEvent = event => async (dispatch, getState) => {
   dispatch(asyncActionStart());
   const firestore = firebase.firestore();
@@ -225,7 +224,6 @@ export const goingToEvent = event => async (dispatch, getState) => {
   }
 };
 
-
 export const cancelBidForJob = job => async (
   dispatch,
   getState,
@@ -246,11 +244,6 @@ export const cancelBidForJob = job => async (
     toastr.error("Oops", "Something went wrong");
   }
 };
-
-
-
-
-
 
 export const cancelGoingToEvent = event => async (
   dispatch,
@@ -328,7 +321,6 @@ export const getUserEvents = (userUid, activeTab) => async (
   }
 };
 
-
 export const getUserJobs = (userUid, activeTab) => async (
   dispatch,
   getState
@@ -383,9 +375,6 @@ export const getUserJobs = (userUid, activeTab) => async (
     dispatch(asyncActionError());
   }
 };
-
-
-
 
 export const unfollowUser = userToUnfollow => async (
   dispatch,
@@ -448,7 +437,7 @@ export const messageUser = userToMessage => async (
 ) => {
   const firestore = getFirestore();
   const user = firestore.auth().currentUser;
-  console.log("userActions/messageUser")
+  console.log("userActions/messageUser");
   console.log({ userToMessage });
   const messaging = {
     id: userToMessage.id,
@@ -459,13 +448,10 @@ export const messageUser = userToMessage => async (
     date: new Date(Date.now())
   };
 
-  console.log({messaging})
+  console.log({ messaging });
 
   try {
     dispatch(asyncActionStart());
-
-
-
 
     await firestore.set(
       {
@@ -505,7 +491,7 @@ export const selectLastMessage = lastRecipient => async (
 ) => {
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
-  console.log("selectLastMessage:")
+  console.log("selectLastMessage:");
   console.log({ lastRecipient });
   try {
     await firestore.set(
@@ -522,8 +508,6 @@ export const selectLastMessage = lastRecipient => async (
       }
     );
 
-
-
     await firestore.update(
       {
         collection: "users",
@@ -534,9 +518,6 @@ export const selectLastMessage = lastRecipient => async (
         newMessage: false
       }
     );
-
-      
-
   } catch (error) {
     console.log(error);
   }
@@ -547,8 +528,7 @@ export const addDirectMessage = (receiverId, values) => async (
   getState,
   { getFirebase }
 ) => {
-
-  console.log("userActions/addDirectMessage")
+  console.log("userActions/addDirectMessage");
   const firebase = getFirebase();
   const profile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
@@ -562,7 +542,7 @@ export const addDirectMessage = (receiverId, values) => async (
   };
 
   let threadId = "";
- 
+
   if (user.uid < receiverId) {
     threadId = `${user.uid}_${receiverId}`;
   } else {
@@ -585,7 +565,7 @@ export const getLastMessage = () => async (
 ) => {
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
-  
+
   try {
     dispatch(asyncActionStart());
 
@@ -594,15 +574,13 @@ export const getLastMessage = () => async (
       doc: user.uid,
       subcollections: [{ collection: "last_message", doc: user.uid }]
     });
-let data;
-    if(nextMessage){
-       data = nextMessage.data()
-       console.log("userActions/getLastMessage")
-      console.log({data})
+    let data;
+    if (nextMessage) {
+      data = nextMessage.data();
+      console.log("userActions/getLastMessage");
+      console.log({ data });
       console.log({ user });
     }
-
-
 
     dispatch(asyncActionFinish());
     return data;
@@ -612,26 +590,23 @@ let data;
   }
 };
 
-
-
-
-export const addPaymentCard = (response) => async (
+export const addPaymentCard = token => async (
   dispatch,
   getState,
   { getFirebase }
 ) => {
- 
   const firebase = getFirebase();
-  const profile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
-  console.log({user})
-  const pushId = cuid();
-  console.log("addPaymentCard:")
- console.log({response})
- console.log({pushId})
+  console.log({ user });
+  console.log("addPaymentCard:");
+  console.log({ token });
   try {
-    dispatch(asyncActionStart())
-    await firebase.push(`stripe_customers/${user.uid}/sources`, response.source);
+    dispatch(asyncActionStart());
+
+    await firebase
+      .ref(`/stripe_customers/${user.uid}/sources`)
+      .push({ token: token.id });
+
     toastr.success("Success", "Card Added");
     dispatch(asyncActionFinish());
   } catch (error) {
@@ -639,31 +614,57 @@ export const addPaymentCard = (response) => async (
     dispatch(asyncActionError());
     toastr.error("Oops", "Problem adding card");
   }
-
-  
 };
 
-
-
-
-export const chargeCard = (token) => async (
+export const chargeCard = token => async (
   dispatch,
   getState,
   { getFirebase }
 ) => {
-  
   const firebase = getFirebase();
   const profile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
   const pushId = cuid();
-  console.log("addPaymentCard:")
- const id = token.token.id
-  console.log({id})
- console.log({pushId})
+  console.log("addPaymentCard:");
+  const id = token.token.id;
+  console.log({ id });
+  console.log({ pushId });
   try {
     await firebase.push(`stripe_customers/${user.uid}/charges/`, token);
   } catch (error) {
     console.log(error);
     toastr.error("Oops", "Problem adding card");
+  }
+};
+
+
+
+
+export const registerAsContractor = countryCode => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
+  const firestore = getFirestore();
+  const user = firestore.auth().currentUser;
+  console.log("registerAsContractor")
+console.log({countryCode})
+
+  try {
+    dispatch(asyncActionStart());
+
+    await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "registeredContractorFor", doc: user.uid }]
+      },
+      {countryCode: countryCode}
+    );
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+    throw new Error("Problem registering as contractor");
   }
 };
