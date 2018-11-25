@@ -4,7 +4,7 @@ admin.initializeApp(functions.config().firebase);
 const stripe = require('stripe')(functions.config().stripe.token)
 const logging = require('@google-cloud/logging');
 const currency = functions.config().stripe.currency || 'USD';
-
+const retrieveAccount = require('./retrieve_account.js');
 const newFollow = (type, event, id) => {
   return {
     type: type,
@@ -41,6 +41,7 @@ const createMessage = (type, message) => {
 
 
 
+exports.retrieveAccount = functions.https.onRequest(retrieveAccount);
 
 
 // When a user is created, register them with Stripe

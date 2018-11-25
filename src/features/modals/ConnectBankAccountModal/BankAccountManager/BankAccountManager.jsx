@@ -3,7 +3,9 @@ import { connect } from "react-redux";
 import { injectStripe } from "react-stripe-elements";
 import { compose } from "redux";
 import { firebaseConnect, isEmpty, isLoaded } from "react-redux-firebase";
-const stripe = require("stripe")("pk_test_Y9DV2lcx7cuPwunYtda4wGyu");
+import axios from "axios";
+
+const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
 
 const mapState = state => {
   let authuid = state.firebase.auth.uid;
@@ -29,17 +31,34 @@ const mapState = state => {
 
 class BankAccountManager extends Component {
   async componentDidMount() {
- 
-    let account = await stripe.accounts.retrieve(
-      this.props.accountToken, function(err, account){
-        console.log({ account });
-      }
-    );
-   
+    try {
+      // const {accountToken} = this.props
+      // console.log("account token value")
+      //console.log(accountToken.value)
+      // await axios.post(`${ROOT_URL}/retrieveAccount`,{test:"test"});
 
+      //    await axios({
+      //         method: "post",
+      //         url:
+      //         `${ROOT_URL}/retrieveAccount`,
+      //         data: {test:"test"},
+      //         headers: { "Content-Type": "application/json" }
+      //       });
 
+      const params = {
+        accountToken: this.props.accountToken
+      };
+      console.log('accountToken', this.props.accountToken)
 
-   
+      await axios.post(`${ROOT_URL}/retrieveAccount`, {accountToken: this.props.accountToken.value}, {
+        headers: {
+          "content-type": "application/json;charset=utf-8",
+          "Access-Control-Allow-Origin": "*"
+        }
+      });
+    } catch (err) {
+      console.log({ err });
+    }
   }
 
   render() {
@@ -53,10 +72,10 @@ class BankAccountManager extends Component {
 }
 
 export default compose(
-  
   connect(
     mapState,
-    null,null,
+    null,
+    null,
     {
       pure: false
     }
