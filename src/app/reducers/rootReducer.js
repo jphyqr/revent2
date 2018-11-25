@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import { reducer as FormReducer } from 'redux-form';
 import testReducer from '../../features/testarea/testReducer';
 import eventReducer from '../../features/event/eventReducer';
+import accountReducer from '../../features/modals/ConnectBankAccountModal/BankAccountManager/accountReducer'
 import jobReducer from '../../features/job/jobReducer'
 import modalsReducer from '../../features/modals/modalReducer';
 import authReducer from '../../features/auth/authReducer';  
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
   async: asyncReducer,
   toastr: toastrRedcer,
   firebase: firebaseReducer,
-  firestore: firestoreReducer
+  firestore: firestoreReducer,
+  account: accountReducer
 })
 
 export default rootReducer

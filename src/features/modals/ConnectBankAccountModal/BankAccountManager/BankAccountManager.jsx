@@ -4,8 +4,13 @@ import { injectStripe } from "react-stripe-elements";
 import { compose } from "redux";
 import { firebaseConnect, isEmpty, isLoaded } from "react-redux-firebase";
 import axios from "axios";
+import { getAccount } from "./accountActions";
 
 const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
+
+const actions = {
+  getAccount
+};
 
 const mapState = state => {
   let authuid = state.firebase.auth.uid;
@@ -24,45 +29,28 @@ const mapState = state => {
   //   state.firebase.ordered.stripe_customers[authuid];
   return {
     loading: state.async.loading,
+    account: state.account,
     auth: state.firebase.auth,
     accountToken
   };
 };
 
 class BankAccountManager extends Component {
-  async componentDidMount() {
-    try {
-      // const {accountToken} = this.props
-      // console.log("account token value")
-      //console.log(accountToken.value)
-      // await axios.post(`${ROOT_URL}/retrieveAccount`,{test:"test"});
-
-      //    await axios({
-      //         method: "post",
-      //         url:
-      //         `${ROOT_URL}/retrieveAccount`,
-      //         data: {test:"test"},
-      //         headers: { "Content-Type": "application/json" }
-      //       });
-
-      const params = {
-        accountToken: this.props.accountToken
-      };
-      console.log('accountToken', this.props.accountToken)
-
-      await axios.post(`${ROOT_URL}/retrieveAccount`, {accountToken: this.props.accountToken.value}, {
-        headers: {
-          "content-type": "application/json;charset=utf-8",
-          "Access-Control-Allow-Origin": "*"
-        }
-      });
-    } catch (err) {
-      console.log({ err });
+  async componentWillMount() {
+     
+    if(this.props.accountToken){
+          console.log('loaded')
+      
+        console.log('props account token', this.props.accountToken)
+      let account = await this.props.getAccount(this.props.accountToken.value);
+      console.log({ account });
     }
+    
   }
 
   render() {
-    const { accountToken, loading } = this.props;
+    const { accountToken, loading, getAccount } = this.props;
+
     return (
       <div>
         <h1>Bank Account Manager</h1>
@@ -74,7 +62,7 @@ class BankAccountManager extends Component {
 export default compose(
   connect(
     mapState,
-    null,
+    actions,
     null,
     {
       pure: false

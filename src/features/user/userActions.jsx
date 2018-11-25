@@ -2,6 +2,7 @@ import moment from "moment";
 import { toastr } from "react-redux-toastr";
 import { FETCH_EVENTS } from "../event/eventConstants";
 import cuid from "cuid";
+import axios from 'axios'
 import firebase from "../../app/config/firebase";
 import {
   asyncActionStart,
@@ -640,6 +641,7 @@ export const chargeCard = token => async (
 
 
 
+
 export const registerAsContractor = countryCode => async (
   dispatch,
   getState,
@@ -668,3 +670,5 @@ console.log({countryCode})
     throw new Error("Problem registering as contractor");
   }
 };
+
+
