@@ -1,54 +1,60 @@
 import React, { Component } from "react";
 import {
   Modal,
-  Button,
-  Dropdown,
-  Message,
   Loader,
   Dimmer
 } from "semantic-ui-react";
 import { closeModal } from "../modalActions";
 import { connect } from "react-redux";
 import { compose } from "redux";
-import { registerAsContractor } from "../../user/userActions";
 import SelectCountryForm from "./SelectCountryForm";
-import { StripeProvider , Elements} from "react-stripe-elements";
+import { StripeProvider, Elements } from "react-stripe-elements";
 import BankAccountManager from "./BankAccountManager/BankAccountManager";
-import {
-  firestoreConnect,
-  isEmpty,
-  isLoaded
-} from "react-redux-firebase";
+import { firebaseConnect, isEmpty, isLoaded } from "react-redux-firebase";
+import { isThisISOWeek } from "date-fns";
 const actions = {
-  closeModal,
-  registerAsContractor
+  closeModal
 };
 
-const query = ({ auth }) => {
-  return [
-    {
-      collection: "users",
-      doc: auth.uid,
-      subcollections: [
-        { collection: "registeredContractorFor", doc: auth.uid }
-      ],
-      storeAs: "registeredContractorFor"
-    }
-  ];
-};
+
 
 const mapState = state => {
+  let authuid = state.firebase.auth.uid;
 
   return {
     loading: state.async.loading,
     auth: state.firebase.auth,
-    registeredContractorFor: state.firestore.ordered.registeredContractorFor
+    requesting:
+      authuid &&
+      state.firebase.requesting.stripe_accounts &&
+      state.firebase.requesting.stripe_accounts[authuid],
+    accountToken:
+      authuid &&
+      state.firebase.ordered.stripe_accounts &&
+      state.firebase.ordered.stripe_accounts[authuid] &&
+      state.firebase.ordered.stripe_accounts[authuid][0]
   };
 };
+
 class ConnectBankAccountModal extends Component {
+  state = {
+    showCountryForm: true,
+    accountLoadedOnce: false
+  };
 
+  async componentWillReceiveProps(nextProps) {
+    console.log({ nextProps });
 
+    if (nextProps.accountToken) {
+      this.setState({ showCountryForm: false });
+    } else {
+      this.setState({ showCountryForm: true });
+    }
+  }
 
+  handleCountrySet = () => {
+    this.setState({ showCountryForm: false, accountLoadedOnce: true });
+  };
 
   render() {
     const countryOptions = [
@@ -57,12 +63,10 @@ class ConnectBankAccountModal extends Component {
 
     const {
       closeModal,
-      registerAsContractor,
-      loading,
-      registeredContractorFor,
+      requesting,
       accountToken
     } = this.props;
-console.log({accountToken})
+    console.log("connectbankaccount token", accountToken);
 
     return (
       <Modal
@@ -74,24 +78,29 @@ console.log({accountToken})
         <Modal.Header>Connect Bank Account</Modal.Header>
         <Modal.Content>
           <Modal.Description>
-            {!isLoaded(registeredContractorFor) ? (
+            {this.state.accountLoadedOnce && !accountToken && (
+              <Dimmer active inverted>
+                <Loader content="Account Found" />
+              </Dimmer>
+            )}
+
+            {!isLoaded(accountToken) || requesting ? (
               <Dimmer active inverted>
                 <Loader content="Loading" />
               </Dimmer>
-            ) : isEmpty(registeredContractorFor) ? (
+            ) : this.state.showCountryForm ? (
               <SelectCountryForm
                 closeModal={closeModal}
                 countryOptions={countryOptions}
-                loading={loading}
-                registerAsContractor={registerAsContractor}
+                handleCountrySet={this.handleCountrySet}
               />
             ) : (
               // <BasicDetailsForm
-              
+
               <StripeProvider apiKey="pk_test_Y9DV2lcx7cuPwunYtda4wGyu">
-              <Elements>
-              <BankAccountManager/>
-              </Elements>
+                <Elements>
+                  <BankAccountManager accountToken={accountToken} />
+                </Elements>
               </StripeProvider>
             )}
           </Modal.Description>
@@ -106,5 +115,5 @@ export default compose(
     mapState,
     actions
   ),
-  firestoreConnect(props => query(props))
+  firebaseConnect(props => [`stripe_accounts/${props.auth.uid}`])
 )(ConnectBankAccountModal);

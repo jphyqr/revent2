@@ -6,7 +6,7 @@ const initialState = [];
 
 
 export const fetchAccount = (state,payload) => {
-    return payload.account
+    return payload.account.data.account
   }
 
 

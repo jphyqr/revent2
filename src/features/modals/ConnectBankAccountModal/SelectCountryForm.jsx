@@ -1,6 +1,34 @@
 import React, { Component } from "react";
+import {connect} from 'react-redux'
+import {
+  Modal,
+  Button,
+  Dropdown,
+  Message,
+  Loader,
+  Dimmer
+} from "semantic-ui-react";
 
-import { Modal, Button, Dropdown, Message, Loader } from "semantic-ui-react";
+import { registerAsContractor } from "../../user/userActions";
+
+
+const actions = {
+  registerAsContractor
+}
+const mapState = state => {
+  let authuid = state.firebase.auth.uid;
+  return {
+    loading: state.async.loading,
+    auth: state.firebase.auth,
+    requesting:
+    authuid &&
+    state.firebase.requesting.stripe_accounts &&
+    state.firebase.requesting.stripe_accounts[authuid]
+ 
+  };
+};
+
+
 class SelectCountryForm extends Component {
   state = { modalOpen: true, countrySelected: "" };
   handleOpen = () => this.setState({ modalOpen: true });
@@ -12,10 +40,12 @@ class SelectCountryForm extends Component {
   state = { modalOpen: true, countrySelected: "" };
   handleChange = (e, { value }) => this.setState({ countrySelected: value });
 
-  handleSubmit = () => {
+   handleSubmit = async () => {
+    this.props.handleCountrySet();
     const { countrySelected } = this.state;
     console.log("handleSubmit", countrySelected);
     this.props.registerAsContractor(countrySelected);
+   
   };
   render() {
     let isCountrySelected = false;
@@ -26,8 +56,15 @@ class SelectCountryForm extends Component {
     const {
       loading,
       countryOptions,
-      registerAsContractor
+      requesting
     } = this.props;
+
+
+    if(loading||requesting){
+      return <div>            <Dimmer active inverted>
+      <Loader content="Loading" />
+    </Dimmer></div>
+    }
 
     return (
       <div>
@@ -61,4 +98,4 @@ class SelectCountryForm extends Component {
   }
 }
 
-export default SelectCountryForm;
+export default connect(mapState, actions)(SelectCountryForm);

@@ -5,6 +5,7 @@ import { compose } from "redux";
 import { firebaseConnect, isEmpty, isLoaded } from "react-redux-firebase";
 import axios from "axios";
 import { getAccount } from "./accountActions";
+import {Dimmer, Loader} from 'semantic-ui-react'
 
 const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
 
@@ -13,47 +14,60 @@ const actions = {
 };
 
 const mapState = state => {
-  let authuid = state.firebase.auth.uid;
-  let accountToken = {};
-  if (
-    authuid &&
-    state.firebase.ordered.stripe_accounts &&
-    state.firebase.ordered.stripe_accounts[authuid]
-  ) {
-    accountToken = state.firebase.ordered.stripe_accounts[authuid][0];
-  }
 
-  // let accountToken =
-  //   !isEmpty(state.firebase.ordered.stripe_customers) &&
-  //   isLoaded(state.firebase.ordered.stripe_customers) &&
-  //   state.firebase.ordered.stripe_customers[authuid];
   return {
     loading: state.async.loading,
     account: state.account,
-    auth: state.firebase.auth,
-    accountToken
+    fieldsNeeded: state.account&&state.account.verification&&state.account.verification.fields_needed,
+    auth: state.firebase.auth
+  
   };
 };
 
 class BankAccountManager extends Component {
-  async componentWillMount() {
-     
-    if(this.props.accountToken){
-          console.log('loaded')
-      
-        console.log('props account token', this.props.accountToken)
+  async componentDidMount() {
+    if (this.props.accountToken) {
+      console.log("loaded");
+
+      console.log("props account token", this.props.accountToken);
       let account = await this.props.getAccount(this.props.accountToken.value);
       console.log({ account });
     }
-    
   }
 
   render() {
-    const { accountToken, loading, getAccount } = this.props;
+    const {
+      accountToken,
+      loading,
+      fieldsNeeded
+    } = this.props;
+
+
+if(loading||!isLoaded(accountToken)||!isLoaded(fieldsNeeded)){
+  return <div>            <Dimmer active inverted>
+  <Loader content="Getting Fields.." />
+</Dimmer></div>
+}
 
     return (
       <div>
-        <h1>Bank Account Manager</h1>
+        {fieldsNeeded&&fieldsNeeded.length === 0 ? <p>all set up</p> :
+        
+        
+        
+        fieldsNeeded&&fieldsNeeded.map(fieldKey => {
+           return( <div>
+            <p>{fieldKey}</p>
+
+            </div>
+           )
+        })
+        
+        
+        
+        
+        
+        }
       </div>
     );
   }
@@ -67,6 +81,5 @@ export default compose(
     {
       pure: false
     }
-  ),
-  firebaseConnect(props => [`stripe_accounts/${props.auth.uid}`])
+  )
 )(BankAccountManager);
