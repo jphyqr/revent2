@@ -8,7 +8,7 @@ import { closeModal } from "../modalActions";
 import { connect } from "react-redux";
 import { compose } from "redux";
 import SelectCountryForm from "./SelectCountryForm";
-import { StripeProvider, Elements } from "react-stripe-elements";
+import { StripeProvider } from "react-stripe-elements";
 import BankAccountManager from "./BankAccountManager/BankAccountManager";
 import { firebaseConnect, isEmpty, isLoaded } from "react-redux-firebase";
 import { isThisISOWeek } from "date-fns";
@@ -98,9 +98,9 @@ class ConnectBankAccountModal extends Component {
               // <BasicDetailsForm
 
               <StripeProvider apiKey="pk_test_Y9DV2lcx7cuPwunYtda4wGyu">
-                <Elements>
+                
                   <BankAccountManager accountToken={accountToken} />
-                </Elements>
+                
               </StripeProvider>
             )}
           </Modal.Description>

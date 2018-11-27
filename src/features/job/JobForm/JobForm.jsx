@@ -50,6 +50,7 @@ const category = [
 
 
 const validate = combineValidators({
+  
   title: isRequired({ message: "The job title is required" }),
   category: isRequired({ message: "Please provide a category" }),
   description: composeValidators(
