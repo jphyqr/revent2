@@ -75,7 +75,7 @@ class ConnectBankAccountModal extends Component {
         closeOnEscape={false}
         closeOnDimmerClick={false}
       >
-        <Modal.Header>Connect Bank Account</Modal.Header>
+        <Modal.Header>Stripe Connect</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             {this.state.accountLoadedOnce && !accountToken && (
@@ -99,7 +99,9 @@ class ConnectBankAccountModal extends Component {
 
               <StripeProvider apiKey="pk_test_Y9DV2lcx7cuPwunYtda4wGyu">
                 
-                  <BankAccountManager accountToken={accountToken} />
+                  <BankAccountManager accountToken={accountToken} 
+                  closeModal={closeModal}
+                  />
                 
               </StripeProvider>
             )}

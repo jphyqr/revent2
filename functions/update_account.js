@@ -38,16 +38,18 @@ module.exports = function(req, res) {
           stripeObj = assign(stripeObj, obj);
           i += 1;
 
-          if (i === Object.keys(req.body.metadata).length-1) {
+          if (i === Object.keys(req.body.metadata).length) {
             console.log("end", stripeObj);
                
         return    stripe.accounts.update(
                 req.body.accountToken,
                  stripeObj
-                 ).then(() => {
+                 ).then((response) => {
+                   console.log("updateResponse", response)
            return      res.send({
                   success: true,
-                  message: "Saved"
+                  message: "Saved",
+                  account : response
                 });
               }, (err) => {
                   console.log(err)

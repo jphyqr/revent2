@@ -12,10 +12,10 @@ import {
   BANK_ACCOUNT_FORM_ACCOUNT_HOLDER_TYPE
 } from "./BankAccountSection";
 
-import {addBankAccount} from '../../../features/modals/ConnectBankAccountModal/BankAccountManager/accountActions'
-const actions = {
-    addBankAccount
-}
+// import {addBankAccount} from '../../../features/modals/ConnectBankAccountModal/BankAccountManager/accountActions'
+// const actions = {
+//     addBankAccount
+// }
 class BankAccountForm extends Component {
   constructor(props) {
     super(props);
@@ -57,7 +57,12 @@ class BankAccountForm extends Component {
 
   
         let result = await this.props.addBankAccount(params, accountToken)
-    console.log(' bank acount form', result)
+        console.log(' bank acount form', result)
+        console.log('Bank acount added, about to get account... see if hit')
+        let getAccount = await this.props.getAccount(accountToken.value)
+        console.log({getAccount})
+     
+  
 
   }
 
@@ -91,6 +96,8 @@ class BankAccountForm extends Component {
     return (
       <form onSubmit={this.handleSubmit}>
         <BankAccountSection
+        
+        addBankAccount={this.addBankAccount}
           onChangeFunc={this.onTextboxChange}
           countryValue={countryValue}
           currencyValue={currencyValue}
@@ -105,4 +112,4 @@ class BankAccountForm extends Component {
   }
 }
 
-export default connect(null,actions)(BankAccountForm);
+export default connect(null,null)(BankAccountForm);
