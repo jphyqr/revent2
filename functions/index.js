@@ -5,6 +5,7 @@ const stripe = require("stripe")(functions.config().stripe.token);
 const logging = require("@google-cloud/logging");
 const currency = functions.config().stripe.currency || "USD";
 const retrieveAccount = require("./retrieve_account.js");
+const stripeEvent = require("./stripe_event.js");
 const createExternalBankAccount = require("./create_external_bank_account.js");
 const createBankAccount = require("./create_bank_account.js");
 const uploadID = require("./upload_id.js");
@@ -60,6 +61,14 @@ exports.createBankAccount = functions.https.onRequest(createBankAccount);
 exports.retrieveAccount = functions.https.onRequest(retrieveAccount);
 
 exports.updateAccount = functions.https.onRequest(updateAccount);
+
+
+exports.stripeEvent = functions.https.onRequest(stripeEvent);
+
+
+
+
+
 
 // When a user is created, register them with Stripe
 exports.createStripeCustomer = functions.auth.user().onCreate(user => {

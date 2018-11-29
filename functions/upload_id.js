@@ -39,8 +39,8 @@ module.exports = function(req, res) {
         console.log({ content });
 
         const fp = fs.readFileSync(tempFilePath);
- 
-       return  stripe.files.create(
+
+        return stripe.files.create(
           {
             purpose: "identity_document",
             file: {
@@ -58,7 +58,7 @@ module.exports = function(req, res) {
               return res.send({ success: true, token: fileToken.id });
             }
           }
-        )
-      })
+        );
+      });
   });
 };

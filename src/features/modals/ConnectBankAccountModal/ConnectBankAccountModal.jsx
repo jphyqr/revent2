@@ -72,8 +72,6 @@ class ConnectBankAccountModal extends Component {
       <Modal
         open={true}
         onClose={closeModal}
-        closeOnEscape={false}
-        closeOnDimmerClick={false}
       >
         <Modal.Header>Stripe Connect</Modal.Header>
         <Modal.Content>
