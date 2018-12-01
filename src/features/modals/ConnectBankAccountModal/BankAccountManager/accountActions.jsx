@@ -1,5 +1,5 @@
 import moment from "moment";
-import { FETCH_ACCOUNT } from "./accountConstants";
+import { FETCH_ACCOUNT, CLEAR_ACCOUNT } from "./accountConstants";
 import cuid from "cuid";
 import { toastr } from "react-redux-toastr";
 import fs from "fs";
@@ -11,6 +11,9 @@ import {
   asyncActionFinish,
   asyncActionError
 } from "../../../async/asyncActions";
+const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
+
+
 
 export const uploadGovernmentID = (
   file,
@@ -96,6 +99,55 @@ export const uploadGovernmentID = (
       dispatch(asyncActionError());
     });
 };
+
+
+export const clearAccount = () => async (dispatch) =>{
+  console.log("trying to clear account")
+  dispatch({
+    type: CLEAR_ACCOUNT,
+    payload: {}
+  })
+}
+
+export const createConnectedAccount = (userUID, countryCode) => async (
+  dispatch,
+  getState
+) => {
+
+
+  console.log("creating connected account")
+
+
+  try {
+    dispatch(asyncActionStart());
+
+    let account = await axios.post(
+      `${ROOT_URL}/createConnectedAccount`,
+      { userUID: userUID, countryCode: countryCode  },
+      {
+        headers: {
+          "content-type": "application/json;charset=utf-8",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    );
+    console.log("Created connected account..", account);
+
+    dispatch({
+      type: FETCH_ACCOUNT,
+      payload: { account }
+    });
+    dispatch(asyncActionFinish());
+    toastr.success("Success", "Created Connected Account");
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+    throw new Error("Problem creating connected account");
+  }
+};
+
+
+
 
 export const updateTOS = accountToken => async dispatch => {
   console.log("updating TOS", accountToken);
@@ -183,25 +235,36 @@ export const getAccount = accountToken => async dispatch => {
 
   try {
     dispatch(asyncActionStart());
-    console.log("getAccount accountToken prop", accountToken);
-    let account = await axios.post(
-      `${ROOT_URL}/retrieveAccount`,
-      { accountToken: accountToken },
-      {
-        headers: {
-          "content-type": "application/json;charset=utf-8",
-          "Access-Control-Allow-Origin": "*"
-        }
-      }
-    );
-    console.log("getAccount returned from axios", account);
 
-    dispatch({
-      type: FETCH_ACCOUNT,
-      payload: { account }
-    });
-    dispatch(asyncActionFinish());
-    return account;
+    if(accountToken){
+      console.log("getAccount accountToken prop", accountToken);
+      let account = await axios.post(
+        `${ROOT_URL}/retrieveAccount`,
+        { accountToken: accountToken },
+        {
+          headers: {
+            "content-type": "application/json;charset=utf-8",
+            "Access-Control-Allow-Origin": "*"
+          }
+        }
+      );
+      console.log("getAccount returned from axios", account);
+      dispatch({
+        type: FETCH_ACCOUNT,
+        payload: { account }
+      });
+    
+      dispatch(asyncActionFinish());
+      return account;
+    } else{
+      console.log("dispatching empty asccount")
+      dispatch({
+        type: FETCH_ACCOUNT,
+        payload: {}
+      });
+    }
+   
+ 
   } catch (err) {
     console.log({ err });
     dispatch(asyncActionError());

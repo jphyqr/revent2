@@ -642,33 +642,4 @@ export const chargeCard = token => async (
 
 
 
-export const registerAsContractor = countryCode => async (
-  dispatch,
-  getState,
-  { getFirestore }
-) => {
-  const firestore = getFirestore();
-  const user = firestore.auth().currentUser;
-  console.log("registerAsContractor")
-console.log({countryCode})
-
-  try {
-    dispatch(asyncActionStart());
-
-    await firestore.set(
-      {
-        collection: "users",
-        doc: user.uid,
-        subcollections: [{ collection: "registeredContractorFor", doc: user.uid }]
-      },
-      {countryCode: countryCode}
-    );
-    dispatch(asyncActionFinish());
-  } catch (error) {
-    console.log(error);
-    dispatch(asyncActionError());
-    throw new Error("Problem registering as contractor");
-  }
-};
-
 

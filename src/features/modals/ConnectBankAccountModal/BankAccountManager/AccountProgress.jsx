@@ -7,15 +7,20 @@ import {Step, Icon} from 'semantic-ui-react'
   render() {
 
 
-const {showTOS, showBankForm, showInfo, showComplete} = this.props
+const {showTOS, showBankForm, showInfo, showComplete, showCountrySelect} = this.props
 
     return (
         <Step.Group size='mini'>
+       <Step completed={showTOS||showBankForm||showInfo||showComplete} active={showCountrySelect} disabled={!showCountrySelect}>
+          <Icon name='globe' />
+          <Step.Content>
+            <Step.Title>Country </Step.Title>
+          </Step.Content>
+        </Step>
         <Step completed={showBankForm||showInfo||showComplete} active={showTOS} disabled={!showTOS}>
           <Icon name='legal' />
           <Step.Content>
-            <Step.Title>Terms of Service</Step.Title>
-            <Step.Description>Accept Stripe and Revents TOS</Step.Description>
+            <Step.Title>Aggreement</Step.Title>
           </Step.Content>
         </Step>
         <Step  completed={showInfo||showComplete}active={showBankForm} disabled={!showBankForm}>
@@ -28,7 +33,7 @@ const {showTOS, showBankForm, showInfo, showComplete} = this.props
         <Step completed={showComplete}active={showInfo} disabled={!showInfo}>
           <Icon name='info' />
           <Step.Content>
-            <Step.Title>Entity Information</Step.Title>
+            <Step.Title>Personal Information</Step.Title>
             <Step.Description>Information required by Stripe</Step.Description>
           </Step.Content>
         </Step>

@@ -9,12 +9,9 @@ import {
   Dimmer
 } from "semantic-ui-react";
 
-import { registerAsContractor } from "../../user/userActions";
 
 
-const actions = {
-  registerAsContractor
-}
+
 const mapState = state => {
   let authuid = state.firebase.auth.uid;
   return {
@@ -30,21 +27,15 @@ const mapState = state => {
 
 
 class SelectCountryForm extends Component {
-  state = { modalOpen: true, countrySelected: "" };
-  handleOpen = () => this.setState({ modalOpen: true });
+  state = {  countrySelected: "" };
 
-  handleClose = () => {
-    this.props.closeModal();
-  };
 
-  state = { modalOpen: true, countrySelected: "" };
   handleChange = (e, { value }) => this.setState({ countrySelected: value });
 
    handleSubmit = async () => {
-    this.props.handleCountrySet();
     const { countrySelected } = this.state;
     console.log("handleSubmit", countrySelected);
-    this.props.registerAsContractor(countrySelected);
+    this.props.createConnectedAccount(this.props.userUID, countrySelected);
    
   };
   render() {
@@ -55,16 +46,10 @@ class SelectCountryForm extends Component {
 
     const {
       loading,
-      countryOptions,
-      requesting
+      countryOptions
     } = this.props;
 
 
-    if(loading||requesting){
-      return <div>            <Dimmer active inverted>
-      <Loader content="Loading" />
-    </Dimmer></div>
-    }
 
     return (
       <div>
@@ -98,4 +83,4 @@ class SelectCountryForm extends Component {
   }
 }
 
-export default connect(mapState, actions)(SelectCountryForm);
+export default connect(mapState, null)(SelectCountryForm);

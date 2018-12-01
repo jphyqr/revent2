@@ -1,24 +1,50 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { withFirebase } from "react-redux-firebase";
+import { firebaseConnect } from "react-redux-firebase";
 import { Menu, Container, Button } from "semantic-ui-react";
 import { NavLink, Link, withRouter } from "react-router-dom";
 import SignedOutMenu from "../Menus/SignedOutMenu";
 import SignedInMenu from "../Menus/SignedInMenu";
 import BankAccountMenuItem from './BankConnectMenuItem'
 import { openModal } from "../../modals/modalActions";
+import {getAccount, clearAccount} from '../../modals/ConnectBankAccountModal/BankAccountManager/accountActions'
+
 
 const actions = {
-  openModal
+  openModal, clearAccount, getAccount
 };
 
-const mapState = state => ({
+const mapState = state => {
+
+  let authuid = state.firebase.auth.uid;
+return{
   auth: state.firebase.auth,
-  profile: state.firebase.profile
-});
+  profile: state.firebase.profile,
+  accountToken:
+  authuid &&
+  state.firebase.ordered.stripe_connected_account &&
+  state.firebase.ordered.stripe_connected_account[authuid] &&
+  state.firebase.ordered.stripe_connected_account[authuid][0],
+  currentAccount: state.account
+}};
 
 class NavBar extends Component {
+
+  async componentWillReceiveProps(newProps) {
+
+    if(newProps.accountToken!==this.props.accountToken)
+    {let connectedAccount = this.props.getAccount(newProps.accountToken.value).then(account=>{
+      console.log('new props', account)
+
+    })
+
+    
+    }
+
+  }
+
   handleSignIn = () => {
+    this.forceUpdate();
     this.props.openModal("LoginModal");
   };
 
@@ -30,14 +56,21 @@ class NavBar extends Component {
     this.props.openModal("ConnectBankAccountModal");
   };
 
-  handleSignOut = () => {
+  handleSignOut = async ()  => {
+  //  this.props.clearAccount();
+this.props.clearAccount()
+  //  const { firebase, match } = this.props;
+    //await firebase.unsetListener(`stripe_connected_account/${match.params.id}`);
+
     this.props.firebase.logout();
+
     this.props.history.push("/");
   };
 
   render() {
-    const { auth, profile } = this.props;
+    const { auth, profile ,currentConnectedAccount} = this.props;
     const authenticated = auth.isLoaded && !auth.isEmpty;
+
     return (
       <Menu inverted fixed="top">
         <Container>
@@ -72,6 +105,7 @@ class NavBar extends Component {
             </Menu.Item>
           )}
             {authenticated? <BankAccountMenuItem
+              currentConnectedAccount = {currentConnectedAccount}
               bankConnect={this.handleBankConnect}
             />: null}        
           {authenticated ? (
@@ -94,10 +128,20 @@ class NavBar extends Component {
 }
 
 export default withRouter(
-  withFirebase(
+  
     connect(
       mapState,
       actions
-    )(NavBar)
-  )
+    )(firebaseConnect(props => [`stripe_connected_account/${props.auth.uid}`])((NavBar)))
+  
 );
+
+
+
+// export default compose(
+//   connect(
+//     mapState,
+//     actions
+//   ),
+//   firebaseConnect(props => [`stripe_connected_account/${props.auth.uid}`])
+// )(ConnectBankAccountModal);

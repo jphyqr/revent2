@@ -13,13 +13,16 @@ const bucketPath = "revents-99d5b.appspot.com";
 const bucket = gcs.bucket(bucketPath);
 
 module.exports = function(req, res) {
+
+  // if (req.method !== "POST") {
+  //   return res.status(401)({
+  //     message: "Not allowed"
+  //   });
+  // }
+
   return cors(req, res, () => {
     console.log("v4 upload file: ", req.body);
-    if (req.method !== "POST") {
-      return res.status(401).json({
-        message: "Not allowed"
-      });
-    }
+ 
 
     let tempFilePath = path.join(os.tmpdir(), "tempkjhgfhjnmbvgh.docx");
     let fileName = `${req.body.userUID}/verification_document/${

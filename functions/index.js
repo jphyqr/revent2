@@ -7,6 +7,7 @@ const currency = functions.config().stripe.currency || "USD";
 const retrieveAccount = require("./retrieve_account.js");
 const stripeEvent = require("./stripe_event.js");
 const createExternalBankAccount = require("./create_external_bank_account.js");
+const createConnectedAccount = require("./create_connected_account.js");
 const createBankAccount = require("./create_bank_account.js");
 const uploadID = require("./upload_id.js");
 const updateAccount = require("./update_account.js");
@@ -61,6 +62,7 @@ exports.createBankAccount = functions.https.onRequest(createBankAccount);
 exports.retrieveAccount = functions.https.onRequest(retrieveAccount);
 
 exports.updateAccount = functions.https.onRequest(updateAccount);
+exports.createConnectedAccount = functions.https.onRequest(createConnectedAccount);
 
 
 exports.stripeEvent = functions.https.onRequest(stripeEvent);
@@ -122,6 +124,7 @@ exports.createStripeCharge = functions.database
       .ref(`/stripe_customers/${context.params.userId}/customer_id`)
       .once("value")
       .then(snapshot => {
+        console.log('snap.val', snapshot.val())
         return snapshot.val();
       })
       .then(customer => {
@@ -459,26 +462,3 @@ exports.cancelActivity = functions.firestore
       });
   });
 
-exports.createContractorAccount = functions.firestore
-  .document("users/{userUid}/registeredContractorFor/{userUid2}")
-  .onCreate((info, context) => {
-    const userUid = context.params.userUid;
-    console.log("v2 createContractorAccount");
-    console.log({ context });
-    const val = info.data();
-    console.log({ val });
-
-    return stripe.accounts
-      .create({
-        type: "custom",
-        country: val.countryCode
-      })
-      .then(account => {
-        console.log("creating account");
-        console.log({ account });
-        return admin
-          .database()
-          .ref(`/stripe_accounts/${userUid}/account_token`)
-          .set(account.id);
-      });
-  });
