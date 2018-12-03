@@ -44,6 +44,7 @@ const BankAccountForm = (props) => {
           {countryLabel}
         </label>
         <input
+          disabled
           type="text"
           id={countryKey}
           value={countryValue}
@@ -59,6 +60,7 @@ const BankAccountForm = (props) => {
           {currencyLabel}
         </label>
         <input
+        disabled
           type="text"
           id={currencyKey}
           value={currencyValue}
@@ -118,13 +120,15 @@ const BankAccountForm = (props) => {
         >
           {accountHolderTypeLabel}
         </label>
-        <input
-          type="text"
+        <select
           id={accountHolderTypeKey}
           value={accountHolderTypeValue}
           onChange={(e) => onChangeFunc(e, accountHolderTypeKey)}
           style={inputStyle}
-        />
+        >
+           <option value="individual">Individual</option>
+    <option value="company">Company</option>
+        </select>
       </div>
     </div>
   );

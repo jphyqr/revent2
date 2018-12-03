@@ -1,47 +1,41 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { injectStripe } from "react-stripe-elements";
 import { compose } from "redux";
-import { firebaseConnect, isEmpty, isLoaded } from "react-redux-firebase";
+import { isLoaded } from "react-redux-firebase";
+
 import VerificationDocumentUpload from "./VerificationDocumentUpload";
 import AccountProgress from "./AccountProgress";
 import SelectCountryForm from "../SelectCountryForm";
+import moment from "moment";
 
-import axios from "axios";
 import _ from "lodash";
 import {
   getAccount,
   updateAccount,
   addBankAccount,
   updateTOS,
-  createConnectedAccount,
-  
+  createConnectedAccount
 } from "./accountActions";
-import {
-  Dimmer,
-  Loader,
-  Button,
-  Header,
-  Form,
-  Label,
-  Icon,
-  Input,
-  Step,
-  Message
-} from "semantic-ui-react";
+import { Dimmer, Loader, Button, Form, Message } from "semantic-ui-react";
 import { reduxForm, Field } from "redux-form";
 import TextInput from "../../../../app/common/form/TextInput";
+import RadioInput from "../../../../app/common/form/RadioInput";
+import SelectInput from "../../../../app/common/form/SelectInput";
+import DateInput from "../../../../app/common/form/DateInput";
 
 import BankAccountForm from "../../../../app/common/form/BankAccountForm";
+import NewBankAccountForm from "./NewBankAccountForm";
 import { Elements } from "react-stripe-elements";
 import {
   composeValidators,
   combineValidators,
   isRequired,
-  hasLengthGreaterThan
+  isNumeric,
+  matchesPattern,
+  hasLengthGreaterThan,
+  hasLengthBetween
 } from "revalidate";
 import UserAgreementForm from "./UserAgreementForm";
-const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
 
 const actions = {
   getAccount,
@@ -61,9 +55,11 @@ const mapState = state => {
   let showBankForm = false;
   let showInfo = false;
   let showComplete = false;
-  console.log('map state account' ,state.account)
-  if ( !state.account|| state.account === undefined || state.account.length === 0 ) {
-    console.log("setting sghowCountrySelect True")
+  if (
+    !state.account ||
+    state.account === undefined ||
+    state.account.length === 0
+  ) {
     showCountrySelect = true;
     showTOS = false;
     showBankForm = false;
@@ -119,26 +115,65 @@ const mapState = state => {
   };
 };
 
+const provinces = [
+  { key: "AB", text: "Alberta", value: "AB" },
+  { key: "BC", text: "British Columbia", value: "BC" },
+  { key: "MB", text: "Manitoba", value: "MB" },
+  { key: "NL", text: "Newfoundland", value: "NL" },
+  { key: "NS", text: "Nova Scotia", value: "NS" },
+  { key: "NT", text: "North West Territories", value: "NT" },
+  { key: "NU", text: "Nunavit", value: "NU" },
+  { key: "ON", text: "Ontario", value: "ON" },
+  { key: "PE", text: "Prince Edward Island", value: "PE" },
+  { key: "QC", text: "Quebec", value: "QC" },
+  { key: "SK", text: "Saskatchewan", value: "SK" },
+  { key: "YT", text: "Yukon", value: "YT" }
+];
+
+
+const STRIPE_FIELD_NAMES = {
+  "legal_entity.address.city" : "Applicants City",
+  "legal_entity.address.line1" : "Applicants Street Address",
+  "legal_entity.address.postal_code" : "Applicants Postal Code",
+  "legal_entity.personal_id_number" : "Social Insurance Number",
+  "legal_entity.first_name" : "Applicants First Name",
+  "legal_entity.last_name" : "Applicants Last Name",
+  "account_holder_name.address.city" : "Applicants City",
+
+}
+
 const validate = combineValidators({
-  // "legal_entity.dob.day": isRequired({ message: "DAY is required" }),
-  // "legal_entity.dob.month": isRequired({ message: "MONTH is required" }),
-  // "legal_entity.dob.year": isRequired({ message: "YEAR is required" }),
-  // "legal_entity.first_name": isRequired({ message: "First Name is required" }),
-  // "legal_entity.last_name": isRequired({ message: "Last Name is required" }),
-  // "legal_entity.type": isRequired({
-  //   message: "Entity Type ('Individual' or 'Business') is required"
-  // }),
-  // "tos_acceptance.date": isRequired({ message: "TOS required" }),
-  // "tos_acceptance.ip": isRequired({ message: "TOS required" }),
-  // description: composeValidators(
-  //   isRequired({ message: "Please enter a description" }),
-  //   hasLengthGreaterThan(4)({
-  //     message: "Description needys to be at least 5 characters"
-  //   })
-  // )(),
-  // city: isRequired("city"),
-  // venue: isRequired("venue"),
-  // date: isRequired("date")
+  "legal_entity.dob": isRequired({ message: "Date of Birth is required" }),
+  "legal_entity.first_name": isRequired({ message: "First Name is required" }),
+  "legal_entity.address.city": isRequired({ message: "City is Required" }),
+
+  "legal_entity.personal_id_number": composeValidators(
+    isRequired({ message: "Social Insurance Number Required" }),
+    isNumeric({ message: "Should be Numeric" }),
+    hasLengthBetween(9, 9)({
+      message: "Social Insurance Number must be 9 characters long"
+    })
+  )(),
+
+  "legal_entity.address.line1": isRequired({
+    message: "Street Address is Required"
+  }),
+  "legal_entity.address.state": isRequired({ message: "Province is Required" }),
+  "legal_entity.last_name": isRequired({ message: "Last Name is required" }),
+  "legal_entity.type": isRequired({
+    message: "Entity Type ('Individual' or 'Business') is required"
+  }),
+  "tos_acceptance.date": isRequired({ message: "TOS required" }),
+  "tos_acceptance.ip": isRequired({ message: "TOS required" }),
+  "legal_entity.address.postal_code": composeValidators(
+    isRequired({ message: "Please enter a postal code" }),
+    matchesPattern(/([ABCEGHJKLMNPRSTVWXYZ]\d){3}/i)({
+      message: "Postal code must match A#A#A# format"
+    })
+  )(),
+  city: isRequired("city"),
+  venue: isRequired("venue"),
+  date: isRequired("date")
 });
 
 class BankAccountManager extends Component {
@@ -150,16 +185,31 @@ class BankAccountManager extends Component {
     showCountrySelect: false
   };
 
-
-
   onFormSubmit = async values => {
     console.log("on formSubmit", values);
+    let valuesToSubmit = values;
+    if (values.legal_entity.dob) {
+      let dob = values.legal_entity.dob;
+      let year = { year: dob.year() };
+      let month = { month: dob.month() + 1 };
+      let day = { date: dob.date() };
+
+      valuesToSubmit = {
+        legal_entity: {
+          dob: { year: dob.year(), month: dob.month() + 1, day: dob.date() },
+          first_name: values.legal_entity.first_name,
+          last_name: values.legal_entity.last_name,
+          type: values.legal_entity.type
+        }
+      };
+    }
 
     let account = await this.props.updateAccount(
       this.props.accountToken.value,
-      values
+      valuesToSubmit
     );
     console.log({ account });
+   
   };
 
   render() {
@@ -182,10 +232,6 @@ class BankAccountManager extends Component {
       userUID
     } = this.props;
 
-    const countryOptions = [
-      { key: "ca", value: "CA", flag: "ca", text: "Canada" }
-    ];
-
     if (!isLoaded(accountToken)) {
       return (
         <div>
@@ -206,25 +252,26 @@ class BankAccountManager extends Component {
           showComplete={showComplete}
           showCountrySelect={showCountrySelect}
         />
-        {loading  ? (
-                       <Dimmer active inverted>
-                       <Loader content="Connecting to Stripe" />
-                     </Dimmer>
+        {loading ? (
+          <Dimmer active inverted>
+            <Loader content="Connecting to Stripe" />
+          </Dimmer>
         ) : showCountrySelect ? (
           <SelectCountryForm
-            countryOptions={countryOptions}
             createConnectedAccount={createConnectedAccount}
             userUID={userUID}
           />
         ) : showTOS ? (
           <div>
-            <UserAgreementForm
-              updateTOS={() => updateTOS(accountToken.value)}
-            />
+            {accountToken && accountToken.value && (
+              <UserAgreementForm
+                updateTOS={() => updateTOS(accountToken.value)}
+              />
+            )}
           </div>
         ) : showBankForm ? (
           <Elements>
-            <BankAccountForm
+            <NewBankAccountForm
               accountToken={accountToken}
               addBankAccount={addBankAccount}
               getAccount={getAccount}
@@ -244,13 +291,61 @@ class BankAccountManager extends Component {
                         />
                       </Elements>
                     );
-                  } else {
+                  } else if (fieldKey === "legal_entity.address.state") {
                     return (
                       <Field
                         name={fieldKey}
                         type={fieldKey}
+                        component={SelectInput}
+                        options={provinces}
+                        placeholder="Select Province"
+                      />
+                    );
+                  } else if (fieldKey.includes("legal_entity.dob.year")) {
+                    return (
+                      <Field
+                        name="legal_entity.dob"
+                        type="text"
+                        component={DateInput}
+                        dateFormat="YYYY-MM-DD"
+                        placeholder="Date of Birth"
+                        showYearDropdown={true}
+                        showMonthDropdown={true}
+                        dropdownMode="select"
+                        maxDate={moment().subtract(13, "years")}
+                      />
+                    );
+                  } else if (fieldKey.includes("legal_entity.dob.month"))
+                    return <div />;
+                  else if (fieldKey.includes("legal_entity.dob.day"))
+                    return <div />;
+                  else if (fieldKey === "legal_entity.type") {
+                    return (
+                      <Form.Group inline>
+                        <label> Entity: </label>
+                        <Field
+                          name="legal_entity.type"
+                          type="radio"
+                          value="individual"
+                          label="Individual"
+                          component={RadioInput}
+                        />
+                        <Field
+                          name="legal_entity.type"
+                          type="radio"
+                          value="company"
+                          label="Company"
+                          component={RadioInput}
+                        />
+                      </Form.Group>
+                    );
+                  } else if (fieldKey) {
+                    return (
+                      <Field
+                        name={fieldKey}
+                        type="text"
                         component={TextInput}
-                        placeholder={fieldKey}
+                        placeholder={STRIPE_FIELD_NAMES[fieldKey]}
                       />
                     );
                   }
@@ -271,10 +366,9 @@ class BankAccountManager extends Component {
           <div>
             <Message
               success
-              header="You account is set up"
-              content="However, you may be notified if Stripe requires more information such as photo validation."
+              header="Thats it for now!"
+              content="You will be notified if Stripe requires more information."
             />
-         
           </div>
         )}
       </div>

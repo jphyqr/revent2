@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { compose } from "redux";
 import { StripeProvider } from "react-stripe-elements";
 import BankAccountManager from "./BankAccountManager/BankAccountManager";
-import { firebaseConnect, isEmpty, isLoaded } from "react-redux-firebase";
+import { firebaseConnect, isLoaded } from "react-redux-firebase";
 const actions = {
   closeModal
 };
@@ -16,10 +16,6 @@ const mapState = state => {
   return {
     loading: state.async.loading,
     auth: state.firebase.auth,
-    requesting:
-      authuid &&
-      state.firebase.requesting.stripe_connected_account &&
-      state.firebase.requesting.stripe_connected_account[authuid],
     accountToken:
       authuid &&
       state.firebase.ordered.stripe_connected_account &&
@@ -36,7 +32,7 @@ class ConnectBankAccountModal extends Component {
 
 
   render() {
-    const { closeModal, requesting, accountToken } = this.props;
+    const { closeModal,accountToken } = this.props;
     console.log("connectbankaccount token", accountToken);
 
     return (
@@ -46,7 +42,7 @@ class ConnectBankAccountModal extends Component {
          
           <Modal.Description>
             
-            {!isLoaded(accountToken) || requesting ? (
+            {!isLoaded(accountToken) ? (
               <Dimmer active inverted>
                 <Loader content="Connecting to Stripe" />
               </Dimmer>

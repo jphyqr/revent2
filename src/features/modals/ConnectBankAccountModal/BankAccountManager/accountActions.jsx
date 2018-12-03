@@ -5,6 +5,7 @@ import { toastr } from "react-redux-toastr";
 import fs from "fs";
 import axios from "axios";
 import firebase from "../../../../app/config/firebase";
+import {reset} from 'redux-form'
 import { request } from "http";
 import {
   asyncActionStart,
@@ -221,6 +222,7 @@ export const updateAccount = (accountToken, metadata) => async dispatch => {
       type: FETCH_ACCOUNT,
       payload: { account }
     });
+    dispatch(reset('bankAccountForm'))
     dispatch(asyncActionFinish());
     toastr.success("Success", "Information sent to Stripe");
   } catch (err) {

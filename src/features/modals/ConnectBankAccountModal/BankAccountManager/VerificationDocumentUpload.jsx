@@ -5,7 +5,7 @@ import { uploadGovernmentID } from "./accountActions";
 import { CardElement, injectStripe } from "react-stripe-elements";
 import Cropper from "react-cropper";
 import { firebaseConnect } from "react-redux-firebase";
-import { Button, Header, Icon, Image, Message } from "semantic-ui-react";
+import { Button, Header, Icon, Image, Message, Grid, Segment } from "semantic-ui-react";
 
 const actions = {
   uploadGovernmentID
@@ -71,56 +71,70 @@ class VerificationDocumentUpload extends Component {
     const { loading } = this.props;
 
     return (
-      <div>
-        <Message.Header info>
-          <Message.Header>Stripe needs your ID</Message.Header>
-          <p>Please upload a clear photo of government issued photo ID</p>
-        </Message.Header>
-        <br />
-        <Dropzone onDrop={this.onDrop} multiple={false}>
-          <div style={{ paddingTop: "30px", textAlign: "center" }}>
-            <Icon name="upload" size="huge" />
-            <Header content="Drop image here or click to add" />
-          </div>
-        </Dropzone>
+    <Segment>
 
-        <br />
-        <Header sub color="teal" content="Step 2 - Resize image" />
-        {this.state.files[0] && (
-          <Cropper
-            style={{ height: 200, width: "100%" }}
-            ref="cropper"
-            src={this.state.files[0].preview}
-            aspectRatio={1}
-            viewMode={0}
-            dragMode="move"
-            guides={false}
-            scalable={true}
-            cropBoxMovable={true}
-            cropBoxResizable={true}
-            crop={this.cropImage}
-          />
-        )}
+              <Message info>
+          <Message.Header>Government Photo ID Required</Message.Header>
+          <p> 
+          Please upload an image of your drivers license, passport or other government issued photo identification.
+                  </p>
+        </Message>
+       
 
-        <br />
-        <Header sub color="teal" content="Step 3 - Preview and Upload" />
-        {this.state.files[0] && (
-          <div>
-            <Image
-              style={{ minHeight: "200px", minWidth: "200px" }}
-              src={this.state.cropResult}
-            />
+        <Grid>
+          <Grid.Row />
+          <Grid.Column width={4}>
+            <Header color="teal" sub content="Step 1 - Add Photo" />
+            <Dropzone onDrop={this.onDrop} multiple={false}>
+            <div style={{ paddingTop: "30px", textAlign: "center" }}>
+              <Icon name="upload" size="huge" />
+              <Header content="Drop image here or click to add" />
+            </div>
+          </Dropzone>
+          </Grid.Column>
+   
 
-            <Button
-              loading={loading}
-              onClick={this.uploadImage}
-              style={{ width: "100px" }}
-              positive
-              icon="check"
-            />
-          </div>
-        )}
-      </div>
+          <Grid.Column width={1} />
+          <Grid.Column width={4}>
+            <Header sub color="teal" content="Step 2 - Resize image" />
+            {this.state.files[0] && (
+              <Cropper
+                style={{ height: 200, width: "100%" }}
+                ref="cropper"
+                src={this.state.files[0].preview}
+                aspectRatio={1}
+                viewMode={0}
+                dragMode="move"
+                guides={false}
+                scalable={true}
+                cropBoxMovable={true}
+                cropBoxResizable={true}
+                crop={this.cropImage}
+              />
+            )}
+          </Grid.Column>
+          <Grid.Column width={1} />
+          <Grid.Column width={4}>
+            <Header sub color="teal" content="Step 3 - Preview and Upload" />
+            {this.state.files[0] && (
+              <div>
+                <Image
+                  style={{ minHeight: "200px", minWidth: "200px" }}
+                  src={this.state.cropResult}
+                />
+
+                <Button
+                  loading={loading}
+                  onClick={this.uploadImage}
+                  style={{ width: "100px" }}
+                  positive
+                  icon="check"
+                />
+              </div>
+            )}
+          </Grid.Column>
+        </Grid>
+        </Segment>
     );
   }
 }

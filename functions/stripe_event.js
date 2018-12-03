@@ -4,66 +4,80 @@ const stripe = require("stripe")(functions.config().stripe.webhooks.restricted);
 const cors = require("cors")({ origin: true });
 const endpointSecret = functions.config().stripe.webhooks.secret;
 
-
 module.exports = function(req, res) {
   return cors(req, res, () => {
+    let sig = req.headers["stripe-signature"];
 
+    let event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      endpointSecret
+    );
 
-  let sig = req.headers["stripe-signature"];
+    const { data } = event;
+    const { object, previous_attributes } = data;
+    if (
+      previous_attributes &&
+      previous_attributes.legal_entity &&
+      previous_attributes.legal_entity.verification &&
+      previous_attributes.legal_entity.verification.status === "pending" &&
+      object.legal_entity &&
+      object.legal_entity.verification &&
+      object.legal_entity.verification.status === "verified"
+    ) {
+      console.log("entered verified");
+      console.log("event.account", event.account);
+      return admin
+        .database()
+        .ref("/stripe_connected_account/")
+        .orderByChild("account_token")
+        .equalTo(event.account)
+        .once("value")
+        .then(data => {
+            console.log('data', data)
+            let val = data.val()
+            console.log('data.val', val)
+            let valObject = val[Object.keys(val)[0]]
+            console.log('objectkeys', valObject)
 
- let event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret)
+          let uid = valObject.user_uid;
 
-    console.log({event})
-const {data} = event;
-console.log({data})
-const {object, previous_attributes} = data;
-console.log({object})
-console.log({previous_attributes})
-if(previous_attributes
-    &&previous_attributes.legal_entity
-    &&previous_attributes.legal_entity.verification
-    &&previous_attributes.legal_entity.verification.status==="pending"
-    &&object.legal_entity
-    &&object.legal_entity.verification
-    &&object.legal_entity.verification.status==="verified" ){
-
-        console.log("entered verified")
-
-
-
-let accountsRef = admin.database().ref('/stripe_connected_account/');
-accountsRef.child('user_uid').orderByChild('account_token').equalTo(event.account).once("value", (snapshot)=> {
-    console.log(snapshot.val());
-    snapshot.forEach((data)=> {
-        console.log({data});
-
-        admin
-        .firestore()
-        .collection("users")
-        .doc(data.key)
-        .collection("bank_account_status")
-        .doc(event.account)
-        .set("verified");
-
-
-    });
-});
-
-    
+          let token = valObject.account_token
+          console.log('uid', uid)
+          console.log('token', token)
+          return admin
+            .firestore()
+            .collection("users")
+            .doc(uid)
+            .collection("bank_account_status")
+            .doc(token)
+            .set({verified:true});
+        })
+        .then(() => {
+          return admin
+            .database()
+            .ref("/stripe_events")
+            .push(event);
+        })
+        .then(snapshot => {
+          return res.json({ received: true, ref: snapshot.ref.toString() });
+        })
+        .catch(err => {
+          console.error(err);
+          return res.status(500).end();
+        });
+    } else {
+      return admin
+        .database()
+        .ref("/stripe_events")
+        .push(event)
+        .then(snapshot => {
+          return res.json({ received: true, ref: snapshot.ref.toString() });
+        })
+        .catch(err => {
+          console.error(err);
+          return res.status(500).end();
+        });
     }
-
-
-
-return  admin.database().ref('/stripe_events').push(event)
-.then((snapshot) => {
-  // console.log("snapshot.val", snapshot.val())
-  return res.json({ received: true, ref: snapshot.ref.toString() });
-})
-.catch((err) => {
-  console.error(err);
-  return res.status(500).end();
-});
-
-
   });
 };

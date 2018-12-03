@@ -25,17 +25,31 @@ const mapState = state => {
   };
 };
 
+const countryOptions = [
+  { key: "ca", value: "CA", flag: "ca", text: "Canada" }
+];
 
 class SelectCountryForm extends Component {
-  state = {  countrySelected: "" };
+  state = { 
+     options: [] ,
+      selected: []
+    };
 
 
-  handleChange = (e, { value }) => this.setState({ countrySelected: value });
+    componentWillMount() {
+      this.setState({
+        options: [
+          { key: "ca", value: 'CA', flag: "ca", text: "Canada" }
+        ],
+        selected: 'CA'
+      });
+    }
+
+
+  handleChange = (e, { value }) => this.setState({ selected: value });
 
    handleSubmit = async () => {
-    const { countrySelected } = this.state;
-    console.log("handleSubmit", countrySelected);
-    this.props.createConnectedAccount(this.props.userUID, countrySelected);
+    this.props.createConnectedAccount(this.props.userUID, this.state.selected);
    
   };
   render() {
@@ -45,30 +59,33 @@ class SelectCountryForm extends Component {
     }
 
     const {
-      loading,
-      countryOptions
+      loading
     } = this.props;
 
 
 
     return (
       <div>
-        <p>
-          We need to know which country you are in so we can determine which
-          information Stripe requires.
-        </p>
-        <br />
+      
         <Message info>
+          <Message.Header>Verification</Message.Header>
+          <p>
+          Skidstere will always ask for the minimum required data needed by Stripe.  This means you will be asked for personal data at different stages of verification.  You can expect to be asked for your I.D photo verification and Social Insurance Number .
+        </p>
+        </Message>
+     
+        <Message warning>
           <Message.Header>Canada Only</Message.Header>
           <p>Our services are only available in Canada for now</p>
         </Message>
         <Dropdown
+       defaultValue={this.state.selected}
           placeholder="Select Country"
           fluid
           search
           selection
           onChange={this.handleChange}
-          options={countryOptions}
+          options={this.state.options}
         />
         <br />
         <Button

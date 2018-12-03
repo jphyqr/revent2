@@ -32,7 +32,7 @@ class NavBar extends Component {
 
   async componentWillReceiveProps(newProps) {
 
-    if(newProps.accountToken!==this.props.accountToken)
+    if(newProps.accountToken&&newProps.accountToken!==this.props.accountToken)
     {let connectedAccount = this.props.getAccount(newProps.accountToken.value).then(account=>{
       console.log('new props', account)
 
@@ -68,7 +68,7 @@ this.props.clearAccount()
   };
 
   render() {
-    const { auth, profile ,currentConnectedAccount} = this.props;
+    const { auth, profile } = this.props;
     const authenticated = auth.isLoaded && !auth.isEmpty;
 
     return (
@@ -105,7 +105,6 @@ this.props.clearAccount()
             </Menu.Item>
           )}
             {authenticated? <BankAccountMenuItem
-              currentConnectedAccount = {currentConnectedAccount}
               bankConnect={this.handleBankConnect}
             />: null}        
           {authenticated ? (
