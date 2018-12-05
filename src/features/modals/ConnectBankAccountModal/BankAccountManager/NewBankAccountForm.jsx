@@ -5,7 +5,6 @@ import {
   combineValidators,
   isRequired,
   isNumeric,
-  hasLengthGreaterThan,
   hasLengthBetween
 } from "revalidate";
 import { Segment, Form, Button, Grid, Header ,} from "semantic-ui-react";
@@ -75,9 +74,6 @@ let {institution_number, ...noInstritutionNumber} = noTransitNumber
 
   render() {
     const {
-      accountToken,
-      addBankAccount,
-      getAccount,
       invalid,
       submitting,
       pristine

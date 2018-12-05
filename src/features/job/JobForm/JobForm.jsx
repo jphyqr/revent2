@@ -14,7 +14,6 @@ import {
 import { createJob, updateJob, cancelToggle } from "../jobActions";
 import TextInput from "../../../app/common/form/TextInput";
 import TextArea from "../../../app/common/form/TextArea";
-import RadioInput from "../../../app/common/form/RadioInput";
 import SelectInput from "../../../app/common/form/SelectInput";
 import DateInput from "../../../app/common/form/DateInput";
 import PlaceInput from "../../../app/common/form/PlaceInput";

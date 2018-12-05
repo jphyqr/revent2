@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Dropzone from "react-dropzone";
 import { connect } from "react-redux";
 import { uploadGovernmentID } from "./accountActions";
-import { CardElement, injectStripe } from "react-stripe-elements";
+import {  injectStripe } from "react-stripe-elements";
 import Cropper from "react-cropper";
 import { firebaseConnect } from "react-redux-firebase";
 import { Button, Header, Icon, Image, Message, Grid, Segment } from "semantic-ui-react";

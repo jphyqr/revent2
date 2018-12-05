@@ -2,20 +2,17 @@ import React, { Component } from "react";
 import { Modal, Dropdown, Divider, Button } from "semantic-ui-react";
 import { closeModal } from "./modalActions";
 import { connect } from "react-redux";
-import Script from "react-load-script";
 import { objectToArray } from "../../app/common/util/helpers";
 import { Elements, StripeProvider } from "react-stripe-elements";
 import { firebaseConnect, isEmpty, isLoaded } from "react-redux-firebase"; //even though we using firestore this gives our binding
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import AddCardForm from "../../app/common/form/AddCardForm";
-import TextInput from '../../app/common/form/TextInput'
-//import "./PaymentModal.css"
 
 const actions = {
   closeModal
 };
 
-const mapState = (state, ownProps) => {
+const mapState = state => {
   let sources = {};
   let billingProfile = {};
   let authuid = state.firebase.auth.uid;
@@ -71,7 +68,6 @@ class PaymentModal extends Component {
       closeModal,
       user,
       requesting,
-      auth,
       sources,
 
       billingProfile
@@ -93,14 +89,11 @@ class PaymentModal extends Component {
                 <h1>Pay for Service</h1>
                 <Elements>
                   <div>
-                  
-
-
-                  <AddCardForm
-                    initialValues={user}
-                    sources={sources}
-                    billingProfile={billingProfile}
-                  />
+                    <AddCardForm
+                      initialValues={user}
+                      sources={sources}
+                      billingProfile={billingProfile}
+                    />
                   </div>
                 </Elements>
                 <Divider horizontal> Select a Card </Divider>

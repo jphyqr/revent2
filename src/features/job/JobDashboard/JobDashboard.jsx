@@ -1,19 +1,11 @@
 import React, { Component } from "react";
-import { Segment, Header, Grid, Card, Loader, Sticky } from "semantic-ui-react";
-import JobCard from "./JobCard";
+import {Grid, Sticky } from "semantic-ui-react";
+import LoadingComponent from '../../../app/layout/LoadingComponent'
 import { connect } from "react-redux";
-import sampleData from "../../../app/data/sampleData";
 import JobMap from "./JobMap";
 import JobList from "../JobList/JobList";
-import JobActivity from "../JobActivity/JobActivity";
 import { getJobsForDashboard } from "../jobActions";
 import { firestoreConnect } from "react-redux-firebase"; //even though we using firestore this gives our binding
-import LoadingComponent from "../../../app/layout/LoadingComponent";
-const category = [
-  { key: "snowremoval", text: "Snow Removal", value: "snowremoval" },
-  { key: "carpentry", text: "Carpentry", value: "carpentry" },
-  { key: "plumbing", text: "Plumbing", value: "plumbing" }
-];
 
 const query = [
   {
@@ -81,9 +73,9 @@ class JobDashboard extends Component {
     });
 
   render() {
-    const { loading, activities , jobs} = this.props;
+    const { loading} = this.props;
     const { moreJobs, loadedJobs } = this.state;
-  //  if (this.state.loadingInitial) return <LoadingComponent inverted={true} />;
+ //   if (this.state.loadingInitial) return <LoadingComponent inverted={true} />;
 
     return (
       <Grid>

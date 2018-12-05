@@ -7,11 +7,9 @@ import { connect } from "react-redux";
 import { withFirestore, firebaseConnect, isEmpty } from "react-redux-firebase";
 import { addDirectMessage } from "../userActions";
 import {
-  objectToArray,
-  createDataTree
+  objectToArray
 } from "../../../app/common/util/helpers";
 import UserDirectMessageForm from "./UserDirectMessageForm";
-const eventChat = [];
 
 const actions = {
   addDirectMessage

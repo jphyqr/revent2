@@ -6,6 +6,10 @@ const logging = require("@google-cloud/logging");
 const currency = functions.config().stripe.currency || "USD";
 const retrieveAccount = require("./retrieve_account.js");
 const stripeEvent = require("./stripe_event.js");
+const SENDGRID_API_KEY = functions.config().sendgrid.key
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(SENDGRID_API_KEY);
+const testFCM = require("./test_fcm.js");
 const createExternalBankAccount = require("./create_external_bank_account.js");
 const createConnectedAccount = require("./create_connected_account.js");
 const createBankAccount = require("./create_bank_account.js");
@@ -50,6 +54,7 @@ const createMessage = (type, message) => {
 };
 
 
+exports.testFCM = functions.https.onRequest(testFCM);
 
 exports.uploadID = functions.https.onRequest(uploadID);
 
@@ -295,6 +300,17 @@ exports.newUser = functions.firestore
         .collection("messaging")
         .doc(adminId)
         .set(nowMessaging);
+
+
+
+      let userRecord = admin.auth().getUser(newUserUid).then(userRecord =>{
+        console.log(userRecord)
+   
+        return userRecord
+      })
+   
+
+
 
       return admin
         .firestore()

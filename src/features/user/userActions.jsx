@@ -2,13 +2,92 @@ import moment from "moment";
 import { toastr } from "react-redux-toastr";
 import { FETCH_EVENTS } from "../event/eventConstants";
 import cuid from "cuid";
-import axios from 'axios'
 import firebase from "../../app/config/firebase";
 import {
   asyncActionStart,
   asyncActionFinish,
   asyncActionError
 } from "../async/asyncActions";
+
+
+
+export const storeDeviceToken = () => async (dispatch, getState, {getFirestore}) => {
+  console.log('storeDeviceToken Code Reached')
+  dispatch(asyncActionStart);
+
+
+  const messaging = firebase.messaging();
+  messaging
+    .requestPermission()
+    .then(() => {
+      console.log("Have Permission");
+      return messaging.getToken();
+    })
+    .then(token => {
+      console.log("FCM Token:", token);
+      //you probably want to send your new found FCM token to the
+      //application server so that they can send any push
+      //notification to you.
+      console.log('initialize push code reached, about to storeDeviceToken')
+    // storeDeviceToken(token)
+    const firestore = getFirestore();
+    const userUID = firestore.auth().currentUser.uid;
+
+    console.log('sdt uid', userUID)
+     firestore.set(
+      {
+        collection: "users",
+        doc: userUID,
+        subcollections: [{ collection: "web_push_token", doc: userUID }]
+      },
+      {FCM_token: token}
+    );
+
+     dispatch(asyncActionError());
+    })
+    .catch(error => {
+      if (error.code === "messaging/permission-blocked") {
+          dispatch(asyncActionError());
+        console.log("Please Unblock Notification Request Manually");
+      } else {
+        console.log("Error Occurred", error);
+      }
+    });
+
+
+
+
+
+
+
+  // const firestore = firebase.firestore();
+  // const userUID = firestore.auth().currentUser.uid;
+  // console.log('storeDeviceToken UID', userUID)
+  // try {
+  //   dispatch(asyncActionStart());
+
+  //   await firestore.set(
+  //     {
+  //       collection: "users",
+  //       doc: userUID,
+  //       subcollections: [{ collection: "deviceToken", doc: deviceToken }]
+  //     },
+  //     deviceToken
+  //   );
+  //   dispatch(asyncActionFinish());
+  // } catch (error) {
+  //   console.log(error);
+  //   dispatch(asyncActionError());
+  //   throw new Error("Problem following user");
+  // }
+
+
+};
+
+
+
+
+
 export const updateProfile = user => async (
   dispatch,
   getState,
@@ -623,7 +702,6 @@ export const chargeCard = token => async (
   { getFirebase }
 ) => {
   const firebase = getFirebase();
-  const profile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
   const pushId = cuid();
   console.log("addPaymentCard:");

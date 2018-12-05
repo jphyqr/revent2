@@ -1,12 +1,9 @@
 import React, { Component } from "react";
 import {connect} from 'react-redux'
 import {
-  Modal,
   Button,
   Dropdown,
-  Message,
-  Loader,
-  Dimmer
+  Message
 } from "semantic-ui-react";
 
 
@@ -25,9 +22,7 @@ const mapState = state => {
   };
 };
 
-const countryOptions = [
-  { key: "ca", value: "CA", flag: "ca", text: "Canada" }
-];
+
 
 class SelectCountryForm extends Component {
   state = { 

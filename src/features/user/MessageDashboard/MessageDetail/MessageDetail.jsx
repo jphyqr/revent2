@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Header, Segment, Comment, Sticky } from "semantic-ui-react";
+import {  Segment, Comment, Sticky } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import distanceInWords from "date-fns/distance_in_words";
 import { compose } from "redux";
@@ -76,7 +76,7 @@ componentDidUpdate(){
 
  
 
-    let messagesEnd = React.createRef()
+    
     const { selectedMessage, addDirectMessage, directMessages } = this.props;
     return (
       <Sticky offset={100}>

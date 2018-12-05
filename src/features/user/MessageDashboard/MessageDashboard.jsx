@@ -57,7 +57,7 @@ class MessageDashboard extends Component {
   });
 
   render() {
-    const { loading, messaging, auth, lastmessage } = this.props;
+    const { loading, messaging } = this.props;
     const { selectedMessage } = this.state;
      if (!isLoaded(messaging) || isEmpty(messaging) ||!isLoaded(selectedMessage) || isEmpty(selectedMessage))
        return <LoadingComponent inverted={true} />;

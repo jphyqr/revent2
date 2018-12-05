@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Grid, Segment, Icon } from "semantic-ui-react";
+import { Button, Grid, Segment } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { openModal } from "../../modals/modalActions";

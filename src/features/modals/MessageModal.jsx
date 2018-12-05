@@ -13,7 +13,7 @@ const actions = {
 
 class MessageModal extends Component {
   handleCommentSubmit = values => {
-    const { reset, messageUser, data , closeModal, addDirectMessage} = this.props;
+    const {  messageUser, data , closeModal, addDirectMessage} = this.props;
     console.log({data})
     console.log({values})
     const value = {comment: values.newmessage}

@@ -16,8 +16,8 @@ class UserAgreementForm extends Component {
     this.setState({ accepted: !this.state.accepted });
 
   render() {
-    const { value } = this.state;
-    const { updateTOS, loading } = this.props;
+    //ISSUE loading issue? should we grab loading from props and check for render?
+    const { updateTOS } = this.props;
     return (
       <div>
         <Message warning>

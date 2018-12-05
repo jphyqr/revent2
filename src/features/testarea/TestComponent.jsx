@@ -1,16 +1,12 @@
-import React, { Component } from 'react';
-import { Button } from 'semantic-ui-react';
-import { connect } from 'react-redux';
-import Script from 'react-load-script';
+import React, { Component } from "react";
+import { Button } from "semantic-ui-react";
+import { connect } from "react-redux";
 
-import {Elements, StripeProvider} from 'react-stripe-elements'
+import { Elements, StripeProvider } from "react-stripe-elements";
 // import GoogleMapReact from 'google-map-react';
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng
-} from 'react-places-autocomplete';
-import { incrementAsync, decrementAsync } from './testActions';
-import { openModal } from '../modals/modalActions'
+import { geocodeByAddress, getLatLng } from "react-places-autocomplete";
+import { incrementAsync, decrementAsync } from "./testActions";
+import { openModal } from "../modals/modalActions";
 
 const mapState = state => ({
   data: state.test.data,
@@ -26,7 +22,6 @@ const actions = {
 // const Marker = () => <Icon name='marker' size='big' color='red'/>
 
 class TestComponent extends Component {
-
   static defaultProps = {
     center: {
       lat: 59.95,
@@ -36,7 +31,7 @@ class TestComponent extends Component {
   };
 
   state = {
-    address: '',
+    address: "",
     scriptLoaded: false
   };
 
@@ -49,19 +44,20 @@ class TestComponent extends Component {
 
     geocodeByAddress(this.state.address)
       .then(results => getLatLng(results[0]))
-      .then(latLng => console.log('Success', latLng))
-      .catch(error => console.error('Error', error));
+      .then(latLng => console.log("Success", latLng))
+      .catch(error => console.error("Error", error));
   };
 
   onChange = address => this.setState({ address });
 
   render() {
-    const inputProps = {
-      value: this.state.address,
-      onChange: this.onChange
-    };
-
-    const { incrementAsync, decrementAsync, data, openModal, loading } = this.props;
+    const {
+      incrementAsync,
+      decrementAsync,
+      data,
+      openModal,
+      loading
+    } = this.props;
     return (
       <div>
         {/* <Script
@@ -70,21 +66,32 @@ class TestComponent extends Component {
         /> */}
         <h1>Test Area</h1>
         <h3>The answer is: {data}</h3>
-        <Button loading={loading} onClick={incrementAsync} color="green" content="Increment" />
-        <Button loading={loading} onClick={decrementAsync} color="red" content="Decrement" />
-        <Button onClick={() => openModal('TestModal', {data: 42})} color="teal" content="Open Modal" />
+        <Button
+          loading={loading}
+          onClick={incrementAsync}
+          color="green"
+          content="Increment"
+        />
+        <Button
+          loading={loading}
+          onClick={decrementAsync}
+          color="red"
+          content="Decrement"
+        />
+        <Button
+          onClick={() => openModal("TestModal", { data: 42 })}
+          color="teal"
+          content="Open Modal"
+        />
         <br />
         <br />
 
-
-    
-    <StripeProvider apiKey="pk_test_Y9DV2lcx7cuPwunYtda4wGyu">
-        <div className="example">
-          <h1>React Stripe Elements Example</h1>
-          <Elements>
-          </Elements>
-        </div>
-      </StripeProvider>
+        <StripeProvider apiKey="pk_test_Y9DV2lcx7cuPwunYtda4wGyu">
+          <div className="example">
+            <h1>React Stripe Elements Example</h1>
+            <Elements />
+          </div>
+        </StripeProvider>
 
         {/* <form onSubmit={this.handleFormSubmit}>
           {this.state.scriptLoaded && (
@@ -93,7 +100,7 @@ class TestComponent extends Component {
           <button type="submit">Submit</button>
         </form> */}
 
-      {/* <div style={{ height: '300px', width: '100%' }}>
+        {/* <div style={{ height: '300px', width: '100%' }}>
         <GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyCTN8X_q_xtMYCnacteF4ZQj0RKXodI080' }}
           defaultCenter={this.props.center}
@@ -106,10 +113,12 @@ class TestComponent extends Component {
           />
         </GoogleMapReact>
       </div> */}
-
       </div>
     );
   }
 }
 
-export default connect(mapState, actions)(TestComponent);
+export default connect(
+  mapState,
+  actions
+)(TestComponent);

@@ -26,9 +26,6 @@ const mapState = state => {
 
 class ConnectBankAccountModal extends Component {
 
-  handleUnmount(){
-    console.log
-  }
 
 
   render() {
@@ -36,7 +33,7 @@ class ConnectBankAccountModal extends Component {
     console.log("connectbankaccount token", accountToken);
 
     return (
-      <Modal open={true}  onUnmount={()=>this.handleUnmount()}closeIcon="close" onClose={closeModal} closeOnDimmerClick={false}>
+      <Modal open={true}  closeIcon="close" onClose={closeModal} closeOnDimmerClick={false}>
         <Modal.Header>Stripe Connect</Modal.Header>
         <Modal.Content>
          

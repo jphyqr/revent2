@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Segment, List, Label, Item, Button } from "semantic-ui-react";
+import { Segment, List, Item, Button } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { objectToArray } from "../../../app/common/util/helpers";
 import { openModal } from "../../modals/modalActions";

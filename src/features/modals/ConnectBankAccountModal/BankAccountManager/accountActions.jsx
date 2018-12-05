@@ -1,12 +1,12 @@
-import moment from "moment";
+
 import { FETCH_ACCOUNT, CLEAR_ACCOUNT } from "./accountConstants";
 import cuid from "cuid";
 import { toastr } from "react-redux-toastr";
-import fs from "fs";
+
 import axios from "axios";
-import firebase from "../../../../app/config/firebase";
+
 import {reset} from 'redux-form'
-import { request } from "http";
+
 import {
   asyncActionStart,
   asyncActionFinish,
@@ -24,7 +24,7 @@ export const uploadGovernmentID = (
 ) => async (dispatch, getState, { getFirebase, getFirestore }) => {
   const imageName = cuid();
   const firebase = getFirebase();
-  const firestore = getFirestore();
+
 
   // 12 uid gOueUk3AjUPXvHMjjJ34FkVQAM13
   const user = firebase.auth().currentUser;
@@ -152,13 +152,11 @@ export const createConnectedAccount = (userUID, countryCode) => async (
 
 export const updateTOS = accountToken => async dispatch => {
   console.log("updating TOS", accountToken);
-  const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
 
   try {
     dispatch(asyncActionStart());
 
-    const date = 1234213213;
-    const ip = "69.11.6.98";
+ //ISSUE need to grab date and ip properly
     const updateObj = {
       tos_acceptance: {
         date: 1234213213,
@@ -192,7 +190,6 @@ export const updateTOS = accountToken => async dispatch => {
 };
 
 export const updateAccount = (accountToken, metadata) => async dispatch => {
-  const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
 
   try {
     dispatch(asyncActionStart());
@@ -233,7 +230,6 @@ export const updateAccount = (accountToken, metadata) => async dispatch => {
 };
 
 export const getAccount = accountToken => async dispatch => {
-  const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
 
   try {
     dispatch(asyncActionStart());
@@ -284,8 +280,7 @@ export const addBankAccount = (params, accountToken) => async (
   console.log("addBankAccount params", params);
 
 
-  const ROOT_URL = "https://us-central1-revents-99d5b.cloudfunctions.net";
-
+ 
   try {
     dispatch(asyncActionStart());
 

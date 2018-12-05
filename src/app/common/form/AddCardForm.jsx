@@ -2,22 +2,19 @@ import React, { Component } from "react";
 import { CardElement, injectStripe } from "react-stripe-elements";
 import { chargeCard } from "../../../features/user/userActions";
 import { connect } from "react-redux";
-import firebase from "../../config/firebase";
 import { toastr } from "react-redux-toastr";
 import { Field, reduxForm } from "redux-form";
 import TextInput from "../../../app/common/form/TextInput";
-import PaymentTextInput from '../../../app/common/form/PaymentTextInput'
-import {addPaymentCard} from '../../../features/user/userActions'
+import PaymentTextInput from "../../../app/common/form/PaymentTextInput";
+import { addPaymentCard } from "../../../features/user/userActions";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
-import {Divider, Button} from 'semantic-ui-react'
-
-
+import { Divider, Button } from "semantic-ui-react";
 
 const mapState = state => {
-  return  { 
+  return {
     loading: state.async.loading
-  }
-}
+  };
+};
 const actions = {
   chargeCard,
   addPaymentCard
@@ -29,33 +26,28 @@ class AddCardForm extends Component {
   }
 
   async submit() {
-    const {billingAddress, billingName, billingPostalCode, city} = this.props.billingProfile
- 
-    let {token, error} = await this.props.stripe.createToken({ type: "card", owner:{name: billingName, address:{city:city, line1:billingAddress} }});
-    
-  
-    
-    // console.log("Checkout Form");
- 
-   // let token = await this.props.stripe.createToken({ type: "card", card:{metadata:{name: billingName}, address_line1:billingAddress} });
-       // console.log({ token });
+    const { billingAddress, billingName, city } = this.props.billingProfile;
+
+    let { token, error } = await this.props.stripe.createToken({
+      type: "card",
+      owner: {
+        name: billingName,
+        address: { city: city, line1: billingAddress }
+      }
+    });
+
     if (error) {
       console.log(error.message);
       toastr.error("Oops", "Problem adding card");
     } else {
- 
-      this.props.addPaymentCard(token)
+      this.props.addPaymentCard(token);
     }
-
-
-
-
   }
 
   render() {
-    const { pristine, submitting, user , form, addPaymentCard, loading, billingProfile} = this.props;
-   if (loading) return <LoadingComponent inverted={true} />;
-   
+    const { loading } = this.props;
+    if (loading) return <LoadingComponent inverted={true} />;
+
     return (
       <div className="checkout">
         <Divider horizontal> Billing Information </Divider>
@@ -81,10 +73,12 @@ class AddCardForm extends Component {
           component={TextInput}
           placeholder="Billing Postal Code"
         />
-     <Divider horizontal> Credit Card Information </Divider>
-        <CardElement hidePostalCode/>
-        <br></br>
-        <Button primary onClick={this.submit}>Add Card</Button>
+        <Divider horizontal> Credit Card Information </Divider>
+        <CardElement hidePostalCode />
+        <br />
+        <Button primary onClick={this.submit}>
+          Add Card
+        </Button>
       </div>
     );
   }

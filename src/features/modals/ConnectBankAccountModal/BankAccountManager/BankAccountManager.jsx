@@ -8,7 +8,7 @@ import AccountProgress from "./AccountProgress";
 import SelectCountryForm from "../SelectCountryForm";
 import moment from "moment";
 
-import _ from "lodash";
+
 import {
   getAccount,
   updateAccount,
@@ -23,7 +23,7 @@ import RadioInput from "../../../../app/common/form/RadioInput";
 import SelectInput from "../../../../app/common/form/SelectInput";
 import DateInput from "../../../../app/common/form/DateInput";
 
-import BankAccountForm from "../../../../app/common/form/BankAccountForm";
+
 import NewBankAccountForm from "./NewBankAccountForm";
 import { Elements } from "react-stripe-elements";
 import {
@@ -32,7 +32,6 @@ import {
   isRequired,
   isNumeric,
   matchesPattern,
-  hasLengthGreaterThan,
   hasLengthBetween
 } from "revalidate";
 import UserAgreementForm from "./UserAgreementForm";
@@ -190,9 +189,7 @@ class BankAccountManager extends Component {
     let valuesToSubmit = values;
     if (values.legal_entity.dob) {
       let dob = values.legal_entity.dob;
-      let year = { year: dob.year() };
-      let month = { month: dob.month() + 1 };
-      let day = { date: dob.date() };
+
 
       valuesToSubmit = {
         legal_entity: {

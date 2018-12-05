@@ -34,25 +34,129 @@ module.exports = function(req, res) {
         .equalTo(event.account)
         .once("value")
         .then(data => {
-            console.log('data', data)
-            let val = data.val()
-            console.log('data.val', val)
-            let valObject = val[Object.keys(val)[0]]
-            console.log('objectkeys', valObject)
+          console.log("data", data);
+          let val = data.val();
+          console.log("data.val", val);
+          let valObject = val[Object.keys(val)[0]];
+          console.log("objectkeys", valObject);
 
           let uid = valObject.user_uid;
 
-          let token = valObject.account_token
-          console.log('uid', uid)
-          console.log('token', token)
-          return admin
+          let token = valObject.account_token;
+          console.log("uid", uid);
+          console.log("token", token);
+
+          admin
             .firestore()
             .collection("users")
             .doc(uid)
             .collection("bank_account_status")
             .doc(token)
-            .set({verified:true});
+            .set({ verified: true });
+          return uid;
         })
+        .then(uid => {
+          return admin
+            .firestore()
+            .collection("users")
+            .doc(uid)
+            .collection("web_push_token")
+            .doc(uid)
+            .get();
+        })
+        .then(queryResult => {
+          const webPushToken = queryResult.data().FCM_token;
+          return webPushToken;
+        })
+        .then(webPushToken => {
+          console.log("webPushToken", webPushToken);
+
+          const payload = {
+            notification: {
+              title: "Stripe Verified",
+              body: "Your account has been verified"
+            }
+          };
+          return admin.messaging().sendToDevice(webPushToken, payload);
+        })
+        .then(() => {
+          return admin
+            .database()
+            .ref("/stripe_events")
+            .push(event);
+        })
+        .then(snapshot => {
+          return res.json({ received: true, ref: snapshot.ref.toString() });
+        })
+        .catch(err => {
+          console.error(err);
+          return res.status(500).end();
+        });
+    } else if (
+      previous_attributes &&
+      previous_attributes.legal_entity &&
+      previous_attributes.legal_entity.verification &&
+      previous_attributes.legal_entity.verification.status === "pending" &&
+      object.legal_entity &&
+      object.legal_entity.verification &&
+      object.legal_entity.verification.status === "unverified"
+    ) {
+      console.log("entered pending=> unverified");
+      console.log("event.account", event.account);
+      return admin
+        .database()
+        .ref("/stripe_connected_account/")
+        .orderByChild("account_token")
+        .equalTo(event.account)
+        .once("value")
+        .then(data => {
+          console.log("data", data);
+          let val = data.val();
+          console.log("data.val", val);
+          let valObject = val[Object.keys(val)[0]];
+          console.log("objectkeys", valObject);
+
+          let uid = valObject.user_uid;
+
+          let token = valObject.account_token;
+          console.log("uid", uid);
+          console.log("token", token);
+
+          admin
+            .firestore()
+            .collection("users")
+            .doc(uid)
+            .collection("bank_account_status")
+            .doc(token)
+            .set({ verified: false });
+
+          return uid;
+        })
+        .then(uid => {
+          return admin
+            .firestore()
+            .collection("users")
+            .doc(uid)
+            .collection("web_push_token")
+            .doc(uid)
+            .get();
+        })
+        .then(queryResult => {
+          const webPushToken = queryResult.data().FCM_token;
+          return webPushToken;
+        })
+        .then(webPushToken => {
+          console.log("webPushToken", webPushToken);
+
+          const payload = {
+            notification: {
+              title: "Stripe Unverified",
+              body: "Your account was not verfied"
+            }
+          };
+          return admin.messaging().sendToDevice(webPushToken, payload);
+        })
+
         .then(() => {
           return admin
             .database()

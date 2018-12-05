@@ -1,9 +1,8 @@
 import React from 'react';
-import { Segment, Icon, Popup, Grid } from 'semantic-ui-react';
+import { Segment } from 'semantic-ui-react';
 import GoogleMapReact from 'google-map-react';
 import MapMarker from './MapMarker'
 
-const Marker = () => <Icon name="marker" size="big" color="red" />;
 
 const JobMap = ({ lat, lng, jobs }) => {
   const center = [lat, lng];
