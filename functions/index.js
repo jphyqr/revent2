@@ -421,6 +421,8 @@ exports.followUser = functions.firestore
     });
   });
 
+
+
 exports.createActivity = functions.firestore
   .document("events/{eventId}")
   .onCreate(event => {

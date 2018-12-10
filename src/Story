@@ -1,0 +1,64 @@
+Want to combine CBAModal and BAManager into same component
+
+
+
+
+v2 create external bank account body:  { params: 
+   { country: 'CA',
+     currency: 'CAD',
+     routing_number: '11000-000',
+     account_number: '000123456789',
+     account_holder_name: 'Jo Jo',
+     account_holder_type: 'individual' } }
+
+
+
+     v2 create external bank account body:  { params: 
+   { country: 'CA',
+     currency: 'CAD',
+     routing_number: '11000-000',
+     account_number: '000123456789',
+     account_holder_name: 'Jo Jo',
+     account_holder_type: 'individual' } }
+
+
+     v2 create external bank account body:  { params: 
+   { country: 'CA',
+     currency: 'CAD',
+     account_number: '00123456789',
+     account_holder_name: 'John Hashem',
+     account_holder_type: 'individual',
+     routing_number: '11000-000' } }
+
+
+
+     Accounts at Photo Stage:
+
+
+     FCM token
+
+ckR_-t57H7s:APA91bGZ9ybugxVR5NrI4NANlBPUl4tHSr5y6Btprh88W0-bdF2ZM7joNcRbV9LVMe-8PnKuHn79KgHAz40-37bVqFItp84fcl9I_JvyDkyzbsxhdrbq3AmJJ3_BcCFXc070fT_RtnY7api key
+AIzaSyDeaVG1xzsJMpj7FhwWN4gVtzBL6AJRWZo
+
+curl -X POST -H "Authorization: key=AIzaSyDeaVG1xzsJMpj7FhwWN4gVtzBL6AJRWZo" -H "Content-Type: application/json" \
+   -d '{
+  "data": {
+    "notification": {
+        "title": "FCM Message",
+        "body": "This is an FCM Message",
+        "icon": "/itwonders-web-logo.png",
+    }
+  },
+  "to": "ckR_-t57H7s:APA91bGZ9ybugxVR5NrI4NANlBPUl4tHSr5y6Btprh88W0-bdF2ZM7joNcRbV9LVMe-8PnKuHn79KgHAz40-37bVqFItp84fcl9I_JvyDkyzbsxhdrbq3AmJJ3_BcCFXc070fT_RtnY7
+"
+}' https://fcm.googleapis.com/fcm/send
+
+
+
+
+
+
+
+curl -X POST --header "Authorization: key=AIzaSyDeaVG1xzsJMpj7FhwWN4gVtzBL6AJRWZo" --header
+ "Content-Type: application/json" -d "{\"to\":\"c4ednJziITU:APA91bHt6M8TG0kjXoUGharkMIN36VtVKxRMgAAW6JlYAAsfMe1Zdv164XLrx9HK_A8sZgdXkl1Djajx5eAcL5aEmGbaEArr1qL17zcqZSXjZ1bXG9bpRlEHa0FyGRo_0hMZWBM3rldZ\",
+ \"priority\":\"high\",\"notification\":{\"body\": \"FOO BAR BLA BLA\"}}" "https://fcm.googleapis.com/fcm/send"

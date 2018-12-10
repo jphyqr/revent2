@@ -1,3 +1,5 @@
+//OLD MESSAGE
+
 import React, { Component } from "react";
 import { Form, Button } from "semantic-ui-react";
 import { Field, reduxForm } from "redux-form";
@@ -25,7 +27,7 @@ class UserDirectMessageForm extends Component {
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.handleCommentSubmit)}>
-        <Field name="comment" type="text" component={TextArea} rows={2} />
+        <Field name="comment" type="text" component={TextArea} rows={1} />
         <Button content="Add Reply" labelPosition="left" icon="edit" primary />
       </Form>
     );

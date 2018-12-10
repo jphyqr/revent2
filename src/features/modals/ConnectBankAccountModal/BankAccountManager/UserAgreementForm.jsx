@@ -51,26 +51,7 @@ class UserAgreementForm extends Component {
           conflict laws, will govern these terms of service, or any dispute of
           any sort that might come between [name] and you, or its business
           partners and associates. Disputes Any dispute related in any way to
-          your visit to this website or to products you purchase from us shall
-          be arbitrated by state or federal court [your location] and you
-          consent to exclusive jurisdiction and venue of such courts. Comments,
-          Reviews, and Emails Visitors may post content as long as it is not
-          obscene, illegal, defamatory, threatening, infringing of intellectual
-          property rights, invasive of privacy or injurious in any other way to
-          third parties. Content has to be free of software viruses, political
-          campaign, and commercial solicitation. We reserve all rights (but not
-          the obligation) to remove and/or edit such content. When you post your
-          content, you grant [name] non-exclusive, royalty-free and irrevocable
-          right to use, reproduce, publish, modify such content throughout the
-          world in any media. License and Site Access We grant you a limited
-          license to access and make personal use of this website. You are not
-          allowed to download or modify it. This may be done only with written
-          consent from us. User Account If you are an owner of an account on
-          this website, you are solely responsible for maintaining the
-          confidentiality of your private user details (username and password).
-          You are responsible for all activities that occur under your account
-          or password. We reserve all rights to terminate accounts, edit or
-          remove content and cancel orders in their sole discretion.
+          your vis
         </Message>
         <Form>
           <Form.Field

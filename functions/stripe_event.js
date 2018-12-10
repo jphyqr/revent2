@@ -3,7 +3,7 @@ const functions = require("firebase-functions");
 const stripe = require("stripe")(functions.config().stripe.webhooks.restricted);
 const cors = require("cors")({ origin: true });
 const endpointSecret = functions.config().stripe.webhooks.secret;
-
+const cuid = require('cuid')
 module.exports = function(req, res) {
   return cors(req, res, () => {
     let sig = req.headers["stripe-signature"];
@@ -13,7 +13,7 @@ module.exports = function(req, res) {
       sig,
       endpointSecret
     );
-
+    let uid;
     const { data } = event;
     const { object, previous_attributes } = data;
     if (
@@ -25,6 +25,7 @@ module.exports = function(req, res) {
       object.legal_entity.verification &&
       object.legal_entity.verification.status === "verified"
     ) {
+      
       console.log("entered verified");
       console.log("event.account", event.account);
       return admin
@@ -40,22 +41,21 @@ module.exports = function(req, res) {
           let valObject = val[Object.keys(val)[0]];
           console.log("objectkeys", valObject);
 
-          let uid = valObject.user_uid;
+           uid = valObject.user_uid;
 
           let token = valObject.account_token;
           console.log("uid", uid);
           console.log("token", token);
 
-          admin
+          return admin
             .firestore()
             .collection("users")
             .doc(uid)
             .collection("bank_account_status")
             .doc(token)
             .set({ verified: true });
-          return uid;
         })
-        .then(uid => {
+        .then(() => {
           return admin
             .firestore()
             .collection("users")
@@ -77,7 +77,17 @@ module.exports = function(req, res) {
               body: "Your account has been verified"
             }
           };
-          return admin.messaging().sendToDevice(webPushToken, payload);
+           admin.messaging().sendToDevice(webPushToken, payload);
+           return payload
+        }).then((payload)=>{
+          const newNotification = {
+            type: "stripeSuccess",
+            title: payload.notification.title,
+            description: payload.notification.body,
+            timestamp : admin.firestore.FieldValue.serverTimestamp()
+          }
+          console.log('add uid', uid)
+          return admin.firestore().collection('users').doc(uid).collection('notifications').add(newNotification)
         })
         .then(() => {
           return admin
@@ -116,13 +126,13 @@ module.exports = function(req, res) {
           let valObject = val[Object.keys(val)[0]];
           console.log("objectkeys", valObject);
 
-          let uid = valObject.user_uid;
+           uid = valObject.user_uid;
 
           let token = valObject.account_token;
           console.log("uid", uid);
           console.log("token", token);
 
-          admin
+         return admin
             .firestore()
             .collection("users")
             .doc(uid)
@@ -130,9 +140,9 @@ module.exports = function(req, res) {
             .doc(token)
             .set({ verified: false });
 
-          return uid;
+         
         })
-        .then(uid => {
+        .then(() => {
           return admin
             .firestore()
             .collection("users")
@@ -150,13 +160,24 @@ module.exports = function(req, res) {
 
           const payload = {
             notification: {
-              title: "Stripe Unverified",
+              title: "Stripe needs more Information",
               body: "Your account was not verfied"
             }
           };
-          return admin.messaging().sendToDevice(webPushToken, payload);
+           admin.messaging().sendToDevice(webPushToken, payload);
+           return payload
         })
-
+        .then((payload)=>{
+          const newNotification = {
+            type: "stripeFail",
+            title: payload.notification.title,
+            description: payload.notification.body,
+            timestamp : admin.firestore.FieldValue.serverTimestamp()
+          }
+          const notificationUID = cuid()
+          console.log('pending add uid', uid)
+          return admin.firestore().collection('users').doc(uid).collection('notifications').add(newNotification)
+        })
         .then(() => {
           return admin
             .database()

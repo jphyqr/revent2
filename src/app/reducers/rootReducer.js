@@ -5,6 +5,7 @@ import eventReducer from '../../features/event/eventReducer';
 import accountReducer from '../../features/modals/ConnectBankAccountModal/BankAccountManager/accountReducer'
 import jobReducer from '../../features/job/jobReducer'
 import modalsReducer from '../../features/modals/modalReducer';
+import messagesReducer from '../../features/popup/popupReducer'
 import authReducer from '../../features/auth/authReducer';  
 import asyncReducer from '../../features/async/asyncReducer'
 import {firebaseReducer} from 'react-redux-firebase'
@@ -22,7 +23,8 @@ const rootReducer = combineReducers({
   toastr: toastrRedcer,
   firebase: firebaseReducer,
   firestore: firestoreReducer,
-  account: accountReducer
+  account: accountReducer,
+  openMessages: messagesReducer
 })
 
 export default rootReducer

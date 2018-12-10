@@ -631,7 +631,7 @@ export const addDirectMessage = (receiverId, values) => async (
 
   try {
     await firebase.push(`direct_messages/${threadId}`, newComment);
-    toastr.success("Success", "Message Sent");
+ 
   } catch (error) {
     console.log(error);
     toastr.error("Oops", "Problem adding direct message");

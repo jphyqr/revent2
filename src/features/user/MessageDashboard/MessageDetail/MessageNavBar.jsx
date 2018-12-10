@@ -1,3 +1,5 @@
+//OLD MESSAGE
+
 import React, { Component } from "react";
 import { Segment, Header, Button, Grid } from "semantic-ui-react";
 class MessageNavBar extends Component {

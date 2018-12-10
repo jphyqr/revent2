@@ -6,9 +6,10 @@ import { NavLink, Link, withRouter } from "react-router-dom";
 import SignedOutMenu from "../Menus/SignedOutMenu";
 import SignedInMenu from "../Menus/SignedInMenu";
 import BankAccountMenuItem from './BankConnectMenuItem'
+import NotifcationsMenuItem from './Notifications/NotificationsMenuItem'
 import { openModal } from "../../modals/modalActions";
 import {getAccount, clearAccount} from '../../modals/ConnectBankAccountModal/BankAccountManager/accountActions'
-
+import MessagesMenuItem from './Messages/MessagesMenuItem'
 
 const actions = {
   openModal, clearAccount, getAccount
@@ -78,9 +79,9 @@ this.props.clearAccount()
             <img src="/assets/logo.png" alt="logo" />
             Re-vents
           </Menu.Item>
-          {/* <Menu.Item as={NavLink} to="/events" name="Events" /> */}
+        {/* <Menu.Item as={NavLink} to="/events" name="Events" /> */}
           <Menu.Item as={NavLink} to="/jobs" name="Jobs" />
-          {/* <Menu.Item as={NavLink} to="/test" name="Test" /> */}
+          <Menu.Item as={NavLink} to="/test" name="Test" />
           {authenticated && (
             <Menu.Item as={NavLink} to="/people" name="People" />
           )}
@@ -106,7 +107,13 @@ this.props.clearAccount()
           )}
             {authenticated? <BankAccountMenuItem
               bankConnect={this.handleBankConnect}
-            />: null}        
+            />: null}  
+                        {authenticated? <NotifcationsMenuItem
+             
+            />: null}  
+                           {authenticated? <MessagesMenuItem
+             
+             />: null}          
           {authenticated ? (
             
             <SignedInMenu
