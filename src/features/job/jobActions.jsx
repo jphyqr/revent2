@@ -123,12 +123,13 @@ export const getJobsForDashboard = lastJob => async (
 
     lastJob
       ? (query = jobsRef
-          .where("date", ">=", today)
+        //#DATE UPDATE JOBS
+          // .where("date", ">=", today)
           .orderBy("date")
           .startAfter(startAfter)
           .limit(4))
       : (query = jobsRef
-          .where("date", ">=", today)
+          // .where("date", ">=", today)
           .orderBy("date")
           .limit(4));
 

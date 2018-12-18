@@ -2,18 +2,19 @@ import React, { Component } from "react";
 import { Container, Segment, Button, Label , Feed} from "semantic-ui-react";
 import { Route, Switch } from "react-router-dom";
 import NavBar from "../../features/nav/NavBar/NavBar";
-import JobForm from "../../features/job/JobForm/JobForm";
 import SettingsDashboard from "../../features/user/Settings/SettingsDashboard";
 import JobDashboard from "../../features/job/JobDashboard/JobDashboard";
+import BuildDashboard from "../../features/build/BuildDashboard/BuildDashboard";
 import UserDetailedPage from "../../features/user/UserDetailed/UserDetailedPage";
 import UserDirectMessagePage from "../../features/user/UserDetailed/UserDirectMessagePage";
 import PeopleDashboard from "../../features/user/PeopleDashboard/PeopleDashboard";
 import JobDetailedPage from "../../features/job/JobDetailed/JobDetailedPage";
 import MessageDashboard from "../../features/user/MessageDashboard/MessageDashboard";
+import TestScroll from '../../features/testarea/TestScroll'
+import TestAnimations from '../../features/testarea/TestAnimations'
 import HomePage from "../../features/home/HomePage";
 import TestComponent from "../../features/testarea/TestComponent";
 import ModalManager from "../../features/modals/ModalManager";
-import OpenMessage from "../../features/nav/NavBar/Messages/OpenMessage/OpenMessage";
 import { connect } from "react-redux";
 import { closeMessage } from "../../features/popup/popupActions";
 import {withRouter} from 'react-router-dom'
@@ -71,20 +72,20 @@ class App extends Component {
             <div>
               <NavBar />
 
-              <Container className="main">
+              <Container style={{width:"auto", background:"DimGrey"}}className="main">
                 <Switch>
                   <Route path="/jobs" component={JobDashboard} />
                   <Route path="/test" component={TestComponent} />
+                  <Route path="/testAnimations" component={TestScroll} />
                   <Route path="/people" component={PeopleDashboard} />
+                  <Route path="/build" component={BuildDashboard} />
                   <Route path="/profile/:id" component={UserDetailedPage} />
                   <Route
                     path="/directmessage/:id"
                     component={UserDirectMessagePage}
                   />
                   <Route path="/settings" component={SettingsDashboard} />
-                  <Route path="/createJob" component={JobForm} />
                   <Route path="/job/:id" component={JobDetailedPage} />
-                  <Route path="/managejob/:id" component={JobForm} />
                   <Route path="/messages" component={MessageDashboard} />
                 </Switch>
               </Container>

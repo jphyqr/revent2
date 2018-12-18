@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {Grid, Sticky } from "semantic-ui-react";
+import {Grid, Sticky, Segment } from "semantic-ui-react";
 import LoadingComponent from '../../../app/layout/LoadingComponent'
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
@@ -80,12 +80,17 @@ class JobDashboard extends Component {
     return (
       <Grid>
                 <Grid.Row>
+                  <Grid.Column width={3}>
+        <Segment>
+          My Jobs
+        </Segment>
+                  </Grid.Column>
         <Grid.Column width={10}>
-        <Sticky offset={100}> 
+        
           <JobMap jobs={loadedJobs} lat={50.44} lng={-104.61} />
-          </Sticky>
+         
           </Grid.Column>
-          <Grid.Column width={6}>
+          <Grid.Column width={3}>
           <div ref={this.handleContextRef}>
     <JobList
       offset={100}

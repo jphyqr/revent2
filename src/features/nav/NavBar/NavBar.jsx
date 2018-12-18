@@ -53,6 +53,10 @@ class NavBar extends Component {
     this.props.openModal("RegisterModal");
   };
 
+
+  handleCreateJob = () =>{
+    this.props.openModal("CreateJobModal")
+  }
   handleBankConnect = () => {
     this.props.openModal("ConnectBankAccountModal");
   };
@@ -82,11 +86,15 @@ this.props.clearAccount()
         {/* <Menu.Item as={NavLink} to="/events" name="Events" /> */}
           <Menu.Item as={NavLink} to="/jobs" name="Jobs" />
           <Menu.Item as={NavLink} to="/test" name="Test" />
-          {authenticated && (
+          <Menu.Item as={NavLink} to="/testAnimations" name="Animation Test" />
+          {/* {authenticated && (
             <Menu.Item as={NavLink} to="/people" name="People" />
-          )}
+          )} */}
           {authenticated && (
             <Menu.Item as={NavLink} to="/messages" name="Messages" />
+          )}
+                    {authenticated && (
+            <Menu.Item as={NavLink} to="/build" name="Build" />
           )}
           {/* {authenticated && (
             <Menu.Item as={NavLink} to="/newmessages" name="New Messages" />
@@ -96,8 +104,7 @@ this.props.clearAccount()
                     {authenticated && (
             <Menu.Item>
               <Button
-                as={Link}
-                to="/createJob"
+                onClick={this.handleCreateJob}
                 floated="right"
                 positive
                 inverted

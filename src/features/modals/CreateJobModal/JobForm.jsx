@@ -11,7 +11,7 @@ import {
   isRequired,
   hasLengthGreaterThan
 } from "revalidate";
-import { createJob, updateJob, cancelToggle } from "../jobActions";
+import { createJob, updateJob, cancelToggle } from "../../job/jobActions";
 import TextInput from "../../../app/common/form/TextInput";
 import TextArea from "../../../app/common/form/TextArea";
 import SelectInput from "../../../app/common/form/SelectInput";
@@ -43,8 +43,17 @@ const actions = {
 const category = [
     { key: "snowremoval", text: "Snow Removal", value: "snowremoval" },
     { key: "carpentry", text: "Carpentry", value: "carpentry" },
-    { key: "plumbing", text: "Plumbing", value: "plumbing" }
+    { key: "plumbing", text: "Plumbing", value: "plumbing" },
+    { key: "electrical", text: "Electrical", value: "electrical" }
   ];
+
+  const contractType = [
+    { key: "bid", text: "Bid", value: "bid", description:'Describe the job, select the best offer'},
+    { key: "maxBudget", text: "Max Budget", value: "maxBudget", description:'Set your max, have contractors pitch the design' },
+    { key: "flatRate", text: "Flat Rate", value: "flatRate", description:'Take it or leave it!' },
+    { key: "hourlyRate", text: "Hourly Rate", value: "hourlyRate", description:'No plan? No problem!' }
+  ];
+  
   
 
 
@@ -52,15 +61,16 @@ const validate = combineValidators({
   
   title: isRequired({ message: "The job title is required" }),
   category: isRequired({ message: "Please provide a category" }),
-  description: composeValidators(
-    isRequired({ message: "Please enter a description" }),
-    hasLengthGreaterThan(4)({
-      message: "Description needs to be at least 5 characters"
-    })
-  )(),
+  contractType: isRequired({ message: "Please select a contract type" }),
+  // description: composeValidators(
+  //   isRequired({ message: "Please enter a description" }),
+  //   hasLengthGreaterThan(4)({
+  //     message: "Description needs to be at least 5 characters"
+  //   })
+  // )(),
   city: isRequired("city"),
   venue: isRequired("venue"),
-  date: isRequired("date")
+  // date: isRequired("date")
 });
 
 class JobForm extends Component {
@@ -70,15 +80,17 @@ class JobForm extends Component {
     scriptLoaded: false
   };
 
-  async componentDidMount() {
-    const { firestore, match } = this.props;
-    await firestore.setListener(`jobs/${match.params.id}`);
-  }
+  //FIX : now with no params.id we need to be able to open this job from another location by ID, will have to 
+  //pass in ID from draft etc.
+  // async componentDidMount() {
+  //   const { firestore, match } = this.props;
+  //   await firestore.setListener(`jobs/${match.params.id}`);
+  // }
 
-  async componentWillUnmount() {
-    const { firestore, match } = this.props;
-    await firestore.unsetListener(`jobs/${match.params.id}`);
-  }
+  // async componentWillUnmount() {
+  //   const { firestore, match } = this.props;
+  //   await firestore.unsetListener(`jobs/${match.params.id}`);
+  // }
 
   handleScriptLoaded = () => this.setState({ scriptLoaded: true });
 
@@ -115,10 +127,10 @@ class JobForm extends Component {
     }
     if (this.props.initialValues.id) {
       await this.props.updateJob(values);
-      this.props.history.goBack();
+   //   this.props.history.goBack();
     } else {
       this.props.createJob(values);
-      this.props.history.push("/jobs");
+   //   this.props.history.push("/jobs");
     }
   };
 
@@ -138,7 +150,7 @@ class JobForm extends Component {
           onLoad={this.handleScriptLoaded}
         />
         <Grid.Column width={10}>
-          <Segment>
+      
             <Header sub color="teal" content="Job Details" />
             <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
               <Field
@@ -155,11 +167,11 @@ class JobForm extends Component {
                 placeholder="Category"
               />
               <Field
-                name="description"
+                name="contractType"
                 type="text"
-                component={TextArea}
-                rows={3}
-                placeholder="Tell us about your job"
+                component={SelectInput}
+                options={contractType}
+                placeholder="Contract Type"
               />
               <Header sub color="teal" content="Job Location details" />
               <Field
@@ -184,7 +196,7 @@ class JobForm extends Component {
                   onSelect={this.handleVenueSelect}
                 />
               )}
-              <Field
+              {/* <Field
                 name="date"
                 type="text"
                 component={DateInput}
@@ -192,31 +204,31 @@ class JobForm extends Component {
                 timeFormat="HH:mm"
                 showTimeSelect
                 placeholder="Date and time of job"
-              />
+              /> */}
               <Button
                 disabled={invalid || submitting || pristine}
                 positive
                 loading={loading}
                 type="submit"
               >
-                Submit
+                Next
               </Button>
-              <Button
+              {/* <Button
                 disabled={loading}
                 onClick={this.props.history.goBack}
                 type="button"
               >
                 Cancel
-              </Button>
-              <Button
+              </Button> */}
+              {/* <Button
                 onClick={() => cancelToggle(!job.cancelled, job.id)}
                 type="button" //need type to avoid auto form submission
                 color={job.cancelled ? "green" : "red"}
                 floated="right"
                 content={job.cancelled ? "Reactivate Job" : "Cancel job"}
-              />
+              /> */}
             </Form>
-          </Segment>
+       
         </Grid.Column>
       </Grid>
     );

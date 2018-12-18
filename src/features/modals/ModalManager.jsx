@@ -5,6 +5,7 @@ import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal'
 import MessageModal from './MessageModal'
 import PaymentModal from './PaymentModal'
+import CreateJobModal from './CreateJobModal/CreateJobModal'
 import ConnectBankAccountModal from './ConnectBankAccountModal/ConnectBankAccountModal'
 
 const modalLookup = {
@@ -13,7 +14,8 @@ const modalLookup = {
   RegisterModal,
   MessageModal,
   PaymentModal,
-  ConnectBankAccountModal
+  ConnectBankAccountModal,
+  CreateJobModal
 }
 
 const mapState = (state) => ({

@@ -8,17 +8,20 @@ class JobList extends Component {
     return (
       <div>
         {jobs && jobs.length !== 0 && (
-          <InfiniteScroll
-            pageStart={0}
-            loadMore={getNextJobs}
-            hasMore={!loading && moreJobs}
-            initialLoad={false}
-          >
+          // <InfiniteScroll
+          //   style={{maxHeight:300}}
+          //   pageStart={0}
+          //   loadMore={getNextJobs}
+          //   hasMore={!loading && moreJobs}
+          //   initialLoad={false}
+          // >
+          <div style={{maxHeight:500, minHeight:500, overflowY:"auto"}}>
             {jobs &&
               jobs.map(job => (
                 <JobListItem key={job.id} job={job} />
               ))}
-          </InfiniteScroll>
+              </div>
+        //  </InfiniteScroll>
         )}
       </div>
     );
