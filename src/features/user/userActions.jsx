@@ -1,6 +1,6 @@
 import moment from "moment";
 import { toastr } from "react-redux-toastr";
-import { FETCH_EVENTS } from "../event/eventConstants";
+import { FETCH_JOBS } from "../job/jobConstants";
 import cuid from "cuid";
 import firebase from "../../app/config/firebase";
 import {
@@ -392,7 +392,7 @@ export const getUserEvents = (userUid, activeTab) => async (
       events.push({ ...evt.data(), id: evt.id });
     }
 
-    dispatch({ type: FETCH_EVENTS, payload: { events } });
+    // dispatch({ type: FETCH_EVENTS, payload: { events } });
 
     dispatch(asyncActionFinish());
   } catch (error) {
@@ -415,29 +415,29 @@ export const getUserJobs = (userUid, activeTab) => async (
       query = jobsRef
         .where("userUid", "==", userUid)
         .where("jobDate", "<=", today)
-        .orderBy("jobDate", "desc");
+       .orderBy("jobDate", "desc");
       break;
     case 2: //future jobs
       query = jobsRef
         .where("userUid", "==", userUid)
         .where("jobDate", ">=", today)
-        .orderBy("jobDate");
+       .orderBy("jobDate");
       break;
     case 3: //hosted jobs
       query = jobsRef
         .where("userUid", "==", userUid)
-        .where("host", "==", true)
-        .orderBy("jobDate", "desc");
+        .where("owner", "==", true)
+      // .orderBy("jobDate", "desc");
       break;
     default:
       query = jobsRef
         .where("userUid", "==", userUid)
-        .orderBy("jobDate", "desc");
+       .orderBy("jobDate", "desc");
   }
 
   try {
     let querySnap = await query.get();
-
+    console.log('querySnap', querySnap)
     let jobs = [];
     for (let i = 0; i < querySnap.docs.length; i++) {
       let evt = await firestore
@@ -447,7 +447,7 @@ export const getUserJobs = (userUid, activeTab) => async (
       jobs.push({ ...evt.data(), id: evt.id });
     }
 
-    dispatch({ type: FETCH_EVENTS, payload: { jobs } });
+    dispatch({ type: FETCH_JOBS, payload: { jobs } });
 
     dispatch(asyncActionFinish());
   } catch (error) {
@@ -455,6 +455,47 @@ export const getUserJobs = (userUid, activeTab) => async (
     dispatch(asyncActionError());
   }
 };
+
+
+
+export const deleteJobDraft = jobId => async (
+  dispatch,
+  getState,
+  { getFirebase, getFirestore }
+) => {
+  console.log('delete action')
+  const firebase = getFirebase();
+  const firestore = getFirestore();
+  const user = firebase.auth().currentUser;
+  try {
+    await firestore.delete({
+      collection: "jobs",
+      doc: jobId
+    });
+    await firestore.delete(`job_attendee/${jobId}_${user.uid}`);
+    toastr.success("Success", "You have removed yourself from the job");
+    
+
+   
+  } catch (error) {
+    console.log(error);
+    throw new Error("Problem deleting the photo");
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const unfollowUser = userToUnfollow => async (
   dispatch,

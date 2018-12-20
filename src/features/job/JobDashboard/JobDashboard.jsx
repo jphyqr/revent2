@@ -1,38 +1,42 @@
 import React, { Component } from "react";
-import {Grid, Sticky, Segment } from "semantic-ui-react";
-import LoadingComponent from '../../../app/layout/LoadingComponent'
+import { Grid, Sticky, Segment, Container } from "semantic-ui-react";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
 import JobList from "../JobList/JobList";
 import { getJobsForDashboard } from "../jobActions";
+import { deleteJobDraft } from "../../user/userActions";
 import { firestoreConnect } from "react-redux-firebase"; //even though we using firestore this gives our binding
-
-const query = [
-  {
-    collection: "activity",
-    orderBy: ["timestamp", "desc"],
-    limit: 5
-  }
-];
-
+import MyJobs from "./MyJobs";
+const query = ({ auth }) => {
+  return [
+    {
+      collection: "job_attendee",
+      where: [["userUid", "==", `${auth}`]],
+      storeAs: "jobs_attended"
+    }
+  ];
+};
 
 const mapState = state => ({
   jobs: state.jobs,
   loading: state.async.loading,
-  activities: state.firestore.ordered.activity
+  auth: state.firebase.auth.uid,
+  myJobs: state.firestore.ordered.jobs_attended
 });
 
 const actions = {
-  getJobsForDashboard
+  getJobsForDashboard,
+  deleteJobDraft
 };
 
 class JobDashboard extends Component {
-
   state = {
     moreJobs: false,
     loadingInitial: true,
     loadedJobs: [],
-    contextRef: {}
+    contextRef: {},
+    scrollToId: ""
   };
 
   async componentDidMount() {
@@ -53,7 +57,12 @@ class JobDashboard extends Component {
       });
     }
   }
-
+  handleDelete = jobId => {
+    this.setState({ render: "false" });
+    console.log("deleting", jobId);
+    this.props.deleteJobDraft(jobId);
+    this.setState({ render: "true" });
+  };
   getNextJobs = async () => {
     const { jobs } = this.props;
     let lastJob = jobs && jobs[jobs.length - 1];
@@ -67,39 +76,59 @@ class JobDashboard extends Component {
     }
   };
 
+  handleMapItemClick = id => {
+    console.log("handleMapItemClick", id);
+    this.setState({
+      scrollToId: id
+    });
+  };
+
   handleContextRef = contextRef =>
     this.setState({
       contextRef
     });
 
   render() {
-    const { loading} = this.props;
+    const { loading } = this.props;
     const { moreJobs, loadedJobs } = this.state;
- //   if (this.state.loadingInitial) return <LoadingComponent inverted={true} />;
+    //   if (this.state.loadingInitial) return <LoadingComponent inverted={true} />;
 
     return (
       <Grid>
-                <Grid.Row>
-                  <Grid.Column width={3}>
-        <Segment>
-          My Jobs
-        </Segment>
-                  </Grid.Column>
-        <Grid.Column width={10}>
-        
-          <JobMap jobs={loadedJobs} lat={50.44} lng={-104.61} />
-         
+        <Grid.Row>
+          <Grid.Column width={3}>
+            <Segment
+              style={{
+                padding: 0,
+                borderRadius: "0px",
+                backgroundColor: "darkgrey"
+              }}
+            >
+              <MyJobs
+                myJobs={this.props.myJobs}
+                handleDelete={this.handleDelete}
+              />
+            </Segment>
+          </Grid.Column>
+          <Grid.Column width={10}>
+            <JobMap
+              jobs={loadedJobs}
+              lat={50.44}
+              lng={-104.61}
+              handleMapItemClick={this.handleMapItemClick}
+            />
           </Grid.Column>
           <Grid.Column width={3}>
-          <div ref={this.handleContextRef}>
-    <JobList
-      offset={100}
-      jobs={loadedJobs}
-      loading={loading}
-      moreJobs={moreJobs}       
-      getNextJobs={this.getNextJobs}
-    />
-  </div>
+            <div ref={this.handleContextRef}>
+              <JobList
+                offset={100}
+                jobs={loadedJobs}
+                loading={loading}
+                moreJobs={moreJobs}
+                getNextJobs={this.getNextJobs}
+                scrollToId={this.state.scrollToId}
+              />
+            </div>
           </Grid.Column>
         </Grid.Row>
         {/* <Grid.Row>
@@ -124,13 +153,7 @@ class JobDashboard extends Component {
             </Segment>
           </Grid.Column>
         </Grid.Row> */}
-
-
       </Grid>
-
-
-
-
     );
   }
 }
@@ -138,4 +161,4 @@ class JobDashboard extends Component {
 export default connect(
   mapState,
   actions
-)(firestoreConnect(query)(JobDashboard));
+)(firestoreConnect(props => query(props))(JobDashboard));

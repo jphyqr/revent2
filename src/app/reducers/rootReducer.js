@@ -11,6 +11,7 @@ import asyncReducer from '../../features/async/asyncReducer'
 import {firebaseReducer} from 'react-redux-firebase'
 import {firestoreReducer} from 'redux-firestore'
 import {reducer as toastrRedcer} from 'react-redux-toastr';
+import draftReducer from '../../features/build/draftReducer'
  
 const rootReducer = combineReducers({
   test: testReducer,
@@ -24,7 +25,8 @@ const rootReducer = combineReducers({
   firebase: firebaseReducer,
   firestore: firestoreReducer,
   account: accountReducer,
-  openMessages: messagesReducer
+  openMessages: messagesReducer,
+  draft: draftReducer
 })
 
 export default rootReducer

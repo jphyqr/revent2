@@ -11,6 +11,39 @@ import { createNewJob } from "../../app/common/util/helpers";
 import firebase from "../../app/config/firebase";
 import compareAsc from "date-fns/compare_asc";
 
+
+export const createJobDraft = jobTypeId =>{
+  return async (dispatch, getState, {getFirestore}) =>{
+    dispatch(asyncActionStart());
+    const firestore = getFirestore();
+    const user = firestore.auth().currentUser;
+    const photoURL = getState().firebase.profile.photoURL;
+
+    let newJobInDraft = createNewJob(user, photoURL, {jobTypeId:jobTypeId}) //empty object as no values yet
+    try {
+      let createdJob = await firestore.add(`jobs`, newJobInDraft);
+      console.log({createdJob})
+      await firestore.set(`job_attendee/${createdJob.id}_${user.uid}`, {
+        jobId: createdJob.id,
+        created: newJobInDraft.created,
+        title: newJobInDraft.title,
+        userUid: user.uid,
+        owner: true,
+        jobTypeId: newJobInDraft.jobTypeId,
+        inDraft: newJobInDraft.inDraft
+      });
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Job has been created");
+ 
+    } catch (error) {
+      dispatch(asyncActionFinish());
+      console.log(error)
+      toastr.error("Oops", "Something went wrong");
+    }
+  }
+}
+
+
 export const createJob = job => {
   return async (dispatch, getState, { getFirestore }) => {
     const firestore = getFirestore();
@@ -26,6 +59,8 @@ export const createJob = job => {
         jobId: createdJob.id,
         userUid: user.uid,
         jobDate: job.date,
+        title:createdJob.title,
+        inDraft: true,
         owner: true
       });
       toastr.success("Success", "Job has been created");
@@ -35,27 +70,31 @@ export const createJob = job => {
   };
 };
 
-export const updateJob = job => {
+export const updateJob = (draft, values) => {
   return async (dispatch, getState) => {
-    dispatch(asyncActionStart());
-    const firestore = firebase.firestore();
-    job.date = moment(job.date).toDate();
 
+    
+ 
+    dispatch(asyncActionStart());
+    const {key: jobId, value: draftValues} = draft
+    
+    const firestore = firebase.firestore();
+    values.date = moment(values.date).toDate();
     try {
-      let jobDocRef = firestore.collection("jobs").doc(job.id);
+      let jobDocRef = firestore.collection("jobs").doc(jobId);
       let dateEqual = compareAsc(
-        getState().firestore.ordered.jobs[0].date.toDate(),
-        job.date
+        draftValues.date.toDate(),
+        values.date
       );
 
       if (dateEqual !== 0) {
         let batch = firestore.batch();
-        await batch.update(jobDocRef, job);
+        await batch.update(jobDocRef, values);
         let jobAttendeeRef = firestore.collection("job_attendee");
         let jobAttendeeQuery = await jobAttendeeRef.where(
           "jobId",
           "==",
-          job.id
+          jobId
         );
         let jobAttendeeQuerySnap = await jobAttendeeQuery.get();
 
@@ -65,13 +104,14 @@ export const updateJob = job => {
             .doc(jobAttendeeQuerySnap.docs[i].id);
 
           await batch.update(jobAttendeeDocRef, {
-            jobDate: job.date
+            jobDate: values.date,
+            title: values.title
           });
         }
 
         await batch.commit();
       } else {
-        await jobDocRef.update(job);
+        await jobDocRef.update(values);
       }
 
       dispatch(asyncActionFinish());
@@ -124,13 +164,15 @@ export const getJobsForDashboard = lastJob => async (
     lastJob
       ? (query = jobsRef
         //#DATE UPDATE JOBS
-          // .where("date", ">=", today)
-          .orderBy("date")
+         .where("inDraft", "==", false)
+         //   .where("date", ">=", today)
+       //   .orderBy("date")
           .startAfter(startAfter)
           .limit(4))
       : (query = jobsRef
-          // .where("date", ">=", today)
-          .orderBy("date")
+        .where("inDraft", "==", false)
+         //   .where("date", ">=", today)
+      //    .orderBy("date")
           .limit(4));
 
     let querySnap = await query.get();

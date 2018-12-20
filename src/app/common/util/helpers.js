@@ -12,6 +12,8 @@ export const createNewJob  = (user, photoURL, job) => {
   return {
     ...job,
     ownerUid: user.uid,
+    inDraft: true,
+    title: "Untitled",
     owneredBy: user.displayName,
     ownerPhotoURL: photoURL || "/assets/user.png",
     created: Date.now(),

@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { Component } from 'react'
 import { Segment } from 'semantic-ui-react';
 import GoogleMapReact from 'google-map-react';
 import MapMarker from './MapMarker'
 
 
-const JobMap = ({ lat, lng, jobs }) => {
-  const center = [lat, lng];
-  const zoom = 11;
 
-
-
-
+ class JobMap extends Component {
   
-  return (
-    <Segment attached="bottom" style={{padding: 0}}>
+  render() {
+    const { lat, lng, jobs } = this.props
+
+    const center = [lat, lng];
+    const zoom = 11;
+    return (
+      <Segment attached="bottom" style={{padding: 0}}>
       <div style={{ height: '500px', width: '100%' }}>
         <GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyBeJlBUVhFnJrXS5flaYydbj5AmbuGCNBQ' }}
@@ -26,6 +26,7 @@ const JobMap = ({ lat, lng, jobs }) => {
           {jobs&&jobs.map((job, index)=>(
             
             <MapMarker 
+            handleMapItemClick = {this.props.handleMapItemClick}
             lat={job.venueLatLng.lat}
             lng={job.venueLatLng.lng}
             key={index}
@@ -52,7 +53,9 @@ const JobMap = ({ lat, lng, jobs }) => {
         </GoogleMapReact>
       </div>
     </Segment>
-  );
-};
+    )
+  }
+}
+
 
 export default JobMap;

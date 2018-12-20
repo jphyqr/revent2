@@ -20,40 +20,25 @@ const objIsEmpty = (obj) =>{
     return true;
 }
 const mapState = state => {
-  let job = {};
+  
 
-  if (state.firestore.ordered.jobs && state.firestore.ordered.jobs[0]) {
-    job = state.firestore.ordered.jobs[0];
-  }
-
-  let showBasic = false;
+  let showBasic = true;
   let showJobSpecific = false;
   let showContractSpecific = false;
 
-  if (objIsEmpty(job)){
-    showBasic = true;
-     showJobSpecific = false; showContractSpecific = false;
-  }
-
+ 
   return {
     userUID: state.firebase.auth.uid,
     loading: state.async.loading,
-    job,
     showBasic,
     showJobSpecific,
-    showContractSpecific
+    showContractSpecific,
+    draft: state.draft
   };
 };
 
 class CreateJobModal extends Component {
-  async componentDidMount() {
-      const { firestore, userUID } = this.props;
-      await firestore.setListener(`users/${userUID}/jobs/${this.props.jobID}`);
-    }
-    async componentWillUnmount() {
-      const { firestore, userUID } = this.props;
-      await firestore.unsetListener(`users/${userUID}/jobs/${this.props.jobID}`);
-    }
+
 
   render() {
     const {
@@ -63,21 +48,21 @@ class CreateJobModal extends Component {
       showJobSpecific,
       showContractSpecific,
       job,
-      loading
+      loading, draft
     } = this.props;
     return (
       <Modal style={{maxWidth:500, maxHeight:800, overflow:'auto'}}closeIcon="close" open={true} onClose={closeModal}>
-        <Modal.Header>Create a Job</Modal.Header>
+        <Modal.Header>{draft.value.jobTypeId}</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             {loading ? (
               <Dimmer active inverted>
-                <Loader content="Connecting to Stripe" />
+                <Loader content="Creating Jobs" />
               </Dimmer>
             ) : showBasic ? (
-              <JobSelector />
+              <JobForm draft={draft}/>
             ) : (
-              <JobForm />
+              null
             )}
           </Modal.Description>
         </Modal.Content>

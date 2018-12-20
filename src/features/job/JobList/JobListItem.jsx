@@ -2,12 +2,42 @@ import React, { Component } from "react";
 import { Segment, Item, Icon,  Button , Label} from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import format from "date-fns/format";
-
+import scrollToComponent from "react-scroll-to-component";
 class JobListItem extends Component {
+
+ state={
+   scrollToId:""
+ }
+
+  componentWillReceiveProps (newProps) {
+    const {scrollToId:oldId} = this.state
+    const {scrollToId:newId} = newProps
+     if(newId!==oldId){
+       console.log("trying to scroll to", newId)
+       console.log("refs", this.refs[newId])
+      // scrollToComponent(this.refs[newId], {
+      //   offset: 0,
+      //   align: "top",
+      //   duration: 600
+      // });
+      //var element = this.refs[newId].findDOMNode()// document.getElementsByName(newId)
+      //element.scrollIntoView();
+      //console.log({element})
+     }
+     this.setState({scrollToId:newId})
+    
+    
+    }
+
+
   render() {
     const { job } = this.props;
+    const jobId = job.id
+
     return (
-      <Segment.Group>
+
+    <div ref={jobId} name={jobId}>
+      <Segment.Group   >
         <Segment>
           <Item.Group>
             <Item>
@@ -51,6 +81,7 @@ class JobListItem extends Component {
           />
         </Segment>
       </Segment.Group>
+      </div>
     );
   }
 }

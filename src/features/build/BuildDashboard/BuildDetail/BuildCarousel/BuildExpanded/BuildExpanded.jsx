@@ -1,7 +1,19 @@
 import React, { Component } from "react";
 
 import { Tab, Grid } from "semantic-ui-react";
+import {connect} from 'react-redux'
 import BuildExpandedNavBar from "./BuildExpandedNavBar";
+import { createJobDraft, updateJob, cancelToggle } from "../../../../../job/jobActions";
+import LoadingComponent from '../../../../../../app/layout/LoadingComponent'
+const actions = {
+  createJobDraft, updateJob, cancelToggle
+}
+
+const mapState = state =>{
+  return {
+    loading: state.async.loading
+  }
+}
 
 class BuildExpanded extends Component {
   state = {
@@ -25,8 +37,16 @@ class BuildExpanded extends Component {
     }
   };
 
+  handleBookClick = () => {
+    this.props.createJobDraft(this.state.currentJob.id)
+  }
+
   render() {
     const {selectedTab} = this.state
+
+
+
+
     return (
       <div
         container
@@ -106,6 +126,7 @@ class BuildExpanded extends Component {
           </div>}
 
           <div className="actionButton"
+          onClick={this.handleBookClick}
            style={{
             position: "absolute",
             fontSize: 30,
@@ -116,7 +137,7 @@ class BuildExpanded extends Component {
             left:"50px",
             zIndex:"2000"
           }}
-          > <button style={{ width:200, cursor:"pointer" , color:"white", borderColor:"red", backgroundColor:"red"}}>Book</button>
+          > <button style={{ width:200, cursor:"pointer" , color: "white", borderColor:"red", backgroundColor: this.props.loading? "yellow" : "red"}}>Book</button>
           
           <button style={{width:200, marginLeft:"30px", cursor:"pointer" , color:"white", background:"transparent"}}>Subscribe</button>
           
@@ -209,4 +230,4 @@ style={{
   }
 }
 
-export default BuildExpanded;
+export default connect(mapState,actions)(BuildExpanded)

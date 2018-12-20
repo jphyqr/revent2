@@ -6,6 +6,7 @@ class MapMarker extends Component {
 
   showInfo = () => {
     this.setState({ hover: true });
+    this.props.handleMapItemClick(this.props.job.id)
   };
 
   hideInfo = () => {
@@ -54,6 +55,7 @@ class MapMarker extends Component {
           key={key}
           onMouseEnter={this.showInfo}
           onMouseLeave={this.hideInfo}
+
         />
 
         {this.state.hover&&<Label content={job.title} />}

@@ -27,8 +27,9 @@ const mapState = state => {
   }
 
   return {
-    initialValues: job,
     job: job,
+    draft: state.draft,
+    initialValues: state.draft.value,
     loading: state.async.loading
   };
 };
@@ -80,17 +81,7 @@ class JobForm extends Component {
     scriptLoaded: false
   };
 
-  //FIX : now with no params.id we need to be able to open this job from another location by ID, will have to 
-  //pass in ID from draft etc.
-  // async componentDidMount() {
-  //   const { firestore, match } = this.props;
-  //   await firestore.setListener(`jobs/${match.params.id}`);
-  // }
 
-  // async componentWillUnmount() {
-  //   const { firestore, match } = this.props;
-  //   await firestore.unsetListener(`jobs/${match.params.id}`);
-  // }
 
   handleScriptLoaded = () => this.setState({ scriptLoaded: true });
 
@@ -125,13 +116,13 @@ class JobForm extends Component {
     if (Object.keys(values.venueLatLng).length === 0) {
       values.venueLatLng = this.props.job.venueLatLng;
     }
-    if (this.props.initialValues.id) {
-      await this.props.updateJob(values);
+ //   if (this.props.initialValues.id) {
+      await this.props.updateJob(this.props.draft, values);
    //   this.props.history.goBack();
-    } else {
-      this.props.createJob(values);
+  //  } else {
+    //  this.props.createJob(values);
    //   this.props.history.push("/jobs");
-    }
+   // }
   };
 
   render() {
@@ -141,7 +132,8 @@ class JobForm extends Component {
       pristine,
       job,
       cancelToggle,
-      loading
+      loading,
+      draft
     } = this.props;
     return (
       <Grid>
@@ -159,13 +151,7 @@ class JobForm extends Component {
                 component={TextInput}
                 placeholder="Give your job a name"
               />
-              <Field
-                name="category"
-                type="text"
-                component={SelectInput}
-                options={category}
-                placeholder="Category"
-              />
+             
               <Field
                 name="contractType"
                 type="text"
@@ -196,7 +182,7 @@ class JobForm extends Component {
                   onSelect={this.handleVenueSelect}
                 />
               )}
-              {/* <Field
+              <Field
                 name="date"
                 type="text"
                 component={DateInput}
@@ -204,7 +190,7 @@ class JobForm extends Component {
                 timeFormat="HH:mm"
                 showTimeSelect
                 placeholder="Date and time of job"
-              /> */}
+              />
               <Button
                 disabled={invalid || submitting || pristine}
                 positive

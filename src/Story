@@ -62,3 +62,21 @@ curl -X POST -H "Authorization: key=AIzaSyDeaVG1xzsJMpj7FhwWN4gVtzBL6AJRWZo" -H 
 curl -X POST --header "Authorization: key=AIzaSyDeaVG1xzsJMpj7FhwWN4gVtzBL6AJRWZo" --header
  "Content-Type: application/json" -d "{\"to\":\"c4ednJziITU:APA91bHt6M8TG0kjXoUGharkMIN36VtVKxRMgAAW6JlYAAsfMe1Zdv164XLrx9HK_A8sZgdXkl1Djajx5eAcL5aEmGbaEArr1qL17zcqZSXjZ1bXG9bpRlEHa0FyGRo_0hMZWBM3rldZ\",
  \"priority\":\"high\",\"notification\":{\"body\": \"FOO BAR BLA BLA\"}}" "https://fcm.googleapis.com/fcm/send"
+
+
+
+TEST POPUP 1
+ Fix gap between Chat and message box
+ With container there is no wasted margins, but no attach,
+ trying switch to segment attached.
+
+ appears margin on bottom, pob on top,  going to attach
+ blew up, going to take off bottom hardcoded.
+
+ with no hard coded bottom it grows down instead of up.
+
+
+
+testpopup2, going to try replacing overview seg with a container
+
+ going to try pinning component to title
