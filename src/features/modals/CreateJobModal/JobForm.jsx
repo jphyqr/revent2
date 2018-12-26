@@ -20,16 +20,16 @@ import PlaceInput from "../../../app/common/form/PlaceInput";
 import { withFirestore } from "react-redux-firebase";
 
 const mapState = state => {
-  let job = {};
 
-  if (state.firestore.ordered.jobs && state.firestore.ordered.jobs[0]) {
-    job = state.firestore.ordered.jobs[0];
+  let task = {}
+
+  if(state.draft){
+    task=state.draft.value
+
   }
-
   return {
-    job: job,
     draft: state.draft,
-    initialValues: state.draft.value,
+    initialValues: task,
     loading: state.async.loading
   };
 };
@@ -41,12 +41,7 @@ const actions = {
 };
 
 
-const category = [
-    { key: "snowremoval", text: "Snow Removal", value: "snowremoval" },
-    { key: "carpentry", text: "Carpentry", value: "carpentry" },
-    { key: "plumbing", text: "Plumbing", value: "plumbing" },
-    { key: "electrical", text: "Electrical", value: "electrical" }
-  ];
+
 
   const contractType = [
     { key: "bid", text: "Bid", value: "bid", description:'Describe the job, select the best offer'},
@@ -61,7 +56,6 @@ const category = [
 const validate = combineValidators({
   
   title: isRequired({ message: "The job title is required" }),
-  category: isRequired({ message: "Please provide a category" }),
   contractType: isRequired({ message: "Please select a contract type" }),
   // description: composeValidators(
   //   isRequired({ message: "Please enter a description" }),
@@ -71,7 +65,7 @@ const validate = combineValidators({
   // )(),
   city: isRequired("city"),
   venue: isRequired("venue"),
-  // date: isRequired("date")
+   date: isRequired("date")
 });
 
 class JobForm extends Component {
@@ -81,6 +75,12 @@ class JobForm extends Component {
     scriptLoaded: false
   };
 
+  componentDidMount(){
+    if(this.props.initialValues){
+  
+      this.handleVenueSelect(this.props.initialValues.venue)
+    }
+  }
 
 
   handleScriptLoaded = () => this.setState({ scriptLoaded: true });
@@ -118,6 +118,8 @@ class JobForm extends Component {
     }
  //   if (this.props.initialValues.id) {
       await this.props.updateJob(this.props.draft, values);
+
+      this.props.handleClose()
    //   this.props.history.goBack();
   //  } else {
     //  this.props.createJob(values);
@@ -145,13 +147,20 @@ class JobForm extends Component {
       
             <Header sub color="teal" content="Job Details" />
             <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
-              <Field
+              {/* <Field
                 name="title"
                 type="text"
                 component={TextInput}
                 placeholder="Give your job a name"
-              />
+              /> */}
              
+             <Field
+                name="title"
+                type="text"
+                component={TextArea}
+                rows={3}
+                placeholder="Tell us about your event"
+              />
               <Field
                 name="contractType"
                 type="text"

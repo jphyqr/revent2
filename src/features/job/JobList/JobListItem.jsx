@@ -13,8 +13,7 @@ class JobListItem extends Component {
     const {scrollToId:oldId} = this.state
     const {scrollToId:newId} = newProps
      if(newId!==oldId){
-       console.log("trying to scroll to", newId)
-       console.log("refs", this.refs[newId])
+    
       // scrollToComponent(this.refs[newId], {
       //   offset: 0,
       //   align: "top",

@@ -27,8 +27,8 @@ import MapMarker from './MapMarker'
             
             <MapMarker 
             handleMapItemClick = {this.props.handleMapItemClick}
-            lat={job.venueLatLng.lat}
-            lng={job.venueLatLng.lng}
+            lat={job&&job.venueLatLng&&job.venueLatLng.lat}
+            lng={job&&job.venueLatLng&&job.venueLatLng.lng}
             key={index}
             job={job}
             onChildMouseEnter={this.onChildMouseEnter}

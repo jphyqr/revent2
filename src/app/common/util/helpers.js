@@ -22,6 +22,24 @@ export const createNewJob  = (user, photoURL, job) => {
 };
 
 
+export const createNewCategory  = (category) => {
+  return {
+    ...category,
+    created: Date.now(),
+
+  };
+};
+
+export const createNewTask  = (task) => {
+  return {
+    ...task,
+    created: Date.now(),
+
+  };
+};
+
+
+
 
 export const createNewEvent = (user, photoURL, event) => {
   event.date = moment(event.date).toDate();

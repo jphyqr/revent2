@@ -38,8 +38,7 @@ class BuildCarouselItem extends Component {
     this.props.toggleLockInHover();
     this.setState({ expanded: true });
     this.setState({ hovered: false });
-    console.log("clicked handle click");
-    console.log("e", e);
+
     this.props.handleShowExpanded(job);
     if (!this.props.showExpanded) {
       this.props.scrollToMyRef(e, category);
@@ -61,6 +60,8 @@ class BuildCarouselItem extends Component {
         onMouseLeave={this.onMouseLeaveHandler}
         onClick={e => this.handleClick(e, item, category)}
         style={{
+          boxShadow:
+                    "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
           display: "inline-block",
           height: 150, // this.state.hovered ? 200 : 150,
           width:  300, //: 400,
@@ -94,7 +95,7 @@ class BuildCarouselItem extends Component {
               //    transformOrigin: "50% 50%",
               transition: "0.15s all ease"
             }}
-            src={`/assets/categoryImages/${item.id}.jpg`}
+            src={`/assets/categoryImages/${item.value}.jpg`}
           />
         </div>
         <div

@@ -11,6 +11,8 @@ import {
 
 
 
+
+
 export const storeDeviceToken = () => async (dispatch, getState, {getFirestore}) => {
   console.log('storeDeviceToken Code Reached')
   dispatch(asyncActionStart);
@@ -32,15 +34,17 @@ export const storeDeviceToken = () => async (dispatch, getState, {getFirestore})
     // storeDeviceToken(token)
     const firestore = getFirestore();
     const userUID = firestore.auth().currentUser.uid;
-
+      const tokenUID = cuid()
     console.log('sdt uid', userUID)
      firestore.set(
       {
         collection: "users",
         doc: userUID,
-        subcollections: [{ collection: "web_push_token", doc: userUID }]
+        subcollections: [{ collection: "web_push_token", doc: token }],
+       
       },
-      {FCM_token: token}
+
+      {tokenUID:token, dateSet: Date.now()}
     );
 
      dispatch(asyncActionError());
@@ -458,21 +462,22 @@ export const getUserJobs = (userUid, activeTab) => async (
 
 
 
-export const deleteJobDraft = jobId => async (
+export const deleteJobDraft = job => async (
   dispatch,
   getState,
   { getFirebase, getFirestore }
 ) => {
-  console.log('delete action')
+  console.log('delete action', job)
+  
   const firebase = getFirebase();
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
   try {
     await firestore.delete({
       collection: "jobs",
-      doc: jobId
+      doc: job.jobId
     });
-    await firestore.delete(`job_attendee/${jobId}_${user.uid}`);
+    await firestore.delete(`job_attendee/${job.jobId}_${user.uid}`);
     toastr.success("Success", "You have removed yourself from the job");
     
 

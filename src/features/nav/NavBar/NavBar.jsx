@@ -57,6 +57,16 @@ class NavBar extends Component {
   handleCreateJob = () =>{
     this.props.openModal("CreateJobModal")
   }
+
+
+  handleCreateCategory = () =>{
+    this.props.openModal("CategoryModal")
+  }
+
+  handleCreateTask = () =>{
+    this.props.openModal("TaskModal")
+  }
+
   handleBankConnect = () => {
     this.props.openModal("ConnectBankAccountModal");
   };
@@ -84,7 +94,7 @@ this.props.clearAccount()
             Re-vents
           </Menu.Item>
         {/* <Menu.Item as={NavLink} to="/events" name="Events" /> */}
-          <Menu.Item as={NavLink} to="/jobs" name="Jobs" />
+          {/* <Menu.Item as={NavLink} to="/jobs" name="Jobs" /> */}
           <Menu.Item as={NavLink} to="/test" name="Test" />
           <Menu.Item as={NavLink} to="/testAnimations" name="Animation Test" />
           {/* {authenticated && (
@@ -101,17 +111,32 @@ this.props.clearAccount()
           )} */}
           
 
-                    {authenticated && (
+{authenticated && (
+  <Menu.Item>
+    <Button
+      onClick={this.handleCreateTask}
+      floated="right"
+      positive
+      inverted
+      content="Create Task"
+    />
+  </Menu.Item>
+)}
+
+
+{authenticated && (
             <Menu.Item>
               <Button
-                onClick={this.handleCreateJob}
+                onClick={this.handleCreateCategory}
                 floated="right"
                 positive
                 inverted
-                content="Create Job"
+                content="Create Category"
               />
             </Menu.Item>
           )}
+
+
             {authenticated? <BankAccountMenuItem
               bankConnect={this.handleBankConnect}
             />: null}  

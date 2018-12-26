@@ -205,7 +205,7 @@ class BankAccountManager extends Component {
       this.props.accountToken.value,
       valuesToSubmit
     );
-    console.log({ account });
+
    
   };
 

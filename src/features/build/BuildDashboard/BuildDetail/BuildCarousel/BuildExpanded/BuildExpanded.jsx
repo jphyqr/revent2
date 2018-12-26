@@ -3,10 +3,11 @@ import React, { Component } from "react";
 import { Tab, Grid } from "semantic-ui-react";
 import {connect} from 'react-redux'
 import BuildExpandedNavBar from "./BuildExpandedNavBar";
-import { createJobDraft, updateJob, cancelToggle } from "../../../../../job/jobActions";
+import { createJobDraft, subscribeToJob, updateJob, cancelToggle } from "../../../../../job/jobActions";
 import LoadingComponent from '../../../../../../app/layout/LoadingComponent'
+
 const actions = {
-  createJobDraft, updateJob, cancelToggle
+  createJobDraft, updateJob, cancelToggle,subscribeToJob 
 }
 
 const mapState = state =>{
@@ -22,23 +23,29 @@ class BuildExpanded extends Component {
   };
 
   handleSelectTab = tab => {
-    console.log("select tab", tab);
     this.setState({ selectedTab: tab });
   };
   componentDidMount() {
-    this.setState({ currentJob: this.props.selectedJob });
+    const {selectedJob} = this.props
+    this.setState({ currentJob: selectedJob });
+  
   }
 
   componentWillReceiveProps = nextProps => {
     if (nextProps.selectedJob !== this.state.currentJob) {
-      console.log("props changed");
+   
       this.setState({ currentJob: nextProps.selectedJob });
       this.forceUpdate();
     }
   };
 
   handleBookClick = () => {
-    this.props.createJobDraft(this.state.currentJob.id)
+  
+    this.props.createJobDraft(this.state.currentJob)
+  }
+
+  handleSubscribe = () => {
+    this.props.subscribeToJob(this.state.currentJob)
   }
 
   render() {
@@ -67,7 +74,7 @@ class BuildExpanded extends Component {
             minHeight: 475,
             maxHeight: 475,
             background: `url('/assets/categoryImages/${
-              this.props.selectedJob.id
+              this.props.selectedJob.value
             }.jpg') center center no-repeat `,
             backgroundSize: "cover"
           }}
@@ -126,7 +133,7 @@ class BuildExpanded extends Component {
           </div>}
 
           <div className="actionButton"
-          onClick={this.handleBookClick}
+         
            style={{
             position: "absolute",
             fontSize: 30,
@@ -137,9 +144,9 @@ class BuildExpanded extends Component {
             left:"50px",
             zIndex:"2000"
           }}
-          > <button style={{ width:200, cursor:"pointer" , color: "white", borderColor:"red", backgroundColor: this.props.loading? "yellow" : "red"}}>Book</button>
+          > <button  onClick={this.handleBookClick} style={{ width:200, cursor:"pointer" , color: "white", borderColor:"red", backgroundColor: this.props.loading? "yellow" : "red"}}>Book</button>
           
-          <button style={{width:200, marginLeft:"30px", cursor:"pointer" , color:"white", background:"transparent"}}>Subscribe</button>
+          <button  onClick={this.handleSubscribe} style={{width:200, marginLeft:"30px", cursor:"pointer" , color:"white", background:"transparent"}}>Subscribe</button>
           
           </div>
 

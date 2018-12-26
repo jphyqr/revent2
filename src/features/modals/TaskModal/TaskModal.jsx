@@ -5,13 +5,10 @@ import { connect } from "react-redux";
 import { Loader, Dimmer } from "semantic-ui-react";
 import { withFirestore, isEmpty, isLoading } from "react-redux-firebase";
 import { compose } from "redux";
-import JobForm from "./JobForm";
-import JobSelector from './JobSelector'
+import TaskForm from "./TaskForm";
 const actions = {
   closeModal
 };
-
-
 
 
 const objIsEmpty = (obj) =>{
@@ -24,54 +21,38 @@ const objIsEmpty = (obj) =>{
 const mapState = state => {
   
 
-  let showBasic = true;
-  let showJobSpecific = false;
-  let showContractSpecific = false;
+
 
  
   return {
     userUID: state.firebase.auth.uid,
     loading: state.async.loading,
-    showBasic,
-    showJobSpecific,
-    showContractSpecific,
-    draft: state.draft
+
   };
 };
 
-class CreateJobModal extends Component {
+class TaskModal extends Component {
 
-  state = {showModal:true}
-
-  handleClose = () =>{
-    this.setState({
-      showModal:false
-    })
-  }
 
   render() {
     const {
       closeModal,
       userUID,
-      showBasic,
-      showJobSpecific,
-      showContractSpecific,
-      job,
-      loading, draft
+      loading
     } = this.props;
     return (
-      <Modal style={{maxWidth:500, maxHeight:800, overflow:'auto'}}closeIcon="close" open={this.state.showModal} onClose={closeModal}>
-        <Modal.Header>{draft.value.taskValue}</Modal.Header>
+      <Modal style={{maxWidth:500, maxHeight:800, overflow:'auto'}}closeIcon="close" open={true} onClose={closeModal}>
+        <Modal.Header>Task Modal</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             {loading ? (
               <Dimmer active inverted>
-                <Loader content="Creating Jobs" />
+                <Loader content="Creating Task" />
               </Dimmer>
-            ) : showBasic ? (
-             this.props.draft&& <JobForm handleClose={this.handleClose}/>
+          
+             
             ) : (
-              null
+                <TaskForm />
             )}
           </Modal.Description>
         </Modal.Content>
@@ -86,4 +67,4 @@ export default compose(
     mapState,
     actions
   )
-)(CreateJobModal);
+)(TaskModal);

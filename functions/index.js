@@ -6,8 +6,8 @@ const logging = require("@google-cloud/logging");
 const currency = functions.config().stripe.currency || "USD";
 const retrieveAccount = require("./retrieve_account.js");
 const stripeEvent = require("./stripe_event.js");
-const SENDGRID_API_KEY = functions.config().sendgrid.key
-const sgMail = require('@sendgrid/mail');
+const SENDGRID_API_KEY = functions.config().sendgrid.key;
+const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(SENDGRID_API_KEY);
 const testFCM = require("./test_fcm.js");
 const createExternalBankAccount = require("./create_external_bank_account.js");
@@ -53,7 +53,6 @@ const createMessage = (type, message) => {
   };
 };
 
-
 exports.testFCM = functions.https.onRequest(testFCM);
 
 exports.uploadID = functions.https.onRequest(uploadID);
@@ -67,15 +66,11 @@ exports.createBankAccount = functions.https.onRequest(createBankAccount);
 exports.retrieveAccount = functions.https.onRequest(retrieveAccount);
 
 exports.updateAccount = functions.https.onRequest(updateAccount);
-exports.createConnectedAccount = functions.https.onRequest(createConnectedAccount);
-
+exports.createConnectedAccount = functions.https.onRequest(
+  createConnectedAccount
+);
 
 exports.stripeEvent = functions.https.onRequest(stripeEvent);
-
-
-
-
-
 
 // When a user is created, register them with Stripe
 exports.createStripeCustomer = functions.auth.user().onCreate(user => {
@@ -129,7 +124,7 @@ exports.createStripeCharge = functions.database
       .ref(`/stripe_customers/${context.params.userId}/customer_id`)
       .once("value")
       .then(snapshot => {
-        console.log('snap.val', snapshot.val())
+        console.log("snap.val", snapshot.val());
         return snapshot.val();
       })
       .then(customer => {
@@ -301,16 +296,14 @@ exports.newUser = functions.firestore
         .doc(adminId)
         .set(nowMessaging);
 
+      let userRecord = admin
+        .auth()
+        .getUser(newUserUid)
+        .then(userRecord => {
+          console.log(userRecord);
 
-
-      let userRecord = admin.auth().getUser(newUserUid).then(userRecord =>{
-        console.log(userRecord)
-   
-        return userRecord
-      })
-   
-
-
+          return userRecord;
+        });
 
       return admin
         .firestore()
@@ -340,6 +333,116 @@ exports.unfollowUser = functions.firestore
       .then(() => {
         return console.log("doc deleted");
       });
+  });
+
+exports.dispatchTask = functions.firestore
+  .document("jobs/{jobID}")
+  .onWrite((info, context) => {
+    const jobID = context.params.jobID;
+    const after = info.after.data();
+    const before = info.before.data();
+    console.log("dispatchTask job id", jobID);
+    console.log("dispatch job info", info.after.data());
+    console.log("beforeInDraft", before.inDraft);
+    console.log("afterInDraft", after.inDraft);
+    if (before.inDraft === true && after.inDraft === false) {
+      const payload = {
+        notification: {
+          title: `New ${after.taskValue} job`,
+          body: after.title
+        }
+      };
+      return admin
+        .messaging()
+        .sendToTopic(`/topics/${after.taskID}`, payload)
+        .then(response => {
+          console.log("notification sent successfuly:", response);
+          return after.taskID;
+        })
+        .then(taskID => {
+          //add a notification to all of the users who follow this task
+          //REFACTOR can probably combine these 3 into one call
+          return admin.firestore().collection("task_subscribed");
+        })
+        .then(taskSubscribedRef => {
+          console.log({ taskSubscribedRef });
+          return taskSubscribedRef.where("taskId", "==", after.taskID);
+        })
+        .then(taskSubscribedQuery => {
+          console.log({ taskSubscribedQuery });
+          return taskSubscribedQuery.get();
+        })
+        .then(taskSubscirbedQuerySnap => {
+          let batch = admin.firestore().batch();
+          console.log('snap length',taskSubscirbedQuerySnap.docs.length)
+          for (let i = 0; i < taskSubscirbedQuerySnap.docs.length; i++) {
+            //change this for user ref??
+            let data = taskSubscirbedQuerySnap.docs[i].data()
+            console.log('taskSibQierySnapd.docs[i].data()', data)
+            let subscriberUserDocRef = admin
+              .firestore()
+              .collection("users")
+              .doc(data.userUid)
+              .collection("notifications")
+              .doc();
+
+             batch.set(subscriberUserDocRef, {
+              type: "newJob",
+              title: after.taskValue,
+              description: after.title,
+              photoURL: data.photoURL,
+              created: data.created,
+              timestamp: admin.firestore.FieldValue.serverTimestamp()
+            });
+          }
+          return batch;
+        })
+        .then((batch) => {
+          return batch.commit();
+        })
+
+        .catch(error => {
+          console.log("notification sent failed:", error);
+        });
+    }
+
+    return info.after.data();
+  });
+
+exports.subscribeToTask = functions.firestore
+  .document("task_subscribed/{taskSubscriptionId}")
+  .onWrite((info, context) => {
+    const taskSubscriptionId = context.params.taskSubscriptionId;
+    const split = taskSubscriptionId.split("_");
+    const userUID = split[1];
+    const taskUID = split[0];
+    console.log({ userUID });
+    console.log({ taskUID });
+    let webTokens = [];
+
+    return admin
+      .firestore()
+      .collection("users")
+      .doc(userUID)
+      .collection("web_push_token")
+      .get()
+      .then(webTokenSnapShot => {
+        const snapShot = webTokenSnapShot;
+        snapShot.forEach(webToken => {
+          webTokens.push(webToken.data().tokenUID);
+          console.log({ webTokens });
+        });
+        console.log({ webTokens });
+        return webTokens;
+      })
+      .then(webTokens => {
+        return admin.messaging().subscribeToTopic(webTokens, taskUID);
+      })
+      .then(response => {
+        console.log("successfuly subscribed to topic", response);
+        return response;
+      })
+      .catch(error => console.log(error));
   });
 
 exports.messageUser = functions.firestore
@@ -421,8 +524,6 @@ exports.followUser = functions.firestore
     });
   });
 
-
-
 exports.createActivity = functions.firestore
   .document("events/{eventId}")
   .onCreate(event => {
@@ -479,4 +580,3 @@ exports.cancelActivity = functions.firestore
         return console.log("Error adding activity", err);
       });
   });
-

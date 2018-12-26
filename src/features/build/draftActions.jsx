@@ -17,7 +17,7 @@ try {
 let draftSnap = await firestore.collection("jobs").doc(draftId).get()
 let draft = draftSnap.data()
  const payload = {key: draftId, value:draft}
-console.log({draft})
+
 dispatch({
     type: FETCH_DRAFT,
     payload: {payload}
@@ -35,7 +35,7 @@ dispatch (asyncActionFinish())
 
     const firestore = getFirestore();
     const userUid = firestore.auth().currentUser.uid;
-    console.log("useruid", userUid)
+
     const message = posted
     ? "This will dispatch the job to local contractors. Are you sure?"
     : "This will de-list the job, are you sure?";

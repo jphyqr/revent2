@@ -7,7 +7,7 @@ import JobList from "../JobList/JobList";
 import { getJobsForDashboard } from "../jobActions";
 import { deleteJobDraft } from "../../user/userActions";
 import { firestoreConnect } from "react-redux-firebase"; //even though we using firestore this gives our binding
-import MyJobs from "./MyJobs";
+import MyJobs from "./MyJobs/MyJobs";
 const query = ({ auth }) => {
   return [
     {
@@ -57,10 +57,9 @@ class JobDashboard extends Component {
       });
     }
   }
-  handleDelete = jobId => {
-    this.setState({ render: "false" });
-    console.log("deleting", jobId);
-    this.props.deleteJobDraft(jobId);
+  handleDelete = job => {
+    this.setState({ render:  "false" });
+    this.props.deleteJobDraft(job);
     this.setState({ render: "true" });
   };
   getNextJobs = async () => {
@@ -77,7 +76,7 @@ class JobDashboard extends Component {
   };
 
   handleMapItemClick = id => {
-    console.log("handleMapItemClick", id);
+   
     this.setState({
       scrollToId: id
     });

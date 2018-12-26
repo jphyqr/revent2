@@ -80,3 +80,42 @@ TEST POPUP 1
 testpopup2, going to try replacing overview seg with a container
 
  going to try pinning component to title
+
+
+
+    .then(() => {
+          return admin
+            .firestore()
+            .collection("users")
+            .doc(uid)
+            .collection("web_push_token")
+            .get();
+        })
+        .then(webTokenSnapShot =>{
+          const snapShot = webTokenSnapShot
+          snapShot.forEach(webToken => {
+            webTokens.push(webToken.data().tokenUID);
+            console.log({webTokens})
+            
+           
+          })
+          console.log({webTokens})
+          return webTokens
+         
+        }
+        )
+        .then(webTokens => {
+          console.log("webTokens", webTokens);
+
+          const payload = {
+            notification: {
+              title: "Stripe Verified",
+              body: "Your account has been verified"
+            }
+          };
+          webTokens.forEach(webToken=>{
+            admin.messaging().sendToDevice(webToken, payload);
+          })
+           
+           return payload
+        })

@@ -1,8 +1,39 @@
 import React, { Component } from "react";
 import BuildCarousel from "./BuildCarousel/BuildCarousel";
-import { categories } from "../../../../app/data/buildData";
+//import { categories } from "../../../../app/data/buildData";
 import scrollToComponent from "react-scroll-to-component";
+import {withFirestore} from 'react-redux-firebase'
+import {connect} from 'react-redux'
+
+
+const actions = {
+
+}
+
+
+const mapState = state => {
+
+
+  return {
+    categories: state.firestore.ordered.categories
+  };
+};
+
 class BuildDetail extends Component {
+
+
+
+  async componentDidMount() {
+    const { firestore } = this.props;
+    await firestore.setListener(`categories`);
+  }
+
+  async componentWillUnmount() {
+    const { firestore } = this.props;
+    await firestore.unsetListener(`categories`);
+  }
+
+
   state = {
     contextRef: {},
     selectedJob: ""
@@ -15,8 +46,7 @@ class BuildDetail extends Component {
 
   scrollToMyRef = (eChild, category) => {
   
-      console.log({ eChild });
-      console.log({ category });
+   
 
       scrollToComponent(eChild.currentTarget, {
         offset: -110,
@@ -26,6 +56,7 @@ class BuildDetail extends Component {
     
   };
   render() {
+    const {categories} = this.props
     return (
       <div style={{marginTop:10}}>
         {categories &&
@@ -42,4 +73,4 @@ class BuildDetail extends Component {
   }
 }
 
-export default BuildDetail;
+export default withFirestore(connect(mapState, actions)(BuildDetail));

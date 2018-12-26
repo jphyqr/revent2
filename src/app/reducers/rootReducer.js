@@ -6,6 +6,8 @@ import accountReducer from '../../features/modals/ConnectBankAccountModal/BankAc
 import jobReducer from '../../features/job/jobReducer'
 import modalsReducer from '../../features/modals/modalReducer';
 import messagesReducer from '../../features/popup/popupReducer'
+import categoryReducer from '../../features/modals/CategoryModal/categoryReducer'
+import taskReducer from '../../features/modals/TaskModal/taskReducer'
 import authReducer from '../../features/auth/authReducer';  
 import asyncReducer from '../../features/async/asyncReducer'
 import {firebaseReducer} from 'react-redux-firebase'
@@ -26,7 +28,9 @@ const rootReducer = combineReducers({
   firestore: firestoreReducer,
   account: accountReducer,
   openMessages: messagesReducer,
-  draft: draftReducer
+  draft: draftReducer,
+  category: categoryReducer,
+  task: taskReducer
 })
 
 export default rootReducer

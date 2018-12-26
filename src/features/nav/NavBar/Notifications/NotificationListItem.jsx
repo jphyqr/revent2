@@ -21,6 +21,13 @@ renderSummary = (notification) => {
                 <Feed.Extra text >{notification.description}</Feed.Extra> {' '}
             </div>
             );
+        case 'newJob':
+        return (
+            <div>
+            New Job {' '}
+            <Feed.Extra text >{notification.title}</Feed.Extra> {' '}
+        </div>
+        );
         default:
             return;
     }

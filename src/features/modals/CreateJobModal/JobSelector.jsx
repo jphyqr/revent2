@@ -48,7 +48,7 @@ class JobSelector extends Component {
 
 
   scrollToMyRef = () => {   // run this method to execute scrolling. 
-    console.log('scrolling')
+
     window.scrollTo({
         top:this.myRef.offsetTop, 
         behavior: "smooth"  // Optional, adds animation

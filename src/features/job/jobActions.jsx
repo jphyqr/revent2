@@ -10,26 +10,68 @@ import moment from "moment";
 import { createNewJob } from "../../app/common/util/helpers";
 import firebase from "../../app/config/firebase";
 import compareAsc from "date-fns/compare_asc";
+import { addMinutes } from "date-fns";
 
 
-export const createJobDraft = jobTypeId =>{
+
+
+
+export const subscribeToJob = currentJob =>{
+  return async (dispatch, getState, {getFirestore}) =>{
+    dispatch(asyncActionStart());
+    //UPDATE : NEED TO MOVE ALL OUR CATEGORIES TO FIRESTORE SO CAN ATTEND/QUERY
+
+    const firestore = getFirestore()
+    const user = firestore.auth().currentUser;
+    const photoURL = getState().firebase.profile.photoURL;
+
+   try {
+
+      await firestore.set(`task_subscribed/${currentJob.id}_${user.uid}`, {
+        
+       
+        userUid: user.uid,
+        active: true,
+        created: Date.now(),
+        taskId: currentJob.id,
+        photoURL: photoURL || "/assets/user.png"
+      });
+  
+
+
+      
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Subscribed to category");
+ 
+    } catch (error) {
+      dispatch(asyncActionFinish());
+      console.log(error)
+      toastr.error("Oops", "Something went wrong");
+    }
+  }
+}
+
+
+
+export const createJobDraft = job =>{
   return async (dispatch, getState, {getFirestore}) =>{
     dispatch(asyncActionStart());
     const firestore = getFirestore();
     const user = firestore.auth().currentUser;
     const photoURL = getState().firebase.profile.photoURL;
 
-    let newJobInDraft = createNewJob(user, photoURL, {jobTypeId:jobTypeId}) //empty object as no values yet
+    let newJobInDraft = createNewJob(user, photoURL, {taskValue:job.value, taskID: job.id  }) //empty object as no values yet
     try {
       let createdJob = await firestore.add(`jobs`, newJobInDraft);
-      console.log({createdJob})
+
       await firestore.set(`job_attendee/${createdJob.id}_${user.uid}`, {
         jobId: createdJob.id,
         created: newJobInDraft.created,
         title: newJobInDraft.title,
         userUid: user.uid,
         owner: true,
-        jobTypeId: newJobInDraft.jobTypeId,
+        taskID: newJobInDraft.taskID,
+        taskValue: newJobInDraft.taskValue,
         inDraft: newJobInDraft.inDraft
       });
       dispatch(asyncActionFinish());
@@ -77,7 +119,7 @@ export const updateJob = (draft, values) => {
  
     dispatch(asyncActionStart());
     const {key: jobId, value: draftValues} = draft
-    
+    console.log({draft})
     const firestore = firebase.firestore();
     values.date = moment(values.date).toDate();
     try {
@@ -86,8 +128,8 @@ export const updateJob = (draft, values) => {
         draftValues.date.toDate(),
         values.date
       );
-
-      if (dateEqual !== 0) {
+ //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
+      if (true) {
         let batch = firestore.batch();
         await batch.update(jobDocRef, values);
         let jobAttendeeRef = firestore.collection("job_attendee");
@@ -118,6 +160,7 @@ export const updateJob = (draft, values) => {
       toastr.success("Success", "Job has been updated");
     } catch (error) {
       dispatch(asyncActionError());
+      console.log(error)
       toastr.error("Oops", "Something went wrong");
     }
   };

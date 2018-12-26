@@ -6,7 +6,47 @@ import { findDOMNode } from "react-dom";
 import { isThisSecond } from "date-fns";
 import BuildSlider from './BuildSlider/BuildSlider'
 import BuildExpanded from "./BuildExpanded/BuildExpanded";
+import { withFirestore, firestoreConnect } from "react-redux-firebase";
+import {getTasksForCarousel} from './carouselActions'
+import { connect } from "react-redux";
+import {selectTaskToEdit} from '../../../../modals/TaskModal/taskActions'
+const query = ({ category }) => {
+  return [
+    {
+      collection: "tasks",
+      where: [["category", "==", `${category.id}`]],
+      storeAs: "tasksInCategory"
+    }
+  ];
+};
+
+
+const actions = {
+  getTasksForCarousel,selectTaskToEdit
+    
+}
+
+const mapState = state => {
+  const tasksInCategory = state.firestore.ordered.tasksInCategory
+   
+  return {
+   
+    tasks: tasksInCategory
+  };
+};
+
 class BuildCarousel extends Component {
+
+async componentDidMount(){
+  let tasks = await this.props.getTasksForCarousel(this.props.category);
+
+  if(tasks.length > 0){
+   
+    this.setState({tasks:tasks})
+  }
+
+}
+  
 
 
   state = {
@@ -20,12 +60,13 @@ class BuildCarousel extends Component {
     scrollRef:{},
     index:0,
     nextRef:{},
-    selectedJob: {}
+    selectedJob: {},
+    tasks: []
   };
 
 
 
-
+ 
 
 
 
@@ -47,9 +88,10 @@ class BuildCarousel extends Component {
 
   handleShowExpanded = job => {
     console.log(
-      "handleShowExapanded"
+      "handleShowExapanded", job
     )
     this.setState({ selectedJob: job, showExpanded: true });
+    this.props.selectTaskToEdit(job)
   };
 
   handleClose = () => {
@@ -79,10 +121,10 @@ class BuildCarousel extends Component {
   render() {
     const { category, scrollToMyRef } = this.props;
     const {nextRef} = this.state
-    console.log({ category });
+
     const items = allItems[category.id];
 
-    console.log({ items });
+  
 
     var settings = {
       dots: true,
@@ -107,7 +149,7 @@ class BuildCarousel extends Component {
            showExpanded={this.state.showExpanded}
            carouselHovered={this.state.carouselHovered}
            showExpanded={this.state.showExpanded}
-           items={items}
+           items={this.state.tasks}
            category={category}
            scrollToMyRef={scrollToMyRef}
            handleShowExpanded={this.handleShowExpanded}
@@ -133,4 +175,4 @@ class BuildCarousel extends Component {
   }
 }
 
-export default BuildCarousel;
+export default connect(mapState,actions)(firestoreConnect(props=>query(props))(BuildCarousel));
