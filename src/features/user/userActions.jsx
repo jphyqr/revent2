@@ -1,6 +1,7 @@
 import moment from "moment";
 import { toastr } from "react-redux-toastr";
 import { FETCH_JOBS } from "../job/jobConstants";
+import { FETCH_TASK} from "../modals/TaskModal/taskConstants"
 import cuid from "cuid";
 import firebase from "../../app/config/firebase";
 import {
@@ -267,6 +268,114 @@ export const bidJob = job => async (dispatch, getState) => {
   }
 };
 
+
+
+
+
+export const subscribeToTask = task2 => async (dispatch, getState) => {
+  dispatch(asyncActionStart());
+
+  
+  
+  console.log('subscribeToTask', task2)
+  const firestore = firebase.firestore();
+  const user = firebase.auth().currentUser;
+  const photoURL = getState().firebase.profile.photoURL;
+  const subscriber = {
+    subscribed: true,
+    joinDate: Date.now(),
+    photoURL: photoURL || "/assets/user.png",
+    displayName: user.displayName,
+    manager: false
+  };
+
+  try {
+    let updated;
+    let taskDocRef = firestore.collection("tasks").doc(task2.key);
+    let taskSubscribedDocRef = firestore
+      .collection("task_subscribed")
+      .doc(`${task2.key}_${user.uid}`);
+
+    await firestore.runTransaction(async transaction => {
+    await transaction.get(taskDocRef);
+    await transaction.update(taskDocRef, {
+        [`subscribers.${user.uid}`]: subscriber
+      });
+    
+      await transaction.set(taskSubscribedDocRef, {
+        taskId: task2.key,
+        userUid: user.uid,
+        manager: false,
+        active: true,
+        photoURL: photoURL || "/assets/user.png",
+        created: Date.now()
+      });
+    });
+console.log("test UPDATED")
+const key = task2.key
+    let taslSnap = await firestore.collection("tasks").doc(key).get()
+    console.log({taslSnap})
+    let task =  taslSnap.data()
+   console.log({task})
+   const payload = {key: task2.key, value:task}
+    console.log({payload})
+    dispatch({
+        type: FETCH_TASK,
+        payload: {payload}
+    })
+    
+    dispatch(asyncActionFinish());
+    toastr.success("Success", "You have subscrived to the event");
+  } catch (error) {
+    dispatch(asyncActionFinish());
+    console.log(error);
+    toastr.error("Oops", "Problem subscribing to event");
+  }
+};
+
+export const unsubscribeToTask = task2 => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
+  const firestore = getFirestore();
+  const user = firestore.auth().currentUser;
+  console.log('unsubscribe from', task2)
+  try {
+    //remove attendee from object map
+    await firestore.update(`tasks/${task2.key}`, {
+      [`subscribers.${user.uid}`]: firestore.FieldValue.delete()
+    });
+    //remove documennt from lookup
+    await firestore.delete(`task_subscribed/${task2.key}_${user.uid}`);
+
+
+    const key = task2.key
+    //let taskSnap = await firestore.getcollection("tasks").doc(key).get()
+
+   let taskSnap=  await firestore.get(`tasks/${key}`)
+    console.log({taskSnap})
+    let task =  taskSnap.data()
+   console.log({task})
+   const payload = {key: task2.key, value:task}
+    console.log({payload})
+    dispatch({
+        type: FETCH_TASK,
+        payload: {payload}
+    })
+
+
+
+    toastr.success("Success", "You have unsubscribed from the task");
+  } catch (error) {
+    console.log(error);
+    toastr.error("Oops", "Something went wrong");
+  }
+};
+
+
+
+
 export const goingToEvent = event => async (dispatch, getState) => {
   dispatch(asyncActionStart());
   const firestore = firebase.firestore();
@@ -329,6 +438,8 @@ export const cancelBidForJob = job => async (
   }
 };
 
+
+
 export const cancelGoingToEvent = event => async (
   dispatch,
   getState,
@@ -349,6 +460,8 @@ export const cancelGoingToEvent = event => async (
     toastr.error("Oops", "Something went wrong");
   }
 };
+
+
 
 export const getUserEvents = (userUid, activeTab) => async (
   dispatch,

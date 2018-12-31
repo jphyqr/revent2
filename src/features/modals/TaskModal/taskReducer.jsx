@@ -1,13 +1,23 @@
 import {createReducer} from '../../../app/common/util/reducerUtil'
-import {FETCH_TASK} from './taskConstants'
+import {FETCH_TASK, UPDATE_TASK} from './taskConstants'
 
 const initialState = [];
 
 export const fetchTask = (state,payload) => {
-    return payload.task
+  console.log('fetchTaskReducer payload', payload.payload)
+    return payload.payload
+  }
+
+
+  export const updateTask = (state, payload) => {
+    return [
+      ...state.filter(task => task.id !== payload.task.id),
+      Object.assign({}, payload.task)
+    ]
   }
 
 
   export default createReducer(initialState, {
-    [FETCH_TASK] : fetchTask
+    [FETCH_TASK] : fetchTask,
+    [UPDATE_TASK] : updateTask
   })

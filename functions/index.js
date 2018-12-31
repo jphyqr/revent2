@@ -409,9 +409,46 @@ exports.dispatchTask = functions.firestore
     return info.after.data();
   });
 
+
+exports.unsubscribeFromTask = functions.firestore
+.document("task_subscribed/{taskSubscriptionId}")
+.onDelete((info, context)=>{
+  const unsubscribedTaskId = context.params.taskSubscriptionId;
+  console.log('unsubscribedFromTask', unsubscribedTaskId)
+  const split = unsubscribedTaskId.split("_");
+  const userUID = split[1];
+  const taskUID = split[0];
+  console.log({ userUID });
+  console.log({ taskUID });
+  let webTokens = [];
+  return admin
+  .firestore()
+  .collection("users")
+  .doc(userUID)
+  .collection("web_push_token")
+  .get()
+  .then(webTokenSnapShot => {
+    const snapShot = webTokenSnapShot;
+    snapShot.forEach(webToken => {
+      webTokens.push(webToken.data().tokenUID);
+      console.log({ webTokens });
+    });
+    console.log({ webTokens });
+    return webTokens;
+  })
+  .then(webTokens => {
+    return admin.messaging().unsubscribeFromTopic(webTokens, taskUID);
+  })
+  .then(response => {
+    console.log("successfuly unsubscribed from topic", response);
+    return response;
+  })
+  .catch(error => console.log(error));
+})
+
 exports.subscribeToTask = functions.firestore
   .document("task_subscribed/{taskSubscriptionId}")
-  .onWrite((info, context) => {
+  .onCreate((info, context) => {
     const taskSubscriptionId = context.params.taskSubscriptionId;
     const split = taskSubscriptionId.split("_");
     const userUID = split[1];

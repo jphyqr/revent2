@@ -76,7 +76,7 @@ export const createJobDraft = job =>{
       });
       dispatch(asyncActionFinish());
       toastr.success("Success", "Job has been created");
- 
+      return createdJob
     } catch (error) {
       dispatch(asyncActionFinish());
       console.log(error)
@@ -211,12 +211,14 @@ export const getJobsForDashboard = lastJob => async (
          //   .where("date", ">=", today)
        //   .orderBy("date")
           .startAfter(startAfter)
-          .limit(4))
+     //     .limit(4)
+     )
       : (query = jobsRef
         .where("inDraft", "==", false)
          //   .where("date", ">=", today)
       //    .orderBy("date")
-          .limit(4));
+      //    .limit(4)
+      );
 
     let querySnap = await query.get();
 

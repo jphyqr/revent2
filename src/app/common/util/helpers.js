@@ -30,10 +30,25 @@ export const createNewCategory  = (category) => {
   };
 };
 
-export const createNewTask  = (task) => {
+export const createNewTask  = (user, photoURL, task) => {
   return {
     ...task,
+    managerUid: user.uid,
+    managedBy: user.displayName,
+    inDraft: true,
+    title: "Untitled",
+    managerPhotoURL: photoURL || "/assets/user.png",
     created: Date.now(),
+    subscribers: {
+      //nested object inside event [key]
+      [user.uid]: {
+        subscribed: true,
+        joinDate: Date.now(),
+        photoURL: photoURL || "./assets/user.png",
+        displayName: user.displayName,
+        manager: true
+      }
+    }
 
   };
 };

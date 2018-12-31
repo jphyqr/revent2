@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import BuildCarousel from "./BuildCarousel/BuildCarousel";
 //import { categories } from "../../../../app/data/buildData";
 import scrollToComponent from "react-scroll-to-component";
-import {withFirestore} from 'react-redux-firebase'
+import {withFirestore, isLoaded} from 'react-redux-firebase'
 import {connect} from 'react-redux'
-
+import LoadingComponent from '../../../../app/layout/LoadingComponent'
 
 const actions = {
 
@@ -15,7 +15,8 @@ const mapState = state => {
 
 
   return {
-    categories: state.firestore.ordered.categories
+    categories: state.firestore.ordered.categories,
+    loading: state.async.loading
   };
 };
 
@@ -57,9 +58,12 @@ class BuildDetail extends Component {
   };
   render() {
     const {categories} = this.props
+ 
     return (
+      
       <div style={{marginTop:10}}>
-        {categories &&
+       {!isLoaded(categories)? <LoadingComponent/> : 
+       categories &&
           categories.map(category => (
             <BuildCarousel
               key={category.id}
@@ -68,6 +72,7 @@ class BuildDetail extends Component {
               handleContextRef={this.handleContextRef}
             />
           ))}
+        
       </div>
     );
   }

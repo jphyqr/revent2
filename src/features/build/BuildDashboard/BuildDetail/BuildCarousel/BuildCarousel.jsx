@@ -10,6 +10,7 @@ import { withFirestore, firestoreConnect } from "react-redux-firebase";
 import {getTasksForCarousel} from './carouselActions'
 import { connect } from "react-redux";
 import {selectTaskToEdit} from '../../../../modals/TaskModal/taskActions'
+import {subscribeToTask, unsubscribeToTask} from '../../../../../features/user/userActions'
 const query = ({ category }) => {
   return [
     {
@@ -22,7 +23,7 @@ const query = ({ category }) => {
 
 
 const actions = {
-  getTasksForCarousel,selectTaskToEdit
+  getTasksForCarousel,selectTaskToEdit,subscribeToTask, unsubscribeToTask
     
 }
 
@@ -30,19 +31,32 @@ const mapState = state => {
   const tasksInCategory = state.firestore.ordered.tasksInCategory
    
   return {
-   
-    tasks: tasksInCategory
+    auth: state.firebase.auth,
+    loading: state.async.loading,
+    tasks: tasksInCategory,
+    task: state.task&&state.task
   };
 };
 
 class BuildCarousel extends Component {
 
+
+
+
+ handleTasksUpdated = async () =>{
+  let tasks = await this.props.getTasksForCarousel(this.props.category);
+
+  if(tasks.length > 0){
+   
+    this.setState({tasks:tasks, selectedJob:this.props.task})
+  }
+ }
 async componentDidMount(){
   let tasks = await this.props.getTasksForCarousel(this.props.category);
 
   if(tasks.length > 0){
    
-    this.setState({tasks:tasks})
+    this.setState({tasks:tasks, selectedJob:this.props.task})
   }
 
 }
@@ -61,16 +75,33 @@ async componentDidMount(){
     index:0,
     nextRef:{},
     selectedJob: {},
-    tasks: []
+    tasks: [],
+    subscribeButtonLoading: false
   };
 
 
 
- 
+  handleUnsubscribe = async () =>{
+    this.setState({subscribeButtonLoading: true})
+    await this.props.unsubscribeToTask(this.state.selectedJob);
+    this.setState({subscribeButtonLoading: false})
+    this.setState({selectedJob: this.props.task})
+   
+    this.handleTasksUpdated() 
+    this.forceUpdate();
+  }
 
 
 
+  handleSubscribe = async ()  =>{
+    this.setState({subscribeButtonLoading: true})
+    await this.props.subscribeToTask(this.state.selectedJob);
+    this.setState({subscribeButtonLoading: false})
 
+    this.setState({selectedJob: this.props.task})
+    this.handleTasksUpdated()
+      this.forceUpdate();
+  }
 
   handleChildExpanding = () => {
     this.setState({ childIsExpanding: true });
@@ -86,12 +117,14 @@ async componentDidMount(){
     this.setState({ lockInHover: true });
   };
 
-  handleShowExpanded = job => {
+  handleShowExpanded  = async job => {
     console.log(
       "handleShowExapanded", job
     )
-    this.setState({ selectedJob: job, showExpanded: true });
-    this.props.selectTaskToEdit(job)
+    let newTask = await this.props.selectTaskToEdit(job)
+    console.log({newTask})
+    this.setState({ selectedJob: this.props.task, showExpanded: true });
+    
   };
 
   handleClose = () => {
@@ -157,6 +190,12 @@ async componentDidMount(){
            handleChildExpanding={this.handleChildExpanding}
            handleChildCompressing={this.handleChildCompressing}
            lockInHover={this.state.lockInHover}
+           auth={this.props.auth}
+           subscribeButtonLoading={this.state.subscribeButtonLoading}
+           handleSubscribe={this.handleSubscribe}
+           handleUnsubscribe={this.handleUnsubscribe}
+           loading={this.props.loading}
+           selectedJobId={this.state.selectedJob.key}
 
          />
 
@@ -165,8 +204,11 @@ async componentDidMount(){
             
 
             <BuildExpanded 
-            selectedJob={this.state.selectedJob}
+            subscribeButtonLoading={this.state.subscribeButtonLoading}
+            handleSubscribe={this.handleSubscribe}
+            selectedJob={this.state.selectedJob.value}
             handleClose={this.handleClose}
+            handleUnsubscribe={this.handleUnsubscribe}
             />
           )}
         </Transition.Group>

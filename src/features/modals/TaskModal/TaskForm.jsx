@@ -16,18 +16,19 @@ import _ from "lodash";
 import DateInput from "../../../app/common/form/DateInput";
 import PlaceInput from "../../../app/common/form/PlaceInput";
 import { withFirestore } from "react-redux-firebase";
+import { stat } from "fs";
 
 const mapState = state => {
   let task = {};
 
-  if (!_.isEmpty(state.task)) {
   
-    task = state.task;
-  }
+  task = state.task&&  state.task.value;
+  
 
   return {
-    initialValues: task,
+    
     task: state.task,
+    initialValues: task,
     loading: state.async.loading,
     categories: state.firestore.ordered.categories
   };
@@ -50,25 +51,29 @@ const types = [
 ];
 
 const validate = combineValidators({
-  id: isRequired({ message: "The task id is required" }),
-  string: isRequired({ message: "Please provide a string" }),
-  short_string: isRequired({ message: "Please provide a short string" })
+  // value: isRequired({ message: "The task id is required" }),
+  // string: isRequired({ message: "Please provide a string" }),
+  // short_string: isRequired({ message: "Please provide a short string" })
 });
 
 class TaskForm extends Component {
   async componentDidMount() {
-    const { firestore } = this.props;
-    await firestore.setListener(`categories`);
+    console.log('initialValues', this.props.initialValues)
+  //  const { firestore } = this.props;
+   // await firestore.setListener(`categories`);
+    
   }
 
   async componentWillUnmount() {
-    const { firestore } = this.props;
-    await firestore.unsetListener(`categories`);
+  //  const { firestore } = this.props;
+  //  await firestore.unsetListener(`categories`);
   }
 
   onFormSubmit = async values => {
-    if (this.props.initialValues.id) {
-      await this.props.updateTask(values);
+    const {initialValues, updateTask, task} = this.props
+    if (initialValues&&task) {
+      console.log("updateTask")
+      await updateTask(task, values);
     } else {
       this.props.createTask(values);
     }
@@ -110,19 +115,19 @@ class TaskForm extends Component {
             <Field
               name="value"
               type="text"
-              component={TextInput}
+              component={TextArea}
               placeholder="Give your task a id"
             />
             <Field
               name="string"
               type="text"
-              component={TextInput}
+              component={TextArea}
               placeholder="Give your task a string"
             />
             <Field
               name="short_string"
               type="text"
-              component={TextInput}
+              component={TextArea}
               placeholder="Give your task a short version of string"
             />
             <Field
