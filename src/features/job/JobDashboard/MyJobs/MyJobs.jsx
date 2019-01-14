@@ -56,6 +56,7 @@ handleEdit = async jobId =>{
           {myJobs &&
             myJobs.map(job => (
               <MyJobsItem job={job}
+              key={job.created}
               handleDelete={this.handleDelete}
               handleEdit={this.handleEdit}
               postJob = {this.postJob}

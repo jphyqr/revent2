@@ -8,7 +8,7 @@ import {
   isRequired,
   hasLengthGreaterThan
 } from "revalidate";
-import { updateTask, createTask } from "./taskActions";
+import { updateTask, createTask, updateTaskPhoto } from "./taskActions";
 import TextInput from "../../../app/common/form/TextInput";
 import TextArea from "../../../app/common/form/TextArea";
 import SelectInput from "../../../app/common/form/SelectInput";
@@ -16,6 +16,7 @@ import _ from "lodash";
 import DateInput from "../../../app/common/form/DateInput";
 import PlaceInput from "../../../app/common/form/PlaceInput";
 import { withFirestore } from "react-redux-firebase";
+import PhotoUpload from '../../../app/common/form/PhotoUpload/PhotoUpload'
 import { stat } from "fs";
 
 const mapState = state => {
@@ -30,13 +31,15 @@ const mapState = state => {
     task: state.task,
     initialValues: task,
     loading: state.async.loading,
-    categories: state.firestore.ordered.categories
+    categories: state.firestore.ordered.categories,
+    fields: state.firestore.ordered.fields,
   };
 };
 
 const actions = {
   updateTask,
-  createTask
+  createTask,
+  updateTaskPhoto
 };
 
 const types = [
@@ -47,7 +50,8 @@ const types = [
   },
   { key: "supply", text: "supply", value: "supply" },
   { key: "tool", text: "tool", value: "tool" },
-  { key: "design", text: "design", value: "design" }
+  { key: "design", text: "design", value: "design" },
+  
 ];
 
 const validate = combineValidators({
@@ -57,25 +61,38 @@ const validate = combineValidators({
 });
 
 class TaskForm extends Component {
+
+state={
+  displayURL: ""
+}
+
   async componentDidMount() {
-    console.log('initialValues', this.props.initialValues)
-  //  const { firestore } = this.props;
-   // await firestore.setListener(`categories`);
-    
+    const { firestore } = this.props;
+    await firestore.setListener(`fields`);
+
+
+    this.setState({
+      displayURL: this.props.task.displayURL || "https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/pVBFKV5Sp2giwswxvj7mpsJa4Bj1%2Fuser_images%2Fcjqeg4nnu000d3g5u6giajkoa?alt=media&token=e5adabbe-fb7c-4bf2-ac3d-e43d18da14bf"
+    })
   }
+
+
+
+
+
 
   async componentWillUnmount() {
-  //  const { firestore } = this.props;
-  //  await firestore.unsetListener(`categories`);
+    const { firestore } = this.props;
+    await firestore.unsetListener(`fields`);
   }
-
   onFormSubmit = async values => {
     const {initialValues, updateTask, task} = this.props
+    const {displayURL} = this.state
     if (initialValues&&task) {
       console.log("updateTask")
-      await updateTask(task, values);
+      await updateTask(values, task.key, displayURL);
     } else {
-      this.props.createTask(values);
+      this.props.createTask(values, displayURL);
     }
   };
 
@@ -105,31 +122,38 @@ class TaskForm extends Component {
       categories
     } = this.props;
 
+    const {displayURL} = this.state
+
     const list = this.handleRenderList(categories);
 
     return (
+      <div >
       <Grid>
         <Grid.Column width={10}>
           <Header sub color="teal" content="Task Details" />
+          
+
+
           <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
             <Field
-              name="value"
+              name="name"
               type="text"
-              component={TextArea}
-              placeholder="Give your task a id"
+              component={TextInput}
+              placeholder="My Great Service..."
             />
             <Field
-              name="string"
+              name="description"
               type="text"
               component={TextArea}
-              placeholder="Give your task a string"
+              rows={3}
+              placeholder="Describe your Service"
             />
-            <Field
+            {/* <Field
               name="short_string"
               type="text"
-              component={TextArea}
+              component={TextInput}
               placeholder="Give your task a short version of string"
-            />
+            /> */}
             <Field
               name="category"
               type="text"
@@ -145,24 +169,20 @@ class TaskForm extends Component {
               placeholder="What is your type"
             />
 
+
             <Button
-              disabled={invalid || submitting || pristine}
+              disabled={invalid || submitting}
               positive
               loading={loading}
               type="submit"
             >
-              Submit
+              Save
             </Button>
-            <Button
-              disabled={loading}
-              //  onClick={this.props.history.goBack}
-              type="button"
-            >
-              Cancel
-            </Button>
+           
           </Form>
         </Grid.Column>
       </Grid>
+      </div>
     );
   }
 }

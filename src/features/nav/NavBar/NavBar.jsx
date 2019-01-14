@@ -111,7 +111,8 @@ this.props.clearAccount()
           )} */}
           
 
-{authenticated && (
+
+  {/* authenticated && (
   <Menu.Item>
     <Button
       onClick={this.handleCreateTask}
@@ -121,10 +122,11 @@ this.props.clearAccount()
       content="Create Task"
     />
   </Menu.Item>
-)}
+) */}
 
 
-{authenticated && (
+
+{/* authenticated && (
             <Menu.Item>
               <Button
                 onClick={this.handleCreateCategory}
@@ -134,7 +136,7 @@ this.props.clearAccount()
                 content="Create Category"
               />
             </Menu.Item>
-          )}
+          ) */}
 
 
             {authenticated? <BankAccountMenuItem

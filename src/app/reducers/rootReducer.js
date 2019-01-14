@@ -9,6 +9,7 @@ import messagesReducer from '../../features/popup/popupReducer'
 import categoryReducer from '../../features/modals/CategoryModal/categoryReducer'
 import taskReducer from '../../features/modals/TaskModal/taskReducer'
 import authReducer from '../../features/auth/authReducer';  
+import fieldReducer from '../../features/modals/NewFieldModal/fieldReducer'
 import asyncReducer from '../../features/async/asyncReducer'
 import {firebaseReducer} from 'react-redux-firebase'
 import {firestoreReducer} from 'redux-firestore'
@@ -30,7 +31,8 @@ const rootReducer = combineReducers({
   openMessages: messagesReducer,
   draft: draftReducer,
   category: categoryReducer,
-  task: taskReducer
+  task: taskReducer,
+  field: fieldReducer
 })
 
 export default rootReducer

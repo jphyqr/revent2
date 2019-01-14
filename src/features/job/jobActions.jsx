@@ -53,14 +53,15 @@ export const subscribeToJob = currentJob =>{
 
 
 
-export const createJobDraft = job =>{
+export const createJobDraft = (job, jobId) =>{
   return async (dispatch, getState, {getFirestore}) =>{
     dispatch(asyncActionStart());
+    console.log('createJobDraft job', job)
     const firestore = getFirestore();
     const user = firestore.auth().currentUser;
     const photoURL = getState().firebase.profile.photoURL;
 
-    let newJobInDraft = createNewJob(user, photoURL, {taskValue:job.value, taskID: job.id  }) //empty object as no values yet
+    let newJobInDraft = createNewJob(user, photoURL, {taskValue:job.value, taskID: jobId }) //empty object as no values yet
     try {
       let createdJob = await firestore.add(`jobs`, newJobInDraft);
 

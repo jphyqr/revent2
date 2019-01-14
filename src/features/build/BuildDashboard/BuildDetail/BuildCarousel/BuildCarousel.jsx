@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Slider from "react-slick";
 import { allItems } from "../../../../../app/data/buildData";
-import { Button, Image, Transition } from "semantic-ui-react";
+import { Button, Image, Transition, Dimmer, Loader } from "semantic-ui-react";
 import { findDOMNode } from "react-dom";
 import { isThisSecond } from "date-fns";
 import BuildSlider from './BuildSlider/BuildSlider'
@@ -76,12 +76,14 @@ async componentDidMount(){
     nextRef:{},
     selectedJob: {},
     tasks: [],
-    subscribeButtonLoading: false
+    subscribeButtonLoading: false,
+    expandedLoading: false,
   };
 
 
 
-  handleUnsubscribe = async () =>{
+  handleUnsubscribe = async (job) =>{
+    await this.handleShowExpanded(job)
     this.setState({subscribeButtonLoading: true})
     await this.props.unsubscribeToTask(this.state.selectedJob);
     this.setState({subscribeButtonLoading: false})
@@ -93,7 +95,10 @@ async componentDidMount(){
 
 
 
-  handleSubscribe = async ()  =>{
+  handleSubscribe = async (job)  =>{
+  //  await this.props.selectTaskToEdit(job)
+  
+  await this.handleShowExpanded(job)
     this.setState({subscribeButtonLoading: true})
     await this.props.subscribeToTask(this.state.selectedJob);
     this.setState({subscribeButtonLoading: false})
@@ -118,13 +123,11 @@ async componentDidMount(){
   };
 
   handleShowExpanded  = async job => {
-    console.log(
-      "handleShowExapanded", job
-    )
+    this.setState({expandedLoading:true})
     let newTask = await this.props.selectTaskToEdit(job)
     console.log({newTask})
     this.setState({ selectedJob: this.props.task, showExpanded: true });
-    
+    this.setState({expandedLoading:false})
   };
 
   handleClose = () => {
@@ -181,7 +184,6 @@ async componentDidMount(){
            childIsExpanding={this.state.childIsExpanding}
            showExpanded={this.state.showExpanded}
            carouselHovered={this.state.carouselHovered}
-           showExpanded={this.state.showExpanded}
            items={this.state.tasks}
            category={category}
            scrollToMyRef={scrollToMyRef}
@@ -196,21 +198,26 @@ async componentDidMount(){
            handleUnsubscribe={this.handleUnsubscribe}
            loading={this.props.loading}
            selectedJobId={this.state.selectedJob.key}
+           expandedLoading={this.state.expandedLoading}
 
          />
 
-        <Transition.Group animation="scale" duration={300}>
-          {this.state.showExpanded && (
-            
+        <Transition.Group animation="scale" duration={400}>
+         
+          {(this.state.showExpanded || this.state.expandedLoading)&& 
+          
+         
 
             <BuildExpanded 
             subscribeButtonLoading={this.state.subscribeButtonLoading}
             handleSubscribe={this.handleSubscribe}
             selectedJob={this.state.selectedJob.value}
+            selectedJobId={this.state.selectedJob.key}
             handleClose={this.handleClose}
             handleUnsubscribe={this.handleUnsubscribe}
+            expandedLoading={this.state.expandedLoading}
             />
-          )}
+          }
         </Transition.Group>
       </div>
     );

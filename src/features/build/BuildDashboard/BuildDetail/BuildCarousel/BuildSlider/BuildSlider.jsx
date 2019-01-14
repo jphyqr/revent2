@@ -57,6 +57,7 @@ class BuildSlider extends Component {
               loading={this.props.loading}
               selectedJobId={this.props.selectedJobId}
               subscribeButtonLoading={this.props.subscribeButtonLoading}
+              expandedLoading={this.props.expandedLoading}
             />
           ))}
       </div>

@@ -51,7 +51,7 @@ class App extends Component {
         zIndex: 100+100*index
       }}
     >
-    <PopupContainer width={WIDTH} height={HEIGHT} right={calcRight}  bottom={BOTTOM} message={openMessage}/>
+    <PopupContainer closeMessage={this.props.closeMessage} width={WIDTH} height={HEIGHT} right={calcRight}  bottom={BOTTOM} message={openMessage}/>
   
 
   

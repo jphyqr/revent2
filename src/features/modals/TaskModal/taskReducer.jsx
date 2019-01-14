@@ -4,8 +4,8 @@ import {FETCH_TASK, UPDATE_TASK} from './taskConstants'
 const initialState = [];
 
 export const fetchTask = (state,payload) => {
-  console.log('fetchTaskReducer payload', payload.payload)
-    return payload.payload
+  console.log('fetchTaskReducer payload', payload)
+    return payload.payload || payload
   }
 
 

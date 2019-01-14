@@ -72,8 +72,7 @@ class BuildCarouselItem extends Component {
   componentWillReceiveProps = nextProps => {
    // if (nextProps.selectedJob !== this.state.currentJob) {
       const { item, auth, loading, selectedJobId } = nextProps
-      console.log('item id', item.id)
-      console.log('selectedJobId', selectedJobId)
+
       let isSelected = item.id===selectedJobId
       const subscribers =
       item && item.subscribers && objectToArray(item.subscribers);
@@ -185,7 +184,7 @@ editTask = item =>{
               //    transformOrigin: "50% 50%",
               transition: "0.15s all ease"
             }}
-            src={`/assets/categoryImages/${item.value}.jpg`}
+            src={item.displayURL}
           />
         </div>
         <div
@@ -203,7 +202,7 @@ editTask = item =>{
             height: "auto"
           }}
         >
-          {item.string}
+          {item.name}
         </div>
         <div
           style={{
@@ -250,10 +249,10 @@ editTask = item =>{
         <div
           style={{
             position: "absolute",
-            top: 25,
+            top: 30,
             right: 5,
             color: "white",
-            zIndex: 5000
+            zIndex: 5
           }}
         >
           {item.managerUid === auth.uid ? (
@@ -264,19 +263,38 @@ editTask = item =>{
               edit task
             </Button>
           ) : isSubscribed ? (
-            <Button
+            <Button icon
+            circular
+            style={{opacity: 0.6,
+            
+              boxShadow:
+              "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+            }
+          
+          }
+            size="large"
+            color="white"
               loading={this.props.subscribeButtonLoading&&this.state.isSelected}
-              onClick={() => this.props.handleUnsubscribe()}
+              onClick={() => this.props.handleUnsubscribe(item)}
             >
-              unsubscribe
+              <Icon size="large" name="deaf"/>
             </Button>
           ) : (
             <Button
+            icon
+            circular
+            size="large"
               loading={this.props.subscribeButtonLoading&&this.state.isSelected}
-              onClick={() => this.props.handleSubscribe()}
-              color="teal"
+              onClick={() => this.props.handleSubscribe(item)}
+              inverted
+            color="white"
+              style={{opacity: 1,
+                boxShadow:
+                "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+              
+              }}
             >
-              SUBSCRIBE
+            <Icon size="large" name="assistive listening systems"/>
             </Button>
           )}
         </div>

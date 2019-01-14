@@ -11,6 +11,30 @@ import {
 
   import { createNewTask} from "../../../app/common/util/helpers";
 
+
+  export const clearTask = () => async (dispatch, getState) =>{
+
+    console.log('clearing task')
+    try {
+     dispatch(asyncActionStart())
+
+   const payload = {}
+    
+    dispatch({
+        type: FETCH_TASK,
+        payload: payload
+    })
+
+ 
+    dispatch (asyncActionFinish())
+ 
+    } catch (error){
+        console.log(error)
+        dispatch(asyncActionError())
+    }
+      }
+
+
   export const selectTaskToEdit = taskObj => async (dispatch, getState) =>{
 
     const firestore = firebase.firestore();
@@ -37,7 +61,7 @@ import {
       }
 
 
-      export const createTask = task => {
+      export const createTask = (task, displayURL) => {
         return async (dispatch, getState, { getFirestore }) => {
           const firestore = getFirestore();
 
@@ -45,10 +69,19 @@ import {
          
           const user = firestore.auth().currentUser;
           const photoURL = getState().firebase.profile.photoURL; //can hook into redux state get whatever we want: firebase is the reducer
-          let newTask = createNewTask(user, photoURL, task);
+          let newTask = createNewTask(user, photoURL, task, displayURL);
+
           try {
-            await firestore.add(`tasks`, newTask);
-           
+          let addedTask=  await firestore.add(`tasks`, newTask);
+           console.log('addedTask id', addedTask.id )
+           const payload = {key: addedTask.id, value:newTask}
+    
+           dispatch({
+               type: FETCH_TASK,
+               payload: {payload}
+           })
+
+
             toastr.success("Success", "Task has been created");
           } catch (error) {
             toastr.error("Oops", "Something went wrong");
@@ -58,49 +91,50 @@ import {
 
 
 
-      export const updateTask = (task,values) => {
+      export const updateTask = (task,key,displayURL) => {
         return async (dispatch, getState) => {
           dispatch(asyncActionStart());
+          const firestore = firebase.firestore();
           const {key: taskId, value: taskValues} = task
           console.log({task})
-          const firestore = firebase.firestore();
+          const user = firebase.auth().currentUser;
+          const photoURL = getState().firebase.profile.photoURL; //can hook into redux state get whatever we want: firebase is the reducer
+        
+         
           task.date = moment(task.date).toDate();
-      
+          let newTask = createNewTask(user, photoURL, task, displayURL);
           try {   
             let taskDocRef = firestore.collection("tasks").doc(taskId);
          
-      
-            if (true) {
-              let batch = firestore.batch();
-              await batch.update(taskDocRef, task);
-              let categoryTasksRef = firestore.collection("tasks");
-              let categoryTasksQuery = await categoryTasksRef.where(
-                "taskId",
-                "==",
-                taskId
-              );
-              let categoryTasksQuerySnap = await categoryTasksQuery.get();
-      
-              for (let i = 0; i < categoryTasksQuerySnap.docs.length; i++) {
-                let categoryTasksDocRef = await firestore
-                  .collection("task_subscribed")
-                  .doc(categoryTasksQuerySnap.docs[i].id);
-      
-                await batch.update(categoryTasksDocRef, {
-                  categoryDate: task.date
-                });
-              }
-      
-              await batch.commit();
-            } else {
-              await taskDocRef.update(task);
-            }
-            dispatch({
-              type: UPDATE_TASK,
-              payload: {task}
-          })
+  
+              await taskDocRef.update(newTask);
+  
             dispatch(asyncActionFinish());
             toastr.success("Success", "Task has been updated");
+          } catch (error) {
+            dispatch(asyncActionError());
+            toastr.error("Oops", "Something went wrong");
+            console.log(error)
+          }
+        };
+      };
+
+
+      export const updateTaskPhoto = (key,displayURL) => {
+        return async (dispatch, getState) => {
+          dispatch(asyncActionStart());
+          const firestore = firebase.firestore();
+  
+     
+          try {   
+            let taskDocRef = firestore.collection("tasks").doc(key);
+         
+              console.log('updating photo for', key)
+              await taskDocRef.update({displayURL:displayURL});
+  
+            dispatch(asyncActionFinish());
+            toastr.success("Success", "Task has been updated");
+            return displayURL
           } catch (error) {
             dispatch(asyncActionError());
             toastr.error("Oops", "Something went wrong");
