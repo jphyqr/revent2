@@ -35,7 +35,7 @@ state={
     if(field.icon==='add'){
       this.setState({fieldLoading:true})
       let newField = await this.props.selectFieldToEdit({})
-      console.log({newField})
+      console.log('newFieldModal' ,newField)
       this.setState({ selectedField: this.props.field.payload.value });
       this.setState({fieldLoading:false})
       this.forceUpdate()

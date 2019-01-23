@@ -7,13 +7,54 @@ export const objectToArray = (object) => {
     }
 }
 
-export const createNewJob  = (user, photoURL, job) => {
+
+export const createSchedule = scheduleStartDate => {
+  var days = [];
+  var labels = ["8-10", "10-12", "12-1", "1-3", "3-5", "5-7", "7-9"];
+
+  console.log('1. createSchedule.. scheduleStartDate', scheduleStartDate)
+  for (var i = 0; i < 6; i++) {
+    // let nextDay = moment(scheduleStartDate)
+    //   .add(i, "days")
+    //   .toDate();
+    // should be \
+
+   
+    console.log('loop . createSchedule.. index', i)
+    console.log('loop . createSchedule.. scheduleStartDate', scheduleStartDate)
+
+    let nextDayStamp =  ((scheduleStartDate+(i*(24*60*60))))
+    console.log('loop . createSchedule.. nextDayStamp', nextDayStamp)
+
+    let timeSlots = [];
+    for (var j = 0; j < labels.length; j++) {
+      timeSlots.push({ label: labels[j], selected: false });
+    }
+    days.push({ timeStamp: nextDayStamp, timeSlots: timeSlots });
+
+  
+  }
+  return days;
+};
+export const createNewJob  =  (user, photoURL, job, taskID) => {
   job.date = moment(job.date).toDate();
+
+  console.log('1. createNew Job moment.unix', moment().unix)
+  console.log('2. createNew Job moment.valueOf', moment().valueOf)
+  console.log('3. createNew Job moment.toDate()', moment().toDate())
+  let startDate = moment().unix()
+  //let scheduleStartDate = Date(Date.now()).toString()
+  console.log('start date createNewJob moment.unix()', startDate)
+  let timesSelected = createSchedule(startDate)
+
   return {
     ...job,
+    timesSelected: timesSelected,
+    startDate: moment().toDate(),
+    taskID: taskID.taskID,
     ownerUid: user.uid,
     inDraft: true,
-    title: "Untitled",
+    title: `${user.displayName}'s ${job.name} job`,
     owneredBy: user.displayName,
     ownerPhotoURL: photoURL || "/assets/user.png",
     created: Date.now(),

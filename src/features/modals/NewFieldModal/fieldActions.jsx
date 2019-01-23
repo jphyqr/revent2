@@ -11,6 +11,77 @@ import {
 
   import { createNewField } from "../../../app/common/util/helpers";
 
+  export const uploadExamplePhoto = (key,exampleURL) => {
+    return async (dispatch, getState, {getFirebase, getFirestore} )=> {
+      dispatch(asyncActionStart());
+
+      console.log('upload example photo key', key)
+      console.log('upload example photo url', exampleURL)
+
+      const firestore = getFirestore();
+
+
+      
+      try {   
+
+
+        let field = await firestore.get(`fields/${key}`);
+
+       // if (!field.data().exampleURL) {
+          // await firestore.update({
+          //   exampleURL: exampleURL
+          // });
+     //   }
+
+        await firestore.add(
+          {
+            collection: "fields",
+            doc: key,
+            subcollections: [{ collection: "examplePhotos" }]
+          },
+          {
+            exampleURL: exampleURL
+          }
+        );
+
+
+        dispatch(asyncActionFinish());
+        toastr.success("Success", "Example photo has been uploaded");
+        return exampleURL
+      } catch (error) {
+        dispatch(asyncActionError());
+        toastr.error("Oops", "Something went wrong uploading photo");
+        console.log(error)
+      }
+    };
+  };
+
+
+  export const updateExamplePhoto = (key,exampleURL) => {
+    return async (dispatch, getState) => {
+      dispatch(asyncActionStart());
+      const firestore = firebase.firestore();
+
+ 
+      try {   
+        let fieldDocRef = firestore.collection("fields").doc(key);
+     
+          console.log('updating  example photo for', key)
+          await fieldDocRef.update({exampleURL:exampleURL});
+
+        dispatch(asyncActionFinish());
+        toastr.success("Success", "Field photo has been  updated");
+        return exampleURL
+      } catch (error) {
+        dispatch(asyncActionError());
+        toastr.error("Oops", "Something went wrong updating field photo");
+        console.log(error)
+      }
+    };
+  };
+
+
+
   export const clearField = () => async (dispatch, getState) =>{
 
 

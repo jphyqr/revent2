@@ -12,56 +12,45 @@ import firebase from "../../app/config/firebase";
 import compareAsc from "date-fns/compare_asc";
 import { addMinutes } from "date-fns";
 
-
-
-
-
-export const subscribeToJob = currentJob =>{
-  return async (dispatch, getState, {getFirestore}) =>{
+export const subscribeToJob = currentJob => {
+  return async (dispatch, getState, { getFirestore }) => {
     dispatch(asyncActionStart());
     //UPDATE : NEED TO MOVE ALL OUR CATEGORIES TO FIRESTORE SO CAN ATTEND/QUERY
 
-    const firestore = getFirestore()
+    const firestore = getFirestore();
     const user = firestore.auth().currentUser;
     const photoURL = getState().firebase.profile.photoURL;
 
-   try {
-
+    try {
       await firestore.set(`task_subscribed/${currentJob.id}_${user.uid}`, {
-        
-       
         userUid: user.uid,
         active: true,
         created: Date.now(),
         taskId: currentJob.id,
         photoURL: photoURL || "/assets/user.png"
       });
-  
 
-
-      
       dispatch(asyncActionFinish());
       toastr.success("Success", "Subscribed to category");
- 
     } catch (error) {
       dispatch(asyncActionFinish());
-      console.log(error)
+      console.log(error);
       toastr.error("Oops", "Something went wrong");
     }
-  }
-}
+  };
+};
 
-
-
-export const createJobDraft = (job, jobId) =>{
-  return async (dispatch, getState, {getFirestore}) =>{
+export const createJobDraft = (job, jobId) => {
+  return async (dispatch, getState, { getFirestore }) => {
     dispatch(asyncActionStart());
-    console.log('createJobDraft job', job)
+    console.log("createJobDraft job", job);
     const firestore = getFirestore();
     const user = firestore.auth().currentUser;
     const photoURL = getState().firebase.profile.photoURL;
 
-    let newJobInDraft = createNewJob(user, photoURL, {taskValue:job.value, taskID: jobId }) //empty object as no values yet
+    let newJobInDraft = createNewJob(user, photoURL, job, { taskID: jobId }); //empty object as no values yet
+    console.log({ newJobInDraft });
+
     try {
       let createdJob = await firestore.add(`jobs`, newJobInDraft);
 
@@ -72,20 +61,18 @@ export const createJobDraft = (job, jobId) =>{
         userUid: user.uid,
         owner: true,
         taskID: newJobInDraft.taskID,
-        taskValue: newJobInDraft.taskValue,
+        taskName: newJobInDraft.name,
         inDraft: newJobInDraft.inDraft
       });
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been created");
-      return createdJob
+      return createdJob;
     } catch (error) {
       dispatch(asyncActionFinish());
-      console.log(error)
+      console.log(error);
       toastr.error("Oops", "Something went wrong");
     }
-  }
-}
-
+  };
+};
 
 export const createJob = job => {
   return async (dispatch, getState, { getFirestore }) => {
@@ -102,7 +89,7 @@ export const createJob = job => {
         jobId: createdJob.id,
         userUid: user.uid,
         jobDate: job.date,
-        title:createdJob.title,
+        title: createdJob.title,
         inDraft: true,
         owner: true
       });
@@ -113,32 +100,26 @@ export const createJob = job => {
   };
 };
 
-export const updateJob = (draft, values) => {
-  return async (dispatch, getState) => {
 
-    
- 
+
+export const updateJob = (draft, values, timesSelected) => {
+  return async (dispatch, getState) => {
     dispatch(asyncActionStart());
-    const {key: jobId, value: draftValues} = draft
-    console.log({draft})
+    const { key: jobId, value: draftValues } = draft;
+    console.log({ draft });
     const firestore = firebase.firestore();
     values.date = moment(values.date).toDate();
+    values.startDate = moment(values.startDate).toDate();
+    values.timesSelected = timesSelected
     try {
       let jobDocRef = firestore.collection("jobs").doc(jobId);
-      let dateEqual = compareAsc(
-        draftValues.date.toDate(),
-        values.date
-      );
- //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
+      let dateEqual = compareAsc(draftValues.date.toDate(), values.date);
+      //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {
         let batch = firestore.batch();
         await batch.update(jobDocRef, values);
         let jobAttendeeRef = firestore.collection("job_attendee");
-        let jobAttendeeQuery = await jobAttendeeRef.where(
-          "jobId",
-          "==",
-          jobId
-        );
+        let jobAttendeeQuery = await jobAttendeeRef.where("jobId", "==", jobId);
         let jobAttendeeQuerySnap = await jobAttendeeQuery.get();
 
         for (let i = 0; i < jobAttendeeQuerySnap.docs.length; i++) {
@@ -161,7 +142,7 @@ export const updateJob = (draft, values) => {
       toastr.success("Success", "Job has been updated");
     } catch (error) {
       dispatch(asyncActionError());
-      console.log(error)
+      console.log(error);
       toastr.error("Oops", "Something went wrong");
     }
   };
@@ -188,10 +169,7 @@ export const cancelToggle = (cancelled, jobId) => async (
   }
 };
 
-export const getJobsForDashboard = lastJob => async (
-  dispatch,
-  getState
-) => {
+export const getJobsForDashboard = lastJob => async (dispatch, getState) => {
   let today = new Date(Date.now());
   const firestore = firebase.firestore();
   const jobsRef = firestore.collection("jobs");
@@ -207,19 +185,16 @@ export const getJobsForDashboard = lastJob => async (
 
     lastJob
       ? (query = jobsRef
-        //#DATE UPDATE JOBS
-         .where("inDraft", "==", false)
-         //   .where("date", ">=", today)
-       //   .orderBy("date")
-          .startAfter(startAfter)
-     //     .limit(4)
-     )
-      : (query = jobsRef
-        .where("inDraft", "==", false)
-         //   .where("date", ">=", today)
-      //    .orderBy("date")
-      //    .limit(4)
-      );
+          //#DATE UPDATE JOBS
+          .where("inDraft", "==", false)
+          //   .where("date", ">=", today)
+          //   .orderBy("date")
+          .startAfter(startAfter))
+      : //     .limit(4)
+        (query = jobsRef.where("inDraft", "==", false));
+        //   .where("date", ">=", today)
+        //    .orderBy("date")
+        //    .limit(4)
 
     let querySnap = await query.get();
 

@@ -6,7 +6,6 @@ import { Loader, Dimmer } from "semantic-ui-react";
 import { withFirestore, isEmpty, isLoading } from "react-redux-firebase";
 import { compose } from "redux";
 import JobForm from "./JobForm";
-import JobSelector from './JobSelector'
 const actions = {
   closeModal
 };
@@ -41,7 +40,8 @@ const mapState = state => {
 
 class CreateJobModal extends Component {
 
-  state = {showModal:true}
+  state = {showModal:true
+  }
 
   handleClose = () =>{
     this.setState({
@@ -60,7 +60,7 @@ class CreateJobModal extends Component {
       loading, draft
     } = this.props;
     return (
-      <Modal style={{maxWidth:500, maxHeight:800, overflow:'auto'}}closeIcon="close" open={this.state.showModal} onClose={closeModal}>
+      <Modal style={{maxWidth:700, maxHeight:800, overflow:'auto'}}closeIcon="close" open={this.state.showModal} onClose={closeModal}>
         <Modal.Header>{draft.value.taskValue}</Modal.Header>
         <Modal.Content>
           <Modal.Description>
@@ -69,7 +69,7 @@ class CreateJobModal extends Component {
                 <Loader content="Creating Jobs" />
               </Dimmer>
             ) : showBasic ? (
-             this.props.draft&& <JobForm handleClose={this.handleClose}/>
+             this.props.draft&& <JobForm  draft={draft} handleClose={this.handleClose}/>
             ) : (
               null
             )}

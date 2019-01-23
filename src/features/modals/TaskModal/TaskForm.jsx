@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { reduxForm, Field } from "redux-form";
-import { Segment, Form, Button, Grid, Header } from "semantic-ui-react";
+import { Segment, Form, Button, Grid, Header, Message } from "semantic-ui-react";
 import {
   composeValidators,
   combineValidators,
@@ -10,10 +10,11 @@ import {
 } from "revalidate";
 import { updateTask, createTask, updateTaskPhoto } from "./taskActions";
 import TextInput from "../../../app/common/form/TextInput";
+import RadioInput from '../../../app/common/form/RadioInput'
 import TextArea from "../../../app/common/form/TextArea";
 import SelectInput from "../../../app/common/form/SelectInput";
 import _ from "lodash";
-import DateInput from "../../../app/common/form/DateInput";
+import Checkbox from "../../../app/common/form/Checkbox";
 import PlaceInput from "../../../app/common/form/PlaceInput";
 import { withFirestore } from "react-redux-firebase";
 import PhotoUpload from '../../../app/common/form/PhotoUpload/PhotoUpload'
@@ -55,15 +56,18 @@ const types = [
 ];
 
 const validate = combineValidators({
-  // value: isRequired({ message: "The task id is required" }),
-  // string: isRequired({ message: "Please provide a string" }),
-  // short_string: isRequired({ message: "Please provide a short string" })
+  name: isRequired({ message: "Name your task" }),
+  description: isRequired({ message: "Describe your task" }),
+  category: isRequired({ message: "Select a category" }),
+   type: isRequired({ message: "Select a type" }),
+    bookingType: isRequired({ message: "Select a booking type" })
 });
 
 class TaskForm extends Component {
 
 state={
-  displayURL: ""
+  displayURL: "",
+  bookingType: "online"
 }
 
   async componentDidMount() {
@@ -72,7 +76,7 @@ state={
 
 
     this.setState({
-      displayURL: this.props.task.displayURL || "https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/pVBFKV5Sp2giwswxvj7mpsJa4Bj1%2Fuser_images%2Fcjqeg4nnu000d3g5u6giajkoa?alt=media&token=e5adabbe-fb7c-4bf2-ac3d-e43d18da14bf"
+      displayURL: this.props.task.displayURL
     })
   }
 
@@ -94,7 +98,10 @@ state={
     } else {
       this.props.createTask(values, displayURL);
     }
+    this.forceUpdate()
   };
+
+
 
   handleRenderList = categories => {
     let item;
@@ -168,7 +175,53 @@ state={
               options={types}
               placeholder="What is your type"
             />
+          <Form.Group inline>
+             <Field
+              name="bookingType"
+              type="radio"
+              label="Site Visit Required"
+              component={RadioInput}
+              value="site"
+            /> 
+             <Field
+              name="bookingType"
+              type="radio"
+              label="Book Online"
+              component={RadioInput}
+              value="online"
+            /> 
+            </Form.Group>
+           <Message>Select the contract types that may work with this task.  Owners will select methods they accept at booking, and contractors can bid for whatever methods remain.  Purchasing of supplies is suggested, as it is expected that for certain jobs both parties may purchase materials.</Message>
+            <Form.Group inline>
+<Field
+                name="hourlyOwner"
+                type="checkbox"
 
+                label="$/H-Owner supplies"
+                component={Checkbox}
+              />
+<Field
+                name="hourlyContractor"
+                type="checkbox"
+
+                label="$/H-Contractor supplies"
+                component={Checkbox}
+              />
+              <Field
+                name="flatOwner"
+                type="checkbox"
+
+                label="Flat-Owner supplies"
+                component={Checkbox}
+              />
+                            <Field
+                name="flatContractor"
+                type="checkbox"
+
+                label="Flat-Contractor supplies"
+                component={Checkbox}
+              />
+        </Form.Group>
 
             <Button
               disabled={invalid || submitting}

@@ -103,6 +103,7 @@ state={
     currentField: {},
     example: false,
     exampleURL: "",
+
     selectKey: "",
     selectText: "",
     selectValue: "",
@@ -114,12 +115,22 @@ state={
 
 
 componentWillReceiveProps =  nextProps =>{
+  if (nextProps.examplePhotoHasUpdated) {
+    console.log("example photo Updated", nextProps);
+    this.setState({ exampleURL: nextProps.exampleURL });
+    this.props.handleUpdatedExamplePhoto();
+    this.setState({ showExampleUploaded: false });
+  }
+
+
  if(nextProps.selectedField!==this.state.currentField){
+
+  console.log({nextProps})
    this.setState({currentField: nextProps.selectedField,
   
   value:(nextProps.selectedField&&nextProps.selectedField.icon )|| "",
   example: (nextProps.selectedField&&nextProps.selectedField.example) || false,
-  exampleURL: (nextProps.selectedField&&nextProps.selectedField.exampleURL) || "",
+  exampleURL: (nextProps.exampleURL) || "",
   selectedIcon: (nextProps.selectedField&&nextProps.selectedField.icon )|| "add",
   selectItems: (nextProps.selectedField&&nextProps.selectedField.selectItems )|| [],
   radioItems: (nextProps.radioedField&&nextProps.radioedField.radioItems )|| [],
@@ -135,7 +146,7 @@ componentDidMount(){
     currentField: this.props.selectedField,
     value: this.props.selectedField.icon,
     example: this.props.selectedField.example || false,
-    exampleURL: this.props.selectedField.exampleURL || "",
+    exampleURL: this.props.exampleURL || "",
     selectedIcon: this.props.selectedField.icon,
     selectItems: (this.props.selectedField&&this.props.selectedField.selectItems )|| [],
     radioItems: (this.props.radioedField&&this.props.radioedField.radioItems )|| [],
@@ -179,7 +190,7 @@ handleSearchChange = (e, { value }) => {
 
   }
 
-handleExampleChange = () =>{
+handleExampleChange = (e) =>{
   this.setState({example: !this.state.example})
 }
   onFormSubmit = async values => {
@@ -427,7 +438,8 @@ value<input value={this.state.radioValue} onChange={ e=>this.setState({radioValu
 <Field
                 name="example"
                 type="checkbox"
-          //      value={this.state.required}
+             //   checked={this.state.example}
+            //    value={this.state.example}
                 onClick={this.handleExampleChange}
                 label="Include Example"
                 component={Checkbox}
@@ -435,7 +447,7 @@ value<input value={this.state.radioValue} onChange={ e=>this.setState({radioValu
 
 </Form.Group>
 
-{this.state.example && <PhotoUpload type="fieldExample" handlePhotoUploaded={this.handlePhotoUploaded}/>}
+{this.state.example && <PhotoUpload type="fieldExample" handlePhotoUploaded={this.props.handlePhotoUploaded}/>}
 
 {(this.state.exampleURL!=="")&& <div>Preview Image: <Image style={{height:100, width:100}}src={this.state.exampleURL}/></div>}
 

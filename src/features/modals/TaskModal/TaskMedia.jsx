@@ -1,13 +1,39 @@
 import React, { Component } from "react";
-import { Header, Icon } from "semantic-ui-react";
+import { Header, Icon, Divider, Card , Image, Button} from "semantic-ui-react";
 import { connect } from "react-redux";
 import PhotoUpload from "../../../app/common/form/PhotoUpload/PhotoUpload";
-import { updateTaskPhoto } from "./taskActions";
+import { uploadTaskPhoto, deletePhoto, setThumbnailPhoto } from "./taskActions";
+import { firestoreConnect } from "react-redux-firebase";
+import { compose } from "redux";
+import {toastr} from 'react-redux-toastr'
 const actions = {
-  updateTaskPhoto
+   uploadTaskPhoto, deletePhoto, setThumbnailPhoto
 };
+
+const mapState = state => ({
+  auth: state.firebase.auth,
+  task: state.task,
+  taskPhotos: state.firestore.ordered.taskPhotos,
+  loading: state.async.loading
+});
+
+const query = ({ task }) => {
+  return [
+    {
+      collection: "tasks",
+      doc: task.key,
+      subcollections: [{ collection: "taskPhotos" }],
+      storeAs: "taskPhotos"
+    }
+  ];
+};
+
 class TaskMedia extends Component {
-  state = { displayURL: "", showDisplayUpload: false };
+  state = { 
+    displayURL: "", 
+    showDisplayUpload: false 
+  
+  };
   // handlePhotoUploaded = async (url) =>{
   //     console.log('photo uploaded url', url)
   //     let displayURL = await this.props.updateTaskPhoto(this.props.task.key, url);
@@ -21,68 +47,94 @@ class TaskMedia extends Component {
     });
   }
 
+  handlePhotoDelete = photo => async () => {
+    try {
+      this.props.deletePhoto(photo, this.props.task.key);
+    } catch (error) {
+      toastr.error("Oops", error.message);
+    }
+  };
+  handleSetMainPhoto = photo => async () => {
+    try {
+      this.props.setThumbnailPhoto(photo, this.props.task.key)
+    } catch (error){
+      toastr.error('Ooops', error.message)
+    }
+  }
+
   componentWillReceiveProps = nextProps => {
     if (nextProps.displayPhotoHasUpdated) {
       console.log("displayPhoto Updated", nextProps);
       this.setState({ displayURL: nextProps.displayURL });
       this.props.handleUpdatedDisplayPhoto();
-      this.setState({showDisplayUpload:false})
+      this.setState({ showDisplayUpload: false });
     }
   };
   render() {
-    const { task } = this.props;
+    const { task, taskPhotos , loading} = this.props;
     const { displayURL, showDisplayUpload, displayUploadHovered } = this.state;
+
+    let filteredPhotos;
+    if (taskPhotos) {
+      filteredPhotos = taskPhotos.filter(photo => {
+        return photo.url !== task.displayURL;
+      });
+    }
+
 
     return (
       <div>
-        <Header sub color="teal" content="Thumbnail Display Photo (150x300)" />
-        <div
-          onMouseEnter={() => this.setState({ displayUploadHovered: true })}
-          onMouseLeave={() => this.setState({ displayUploadHovered: false })}
-          onClick={() => this.setState({ showDisplayUpload: true })}
-          style={{ width: 300, height: 150, backgroundColor: "black", position:'relative' }}
-         
-        >
-          <img
-            style={{
-                opacity: displayUploadHovered ? 1 : 0.6,
-              height: 150, //this.state.hovered ? 200 : 150,
-              width: 300 //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
-            }}
-            src={displayURL}
-          />
-
-          <div
-            style={{
-              //     backgroundColor: "black",
-              color: "white",
-              fontSize: 18,
-              position: "absolute",
-              bottom: 50,
-              textAlign: "center",
-              width: "100%",
-
-              opacity: displayUploadHovered ? 0.8 : 0,
-              height: "auto"
-            }}
-          >
-            <Icon color="white" size="huge" name="arrow down" />
-          </div>
-        </div>
-        {showDisplayUpload && (
-          <PhotoUpload
+<PhotoUpload
             type="displayImage"
             handlePhotoUploaded={this.props.handlePhotoUploaded}
             height="150"
             width="300"
           />
-        )}
+
+
+<Divider />
+        <Header sub color="teal" content="All Photos" />
+
+
+        <Card.Group itemsPerRow={5}>
+          <Card>
+            <Image src={task.displayURL || "https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/pVBFKV5Sp2giwswxvj7mpsJa4Bj1%2Fuser_images%2Fcjqeg4nnu000d3g5u6giajkoa?alt=media&token=e5adabbe-fb7c-4bf2-ac3d-e43d18da14bf"} />
+            <Button positive>Thumbnail Photo</Button>
+          </Card>
+
+          {taskPhotos &&
+            filteredPhotos.map(photo => (
+              <Card key={photo.id}>
+                <Image src={photo.url} />
+                <div className="ui two buttons">
+                  <Button  loading={loading} onClick={this.handleSetMainPhoto(photo)} basic color="green">
+                    Thumbnail
+                  </Button>
+                  <Button
+                    onClick={this.handlePhotoDelete(photo)}
+                    basic
+                    icon="trash"
+                    color="red"
+                  />
+                </div>
+              </Card>
+            ))}
+        </Card.Group>
+
+
+
+       
+          
+      
       </div>
     );
   }
 }
 
-export default connect(
-  null,
-  actions
+export default compose(
+  connect(
+    mapState,
+    actions
+  ),
+  firestoreConnect(props => query(props))
 )(TaskMedia);
