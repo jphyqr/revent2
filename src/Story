@@ -119,3 +119,11 @@ testpopup2, going to try replacing overview seg with a container
            
            return payload
         })
+
+
+
+    Git Workshop--
+
+    snapshots instead of Diffs.
+    --helps for working locally 
+    checksum everything SHA-1 HASH

@@ -190,9 +190,9 @@ class JobForm extends Component {
       values.venueLatLng = this.props.job.venueLatLng;
     }
     //   if (this.props.initialValues.id) {
-    await this.props.updateJob(this.props.draft, values, this.state.timesSelected);
-
-    this.props.handleClose();
+    await this.props.updateJob(this.props.draft, values, this.state.timesSelected, "showCustom");
+//this.props.closeModal()
+ 
     //   this.props.history.goBack();
     //  } else {
     //  this.props.createJob(values);

@@ -120,7 +120,7 @@ class FormBuilder extends Component {
   handlePhotoUploaded = async url => {
     console.log("photo uploaded url", url);
     let exampleURL = await this.props.uploadExamplePhoto(
-      this.props.field.payload.key,
+      this.props.field,
       url
     );
     this.setState({ exampleURL: exampleURL });

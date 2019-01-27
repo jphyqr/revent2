@@ -39,16 +39,16 @@ export const createSchedule = scheduleStartDate => {
 export const createNewJob  =  (user, photoURL, job, taskID) => {
   job.date = moment(job.date).toDate();
 
-  console.log('1. createNew Job moment.unix', moment().unix)
-  console.log('2. createNew Job moment.valueOf', moment().valueOf)
-  console.log('3. createNew Job moment.toDate()', moment().toDate())
+
   let startDate = moment().unix()
   //let scheduleStartDate = Date(Date.now()).toString()
   console.log('start date createNewJob moment.unix()', startDate)
   let timesSelected = createSchedule(startDate)
-
+  let showState = {showCustom:false, showBasic:true, showContract:false, showConfirm:false, showOverview:false, showSchedule:false}
+console.log({showState})
   return {
     ...job,
+    showState: showState,
     timesSelected: timesSelected,
     startDate: moment().toDate(),
     taskID: taskID.taskID,
@@ -71,11 +71,10 @@ export const createNewCategory  = (category) => {
   };
 };
 
-export const createNewField  = (field, icon, photoURL, example, selectItems) => {
+export const createNewField  = (field, icon, example, selectItems) => {
   return {
     ...field,
     icon:icon,
-    exampleURL:photoURL,
     example:example,
     selectItems: selectItems,
     created: Date.now(),

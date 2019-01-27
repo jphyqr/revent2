@@ -1,6 +1,7 @@
 import { toastr } from "react-redux-toastr";
 
 import { FETCH_JOBS } from "./jobConstants";
+import {FETCH_DRAFT} from '../build/draftConstants'
 import {
   asyncActionStart,
   asyncActionFinish,
@@ -83,6 +84,7 @@ export const createJob = job => {
     //need to shape job for what we want to store inside firestore
     let newJob = createNewJob(user, photoURL, job);
 
+    console.log('createJob after showstate', newJob)
     try {
       let createdJob = await firestore.add(`jobs`, newJob);
       await firestore.set(`job_attendee/${createdJob.id}_${user.uid}`, {
@@ -100,13 +102,99 @@ export const createJob = job => {
   };
 };
 
+export const uploadJobPhoto = (key,jobPhotoURL) => {
+  return async (dispatch, getState, {getFirebase, getFirestore} )=> {
+    dispatch(asyncActionStart());
+
+    console.log('upload job photo key', key)
+    console.log('upload job photo url', jobPhotoURL)
+
+    const firestore = getFirestore();
 
 
-export const updateJob = (draft, values, timesSelected) => {
+    
+    try {   
+
+
+      let job = await firestore.get(`jobs/${key}`);
+       let jobData = job.data()
+      let jobPhotos = jobData.jobPhotos || []
+      jobPhotos.push({url:jobPhotoURL})
+      jobData.jobPhotos = jobPhotos
+
+
+
+ await  firestore.set(`jobs/${key}`, jobData)
+
+      // await firestore.update(
+      //   {
+      //     collection: "fields",
+      //     doc: key,
+      //     subcollections: [{ collection: "examplePhotos" }]
+      //   },
+      //   {
+      //     exampleURL: exampleURL
+      //   }
+      // );
+
+
+      const payload = {key: key, value:jobData}
+  
+      dispatch({
+          type: FETCH_DRAFT,
+          payload: {payload}
+      })
+  
+
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Example job photo uploaded");
+    } catch (error) {
+      dispatch(asyncActionError());
+      toastr.error("Oops", "Something went wrong uploading job photo");
+      console.log(error)
+    }
+  };
+};
+
+export const updateJob = (draft, values, timesSelected, draftState) => {
   return async (dispatch, getState) => {
     dispatch(asyncActionStart());
     const { key: jobId, value: draftValues } = draft;
     console.log({ draft });
+    let showState = {showCustom:false, showBasic:false, showContract:false, showConfirm:false, showSchedule:false, showOverview:false}
+    console.log({draftState})
+   
+    switch(draftState){
+      case "showCustom" :
+       showState.showCustom = true
+       console.log('clicked showCustom')
+      break;
+      case "showBasic" :
+      showState.showBasic = true
+      break;
+      case "showContract":
+      showState.showContract = true
+      break;
+      case "showConfirm" :
+      showState.showConfirm = true
+      
+      break;
+      case "showSchedule" :
+      showState.showSchedule = true
+      
+      break;
+      case "showOverview" :
+      showState.showOverview = true
+      
+      break;
+
+      default: 
+      showState.showBasic = true
+      
+      break;
+    }
+    console.log({showState})
+    values.showState=showState
     const firestore = firebase.firestore();
     values.date = moment(values.date).toDate();
     values.startDate = moment(values.startDate).toDate();
@@ -137,6 +225,14 @@ export const updateJob = (draft, values, timesSelected) => {
       } else {
         await jobDocRef.update(values);
       }
+
+
+      const payload = {key: jobId, value:values}
+
+      dispatch({
+          type: FETCH_DRAFT,
+          payload: {payload}
+      })
 
       dispatch(asyncActionFinish());
       toastr.success("Success", "Job has been updated");

@@ -26,24 +26,38 @@ import {
 
 
         let field = await firestore.get(`fields/${key}`);
-
+         let fieldData = field.data()
+        let examplePhotos = fieldData.examplePhotos || []
+        examplePhotos.push({url:exampleURL})
+        fieldData.examplePhotos = examplePhotos
        // if (!field.data().exampleURL) {
           // await firestore.update({
           //   exampleURL: exampleURL
           // });
      //   }
 
-        await firestore.add(
-          {
-            collection: "fields",
-            doc: key,
-            subcollections: [{ collection: "examplePhotos" }]
-          },
-          {
-            exampleURL: exampleURL
-          }
-        );
 
+   await  firestore.set(`fields/${key}`, fieldData)
+
+        // await firestore.update(
+        //   {
+        //     collection: "fields",
+        //     doc: key,
+        //     subcollections: [{ collection: "examplePhotos" }]
+        //   },
+        //   {
+        //     exampleURL: exampleURL
+        //   }
+        // );
+
+
+        const payload = {key: key, value:fieldData}
+    
+        dispatch({
+            type: FETCH_FIELD,
+            payload: {payload}
+        })
+    
 
         dispatch(asyncActionFinish());
         toastr.success("Success", "Example photo has been uploaded");
@@ -133,12 +147,12 @@ import {
 
 
 
-  export const createField = (field, icon, photoURL, example, selectItems) => {
+  export const createField = (field, icon, example, selectItems) => {
     return async (dispatch, getState, { getFirestore }) => {
       const firestore = getFirestore();
 
       //need to shape field for what we want to store inside firestore
-      let newField = createNewField(field, icon, photoURL, example, selectItems);
+      let newField = createNewField(field, icon, example, selectItems);
   
       try {
         await firestore.add(`fields`, newField);
@@ -152,7 +166,7 @@ import {
   };
 
 
-  export const updateField = (field, icon, key, photoURL, example, selectItems) => {
+  export const updateField = (field, icon, key, example, selectItems) => {
     return async (dispatch, getState) => {
       dispatch(asyncActionStart());
       const firestore = firebase.firestore();
@@ -160,7 +174,7 @@ import {
        console.log('updateFied field', field)
        console.log('updateFied icon', icon)
        console.log()
-       let newField = createNewField(field, icon, photoURL, example, selectItems);
+       let newField = createNewField(field, icon,example, selectItems);
       console.log({newField})
       try {
         let fieldDocRef = firestore.collection("fields").doc(key);
