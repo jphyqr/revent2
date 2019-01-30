@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import BuildExpandedNavBar from "./BuildExpandedNavBar";
 import {
   createJobDraft,
-  updateJob,
   cancelToggle
 } from "../../../../../job/jobActions";
 import { objectToArray } from "../../../../../../app/common/util/helpers";
@@ -16,7 +15,6 @@ import ContractorSlider from "./BuildContractorTab/ContractorSlider";
 import { openModal } from "../../../../../modals/modalActions";
 const actions = {
   createJobDraft,
-  updateJob,
   cancelToggle,
   selectDraftToEdit,
   selectTaskToEdit,

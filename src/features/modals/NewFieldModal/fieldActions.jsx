@@ -11,12 +11,15 @@ import {
 
   import { createNewField } from "../../../app/common/util/helpers";
 
-  export const uploadExamplePhoto = (key,exampleURL) => {
+  export const uploadExamplePhoto = (field,exampleURL) => {
+    const {payload} = field
+    const {key, value} = payload
     return async (dispatch, getState, {getFirebase, getFirestore} )=> {
       dispatch(asyncActionStart());
 
       console.log('upload example photo key', key)
       console.log('upload example photo url', exampleURL)
+      console.log('upload example photo value', value)
 
       const firestore = getFirestore();
 
@@ -28,7 +31,7 @@ import {
         let field = await firestore.get(`fields/${key}`);
          let fieldData = field.data()
         let examplePhotos = fieldData.examplePhotos || []
-        examplePhotos.push({url:exampleURL})
+        examplePhotos.push({url:exampleURL, description:"Edit description...", title:"Edit title..."})
         fieldData.examplePhotos = examplePhotos
        // if (!field.data().exampleURL) {
           // await firestore.update({

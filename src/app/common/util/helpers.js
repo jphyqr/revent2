@@ -44,7 +44,7 @@ export const createNewJob  =  (user, photoURL, job, taskID) => {
   //let scheduleStartDate = Date(Date.now()).toString()
   console.log('start date createNewJob moment.unix()', startDate)
   let timesSelected = createSchedule(startDate)
-  let showState = {showCustom:false, showBasic:true, showContract:false, showConfirm:false, showOverview:false, showSchedule:false}
+  let showState = {showPhotos:false, showCustom:false, showBasic:true, showContract:false, showConfirm:false, showOverview:false, showSchedule:false}
 console.log({showState})
   return {
     ...job,

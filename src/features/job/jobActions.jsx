@@ -11,6 +11,7 @@ import moment from "moment";
 import { createNewJob } from "../../app/common/util/helpers";
 import firebase from "../../app/config/firebase";
 import compareAsc from "date-fns/compare_asc";
+
 import { addMinutes } from "date-fns";
 
 export const subscribeToJob = currentJob => {
@@ -156,52 +157,139 @@ export const uploadJobPhoto = (key,jobPhotoURL) => {
   };
 };
 
-export const updateJob = (draft, values, timesSelected, draftState) => {
+
+export const updateJobPhotosPage = (draft) => {
   return async (dispatch, getState) => {
     dispatch(asyncActionStart());
     const { key: jobId, value: draftValues } = draft;
     console.log({ draft });
-    let showState = {showCustom:false, showBasic:false, showContract:false, showConfirm:false, showSchedule:false, showOverview:false}
-    console.log({draftState})
+    let showState = {showPhotos:false, showCustom:false, showBasic:false, showContract:false, showConfirm:false, showSchedule:true, showOverview:false}
    
-    switch(draftState){
-      case "showCustom" :
-       showState.showCustom = true
-       console.log('clicked showCustom')
-      break;
-      case "showBasic" :
-      showState.showBasic = true
-      break;
-      case "showContract":
-      showState.showContract = true
-      break;
-      case "showConfirm" :
-      showState.showConfirm = true
-      
-      break;
-      case "showSchedule" :
-      showState.showSchedule = true
-      
-      break;
-      case "showOverview" :
-      showState.showOverview = true
-      
-      break;
+    
 
-      default: 
-      showState.showBasic = true
-      
-      break;
+    draftValues.showState=showState
+    const firestore = firebase.firestore();
+
+   try {
+      let jobDocRef = firestore.collection("jobs").doc(jobId);
+      //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
+      if (true) {
+        let batch = firestore.batch();
+        await batch.update(jobDocRef, draftValues);
+        let jobAttendeeRef = firestore.collection("job_attendee");
+        let jobAttendeeQuery = await jobAttendeeRef.where("jobId", "==", jobId);
+        let jobAttendeeQuerySnap = await jobAttendeeQuery.get();
+
+        for (let i = 0; i < jobAttendeeQuerySnap.docs.length; i++) {
+          let jobAttendeeDocRef = await firestore
+            .collection("job_attendee")
+            .doc(jobAttendeeQuerySnap.docs[i].id);
+
+          await batch.update(jobAttendeeDocRef, {
+            jobDate: draftValues.date,
+          });
+        }
+
+        await batch.commit();
+      } else {
+        await jobDocRef.update(draftValues);
+      }
+
+
+      const payload = {key: jobId, value:draftValues}
+
+      dispatch({
+          type: FETCH_DRAFT,
+          payload: {payload}
+      })
+
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Job has been updated");
+    } catch (error) {
+      dispatch(asyncActionError());
+      console.log(error);
+      toastr.error("Oops", "Something went wrong");
     }
-    console.log({showState})
+  };
+};
+
+
+export const updateJobContract = (draft) => {
+  return async (dispatch, getState) => {
+    dispatch(asyncActionStart());
+    const { key: jobId, value: draftValues } = draft;
+    console.log({ draft });
+    let showState = {showPhotos:false, showCustom:false, showBasic:false, showContract:false, showConfirm:true, showSchedule:false, showOverview:false}
+   
+    const localIpUrl = require('local-ip-url');
+    console.log(localIpUrl())
+    
+    draftValues.showState=showState
+    draftValues.confirmStamp={ip:localIpUrl(), date: Date.now()}
+    const firestore = firebase.firestore();
+
+   try {
+      let jobDocRef = firestore.collection("jobs").doc(jobId);
+      //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
+      if (true) {
+        let batch = firestore.batch();
+        await batch.update(jobDocRef, draftValues);
+        let jobAttendeeRef = firestore.collection("job_attendee");
+        let jobAttendeeQuery = await jobAttendeeRef.where("jobId", "==", jobId);
+        let jobAttendeeQuerySnap = await jobAttendeeQuery.get();
+
+        for (let i = 0; i < jobAttendeeQuerySnap.docs.length; i++) {
+          let jobAttendeeDocRef = await firestore
+            .collection("job_attendee")
+            .doc(jobAttendeeQuerySnap.docs[i].id);
+
+          await batch.update(jobAttendeeDocRef, {
+            jobDate: draftValues.date,
+          });
+        }
+
+        await batch.commit();
+      } else {
+        await jobDocRef.update(draftValues);
+      }
+
+
+      const payload = {key: jobId, value:draftValues}
+
+      dispatch({
+          type: FETCH_DRAFT,
+          payload: {payload}
+      })
+
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Job has been updated");
+    } catch (error) {
+      dispatch(asyncActionError());
+      console.log(error);
+      toastr.error("Oops", "Something went wrong");
+    }
+  };
+};
+
+
+
+
+
+
+export const updateJobBasic = (draft, values) => {
+  return async (dispatch, getState) => {
+    dispatch(asyncActionStart());
+    const { key: jobId, value: draftValues } = draft;
+    console.log({ draft });
+    let showState = {showPhotos:false, showCustom:true, showBasic:false, showContract:false, showConfirm:false, showSchedule:false, showOverview:false}
+   
+    
+   
     values.showState=showState
     const firestore = firebase.firestore();
-    values.date = moment(values.date).toDate();
-    values.startDate = moment(values.startDate).toDate();
-    values.timesSelected = timesSelected
-    try {
+
+   try {
       let jobDocRef = firestore.collection("jobs").doc(jobId);
-      let dateEqual = compareAsc(draftValues.date.toDate(), values.date);
       //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {
         let batch = firestore.batch();
@@ -216,7 +304,7 @@ export const updateJob = (draft, values, timesSelected, draftState) => {
             .doc(jobAttendeeQuerySnap.docs[i].id);
 
           await batch.update(jobAttendeeDocRef, {
-            jobDate: values.date,
+            jobDate: draftValues.date,
             title: values.title
           });
         }
@@ -228,6 +316,122 @@ export const updateJob = (draft, values, timesSelected, draftState) => {
 
 
       const payload = {key: jobId, value:values}
+
+      dispatch({
+          type: FETCH_DRAFT,
+          payload: {payload}
+      })
+
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Job has been updated");
+    } catch (error) {
+      dispatch(asyncActionError());
+      console.log(error);
+      toastr.error("Oops", "Something went wrong");
+    }
+  };
+};
+
+
+
+export const updateJobCustom = (draft, values) => {
+  return async (dispatch, getState) => {
+    dispatch(asyncActionStart());
+    const { key: jobId, value: draftValues } = draft;
+    console.log({ draft });
+    let showState = {showPhotos:true, showCustom:false, showBasic:false, showContract:false, showConfirm:false, showSchedule:false, showOverview:false}
+   
+    
+
+    draftValues.showState=showState
+    const firestore = firebase.firestore();
+    draftValues.customFields=values
+    console.log('draftValues after Add', draftValues)
+   try {
+      let jobDocRef = firestore.collection("jobs").doc(jobId);
+      //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
+      if (true) {
+        let batch = firestore.batch();
+        await batch.update(jobDocRef, draftValues);
+        let jobAttendeeRef = firestore.collection("job_attendee");
+        let jobAttendeeQuery = await jobAttendeeRef.where("jobId", "==", jobId);
+        let jobAttendeeQuerySnap = await jobAttendeeQuery.get();
+
+        for (let i = 0; i < jobAttendeeQuerySnap.docs.length; i++) {
+          let jobAttendeeDocRef = await firestore
+            .collection("job_attendee")
+            .doc(jobAttendeeQuerySnap.docs[i].id);
+
+          await batch.update(jobAttendeeDocRef, {
+            jobDate: draftValues.date,
+          });
+        }
+
+        await batch.commit();
+      } else {
+        await jobDocRef.update(draftValues);
+      }
+
+
+      const payload = {key: jobId, value:draftValues}
+
+      dispatch({
+          type: FETCH_DRAFT,
+          payload: {payload}
+      })
+
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Job has been updated");
+    } catch (error) {
+      dispatch(asyncActionError());
+      console.log(error);
+      toastr.error("Oops", "Something went wrong");
+    }
+  };
+};
+
+
+
+export const updateJobSchedule = (draft, values, timesSelected) => {
+  return async (dispatch, getState) => {
+    dispatch(asyncActionStart());
+    const { key: jobId, value: draftValues } = draft;
+    console.log({ draft });
+    let showState = {showPhotos:false, showCustom:false, showBasic:false, showContract:true, showConfirm:false, showSchedule:false, showOverview:false}
+   
+    
+    draftValues.showState=showState
+    const firestore = firebase.firestore();
+    draftValues.startDate = moment(values.startDate).toDate();
+    draftValues.timesSelected = timesSelected
+    try {
+      let jobDocRef = firestore.collection("jobs").doc(jobId);
+      let dateEqual = compareAsc(draftValues.date.toDate(), draftValues.date);
+      //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
+      if (true) {
+        let batch = firestore.batch();
+        await batch.update(jobDocRef, values);
+        let jobAttendeeRef = firestore.collection("job_attendee");
+        let jobAttendeeQuery = await jobAttendeeRef.where("jobId", "==", jobId);
+        let jobAttendeeQuerySnap = await jobAttendeeQuery.get();
+
+        for (let i = 0; i < jobAttendeeQuerySnap.docs.length; i++) {
+          let jobAttendeeDocRef = await firestore
+            .collection("job_attendee")
+            .doc(jobAttendeeQuerySnap.docs[i].id);
+
+          await batch.update(jobAttendeeDocRef, {
+            jobDate: draftValues.date,
+          });
+        }
+
+        await batch.commit();
+      } else {
+        await jobDocRef.update(draftValues);
+      }
+
+
+      const payload = {key: jobId, value:draftValues}
 
       dispatch({
           type: FETCH_DRAFT,

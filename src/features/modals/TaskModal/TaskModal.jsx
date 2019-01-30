@@ -150,7 +150,7 @@ handleDeletePhaseItem = async (index)=>{
           <Modal.Description>
             {loading ? (
               <Dimmer active inverted>
-                <Loader content="Creating Task" />
+                <Loader content="Updating Task" />
               </Dimmer>
             ) : (
               <div>

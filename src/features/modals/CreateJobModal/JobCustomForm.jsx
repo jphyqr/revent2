@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import TextInput from "../../../app/common/form/TextInput";
 import { reduxForm, Field } from "redux-form";
-import { connect } from "react-redux";
 import ExamplePhotoSlider from "../../../app/common/form/PhotoUpload/ExamplePhotoSlider";
 import SelectInput from "../../../app/common/form/SelectInput";
 import PhotoUpload from "../../../app/common/form/PhotoUpload/PhotoUpload";
@@ -10,7 +9,7 @@ import TextArea from "../../../app/common/form/TextArea";
 import PlaceInput from "../../../app/common/form/PlaceInput";
 import BlankInput from "../../../app/common/form/BlankInput";
 import DateInput from "../../../app/common/form/DateInput";
-import {Form, Grid, Image, Label} from 'semantic-ui-react'
+import {Form, Grid, Image, Label, Button} from 'semantic-ui-react'
 import {
   composeValidators,
   combineValidators,
@@ -43,28 +42,24 @@ const validate = combineValidators({
 });
 
 class JobCustomForm extends Component {
+
+
+  onFormSubmit = async values => {
+ 
+    await this.props.updateJobCustom(this.props.draft, values);
+
+  };
+
+
   render() {
-    const {draftValue} = this.props
+    const {draft} = this.props
+    const {value:draftValue} =draft
     const {fields} = draftValue
 
-    let examplePhotosCombined = []
-    if(fields&&fields.length>0){
-       for(var i=0; i<fields.length; i++){
-        const examplePhotos = fields[i].examplePhotos
-        if(examplePhotos&&examplePhotos.length>0){
-          for(var j=0; j<examplePhotos.length; j++){
-            examplePhotosCombined.push({url:examplePhotos[j].url, aboveMessage:fields[i].aboveMessage})
-          }
-          
-        }}
-       }
-       
-      
-    
-    
-    console.log({examplePhotosCombined})
+
+ 
     return (
-      <Form onSubmit={() => console.log("submit")}>
+      <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
       {fields &&
         fields.map(
           (
@@ -98,7 +93,7 @@ class JobCustomForm extends Component {
                   <Field
                     key={index}
                     name={name}
-                    type={type}
+                    type={component.type}
                     placeholder={label}
                     options={selectItems}
                     photos={examplePhotos}
@@ -139,15 +134,16 @@ class JobCustomForm extends Component {
           )
         )}
 
-{examplePhotosCombined&&examplePhotosCombined.length>0&&<ExamplePhotoSlider photos={examplePhotosCombined} label="Recommended"/>}
- {draftValue.jobPhotos&&draftValue.jobPhotos.length>0&&<ExamplePhotoSlider photos={draftValue.jobPhotos} label="My Job"/>}
-
-<PhotoUpload
-    type="jobPhoto"
-    handlePhotoUploaded={this.props.handlePhotoUploaded}
-  />
 
 
+<Button
+           //  disabled={(invalid || submitting || (pristine&&!fieldChanged))}
+            positive
+        //    loading={loading}
+            type="submit"
+          >
+            Submit
+          </Button>
     </Form>
     )
   }

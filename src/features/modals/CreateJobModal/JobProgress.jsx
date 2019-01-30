@@ -8,7 +8,7 @@ import {Step, Icon} from 'semantic-ui-react'
 
 
 const {showState} = this.props
-const {showSchedule, showOverview, showBasic, showCustom, showContract, showConfirm} = showState
+const {showSchedule, showPhotos, showOverview, showBasic, showCustom, showContract, showConfirm} = showState
     return (
         <Step.Group size='mini'>
        {/* <Step completed={showContract||showConfirm||showBasic||showSchedule||showCustom} active={showOverview} disabled={!showOverview}>
@@ -17,17 +17,25 @@ const {showSchedule, showOverview, showBasic, showCustom, showContract, showConf
             <Step.Title>Overview </Step.Title>
           </Step.Content>
         </Step> */}
-        <Step completed={showCustom||showSchedule||showContract||showConfirm} active={showBasic} disabled={!showBasic}>
+        <Step completed={showCustom||showSchedule||showContract||showConfirm||showPhotos} active={showBasic} disabled={!showBasic}>
           <Icon name='legal' />
           <Step.Content>
             <Step.Title>Basic</Step.Title>
           </Step.Content>
         </Step>
-        <Step  completed={showConfirm||showSchedule||showContract}active={showCustom} disabled={!showCustom}>
+        
+        <Step  completed={showConfirm||showSchedule||showContract||showPhotos}active={showCustom} disabled={!showCustom}>
           <Icon name='credit card' />
           <Step.Content>
             <Step.Title>Custom</Step.Title>
             <Step.Description>Custom</Step.Description>
+          </Step.Content>
+        </Step>
+        <Step  completed={showConfirm||showSchedule||showContract}active={showPhotos} disabled={!showPhotos}>
+          <Icon name='credit card' />
+          <Step.Content>
+            <Step.Title>Photos</Step.Title>
+            <Step.Description>Photos</Step.Description>
           </Step.Content>
         </Step>
         <Step completed={showConfirm||showContract}active={showSchedule} disabled={!showSchedule}>

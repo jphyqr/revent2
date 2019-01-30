@@ -1,12 +1,13 @@
 import React from "react";
-import { Header, Image } from "semantic-ui-react";
+import { Header, Image, Popup } from "semantic-ui-react";
 const ExamplePhotoSlider = ({ photos , name, label, aboveMessage}) => {
   return (
     photos &&
     photos.length > 0 && (
+      <div>
       <div
         style={{
-          height: 125,
+          height: "150",
           marginBottom: 1,
           marginTop: 5,
           padding: 5,
@@ -14,18 +15,25 @@ const ExamplePhotoSlider = ({ photos , name, label, aboveMessage}) => {
           backgroundColor: "WhiteSmoke",
           overflowX: "auto",
           overflowY: "hidden",
-
+          
           whiteSpace: "nowrap",
           position: "relative"
         }}
       >
-        <Header>Upload photos of {label} </Header>
+       
         {photos &&
           photos.map(photo => (
-            <div style={{ display: "inline-block", marginRight: "15px" }}>
-              <Image style={{ height: 100, width: 100 }} src={photo.url} />
+           <div style={{ display: "inline-block", marginRight: "15px" }}>
+            <div>
+              {photo.title}
+            </div>
+            <div >
+              <Popup trigger={<Image style={{ height: 150, width: 150 }} src={photo.url} />} content={photo.description} />
+              
+            </div>
             </div>
           ))}
+      </div>
       </div>
     )
   );

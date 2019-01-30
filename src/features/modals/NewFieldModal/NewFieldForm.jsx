@@ -8,7 +8,8 @@ import {
   Grid,
   Header,
   Image,
-  Icon
+  Icon,
+  Label
 } from "semantic-ui-react";
 import {
   composeValidators,
@@ -30,6 +31,7 @@ import RadioInput from "../../../app/common/form/RadioInput";
 import { withFirestore } from "react-redux-firebase";
 import { icons } from "../../../app/data/icons";
 import IconSlider from "./IconSlider";
+import ExamplePhotoItem from './ExamplePhotoItem'
 import { keyframes } from "popmotion";
 const mapState = state => {
   let field = {};
@@ -135,7 +137,8 @@ class NewFieldForm extends Component {
     selectValue: "",
     selectItems: [],
     radioValue: "",
-    radioItems: []
+    radioItems: [],
+    fieldChanged: false
     // selectedIcon: field&&field.icon
   };
 
@@ -193,6 +196,21 @@ class NewFieldForm extends Component {
   }
   resetComponent = () =>
     this.setState({ isLoading: false, results: icons, value: "" });
+
+
+handleUpdatePhotoDescription = (index, description) => {
+  let photos = this.state.examplePhotos
+  photos[index].description = description
+  this.setState({examplePhotos:photos, fieldChanged:true})
+}
+
+handleUpdatePhotoTitle = (index, title) => {
+  console.log('handleUpdatePhotoTitle index', index)
+  console.log('handleUpdatePhotoTitle title', title)
+  let photos = this.state.examplePhotos
+  photos[index].title = title
+  this.setState({examplePhotos:photos, fieldChanged:true})
+}
 
   handleComponentSelect = (e, { value }) => {
     this.setState({ selectedComponent: e.component });
@@ -261,7 +279,8 @@ class NewFieldForm extends Component {
       selectValue: "",
       selectItems: [],
       radioValue: "",
-      radioItems: []
+      radioItems: [],
+      fieldChanged: false
     });
   };
 
@@ -279,7 +298,7 @@ class NewFieldForm extends Component {
 
   render() {
     const { invalid, submitting, pristine, loading, field } = this.props;
-
+const {fieldChanged} = this.state
     return (
       <div>
         <Button positive onClick={() => this.props.toggleEdit(false)}>
@@ -526,7 +545,7 @@ class NewFieldForm extends Component {
   {this.state.examplePhotos&&this.state.examplePhotos.length>0 &&  <div
    
    style={{
-     height: 250,
+     height: 300,
      marginBottom: 1,
      marginTop:5,
      padding:5,
@@ -541,19 +560,18 @@ class NewFieldForm extends Component {
    >
    <Header>Example Photos</Header>
           {this.state.examplePhotos &&
-            this.state.examplePhotos.map(photo => (
+            this.state.examplePhotos.map((photo,index) => (
             
               <div style={{display: "inline-block", marginRight:"15px"}}>
-                <Image
                 
-                  style={{ height: 200, width: 200 }}
-                  src={photo.url}
-                />
+                
+                <ExamplePhotoItem index={index} handleUpdatePhotoDescription={this.handleUpdatePhotoDescription} handleUpdatePhotoTitle={this.handleUpdatePhotoTitle} photo={photo}/>
+               
             </div>
             ))}
 </div>}
           <Button
-            disabled={invalid || submitting || pristine}
+             disabled={(invalid || submitting || (pristine&&!fieldChanged))}
             positive
             loading={loading}
             type="submit"

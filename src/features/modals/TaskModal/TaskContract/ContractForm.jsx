@@ -49,20 +49,15 @@ const validate = combineValidators({
         <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
         <Form.Group inline>
         <Field
-              name="name"
+              name="phaseName"
               type="text"
-              placeholder="Payment phase..."
+              placeholder="Name phase..."
               component={TextInput}
             /> 
-                    <Field
-              name="duration"
-              type="text"
-              placeholder="# business days required"
-              component={TextInput}
-            /> 
+ 
         </Form.Group>
         <Field
-              name="prior"
+              name="priorConditions"
               type="text"
               placeholder="Prior to work start conditions..."
               component={TextArea}
@@ -70,14 +65,14 @@ const validate = combineValidators({
             /> 
 
 <Field
-              name="scope"
+              name="scopeOfWorkIncluded"
               type="text"
               placeholder="Scope of work included ..."
               component={TextArea}
               rows={1}
             /> 
             <Field
-              name="excluded"
+              name="workExcluded"
               type="text"
               placeholder="Work not included..."
               component={TextArea}
@@ -91,7 +86,7 @@ const validate = combineValidators({
               rows={1}
             /> 
                         <Field
-              name="finish"
+              name="finishedConditions"
               type="text"
               placeholder="End of work site conditions expected..."
               component={TextArea}

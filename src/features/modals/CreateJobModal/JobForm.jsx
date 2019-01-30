@@ -11,9 +11,8 @@ import {
   isRequired,
   hasLengthGreaterThan
 } from "revalidate";
-import { createJob, updateJob, cancelToggle } from "../../job/jobActions";
+import { createJob,  cancelToggle } from "../../job/jobActions";
 import TextInput from "../../../app/common/form/TextInput";
-import JobSchedule from "../../../app/common/form/JobSchedule/JobSchedule";
 import Checkbox from "../../../app/common/form/Checkbox";
 import {createSchedule} from '../../../app/common/util/helpers'
 import DateInput from "../../../app/common/form/DateInput";
@@ -35,8 +34,7 @@ const mapState = state => {
 
 const actions = {
   createJob,
-  updateJob,
-  cancelToggle
+  cancelToggle,
 };
 
 const contractType = [
@@ -82,12 +80,10 @@ const validate = combineValidators({
 
 class JobForm extends Component {
   state = {
-    timeChanged: false,
     cityLatLng: {},
     venueLatLng: {},
     scriptLoaded: false,
-    timesSelected: [],
-    timesArray: []
+
   };
 
   componentDidMount() {
@@ -95,66 +91,12 @@ class JobForm extends Component {
       this.handleVenueSelect(this.props.initialValues.venue);
     }
 
-    const startDate =        this.props.draft &&
-    this.props.draft.value &&
-    this.props.draft.value.startDate
 
-    console.log('1 . CDM... .startDate',  startDate)
-    console.log('2 . CDM... .moment(startDate',  moment(startDate))
-    console.log('3 . CDM... .moment(startDate).toDate',  moment(startDate).toDate())
-    //const date = Number(parseInt(startDate).toFixed(0))
-    //console.log('2 . CDM... .date', date   )
-    //console.log('3 . CDM... .moment(startDate).toDate', moment(date).toDate()   )
-    this.setState({
-      timesSelected:
-        this.props.draft &&
-        this.props.draft.value &&
-        this.props.draft.value.timesSelected,
-       calendarDate: startDate
-    });
-
-   // console.log({date})
    
   }
 
-  handleTimeSelected = (timeStamp, index) => {
-    let timeSelectedArray = this.state.timesSelected;
-    // let timeStampItem = timeSelectedArray[timeStamp]
-
-    for (var i = 0; i < timeSelectedArray.length; i++) {
-      if (timeSelectedArray[i].timeStamp === timeStamp) {
-        console.log("item found");
-        //change the code
-        timeSelectedArray[i].timeSlots[index].selected = !timeSelectedArray[i]
-          .timeSlots[index].selected;
-      }
-    }
-
-    console.log({ timeSelectedArray });
-    console.log({ timeStamp });
-    //   console.log({timeStampItem})
-    console.log({ index });
-    //  timeSelectedArray[index].
-    this.setState({ timesSelected: timeSelectedArray , timeChanged:true});
-  };
 
 
-
-  handleDateChange = async date => {
-    //  console.log(new Date(date))
-    // console.log('1', moment(date).toDate().toISOString())
-    console.log('1' , date)
-    console.log('2', new Date(date))
-    console.log('3', moment(date))
-    console.log('4', moment(date).toDate())
-    console.log('5', new Date(moment(date).toDate()))
-    console.log('6', (moment(date).toDate()).getTime()/1000)
-    await this.setState({ startDate: ((moment(date).toDate()).getTime()/1000) });
-
-    let schedule = createSchedule(this.state.startDate);
-
-    this.setState({ timesSelected: schedule });
-  };
 
   handleScriptLoaded = () => this.setState({ scriptLoaded: true });
 
@@ -189,15 +131,9 @@ class JobForm extends Component {
     if (Object.keys(values.venueLatLng).length === 0) {
       values.venueLatLng = this.props.job.venueLatLng;
     }
-    //   if (this.props.initialValues.id) {
-    await this.props.updateJob(this.props.draft, values, this.state.timesSelected, "showCustom");
-//this.props.closeModal()
- 
-    //   this.props.history.goBack();
-    //  } else {
-    //  this.props.createJob(values);
-    //   this.props.history.push("/jobs");
-    // }
+   
+    await this.props.updateJobBasic(this.props.draft, values);
+
   };
 
   render() {
@@ -218,6 +154,7 @@ class JobForm extends Component {
     
     //const {job} = draft.value
     return (
+   
       <Grid>
         <Script
           url="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQc2wDlRKjT6P-SV4vl_lq-YyFFnbqujw&libraries=places"
@@ -226,12 +163,7 @@ class JobForm extends Component {
         <Grid.Column width={14}>
           <Header sub color="teal" content="Job Details" />
           <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
-            {/* <Field
-                name="title"
-                type="text"
-                component={TextInput}
-                placeholder="Give your job a name"
-              /> */}
+
 
             <Field name="title" type="text" component={TextInput} />
             <Header sub color="teal" content="Accept Bids as" />
@@ -298,40 +230,6 @@ class JobForm extends Component {
               />
             )}
 
-<Header sub color="teal" content="Start Date" />
-           
-            <Field
-              name="startDate"
-              type="text"
-              component={DateInput}
-              onChange={this.handleDateChange}
-              selected={this.state.startDate}
-              placeholder="Date and time of job"
-            />
- {draftValues.bookingType==="online" ? 
- <div><Message info>This job is booked online and does not require a site visit.  Select times that the job can be started</Message>
-        
-  <JobSchedule
-  currentTimesSelected={this.state.timesSelected}
-  handleTimeSelected={this.handleTimeSelected}
-  handleTimeUnselected={this.handleTimeUnselected}
-  schedule={schedule}
- />  
- </div>              
-
- : 
- <div>
- <Message info>This job requires a site visit prior to bidding.  Select times for contractors to book site visits</Message>
-           
- <JobSchedule
- currentTimesSelected={this.state.timesSelected}
- handleTimeSelected={this.handleTimeSelected}
- handleTimeUnselected={this.handleTimeUnselected}
- schedule={schedule}
-/>
-</div>
- } 
-
             <Button
               disabled={(invalid || submitting || (pristine&&!timeChanged))}
               positive
@@ -340,20 +238,7 @@ class JobForm extends Component {
             >
               Next
             </Button>
-            {/* <Button
-                disabled={loading}
-                onClick={this.props.history.goBack}
-                type="button"
-              >
-                Cancel
-              </Button> */}
-            {/* <Button
-                onClick={() => cancelToggle(!job.cancelled, job.id)}
-                type="button" //need type to avoid auto form submission
-                color={job.cancelled ? "green" : "red"}
-                floated="right"
-                content={job.cancelled ? "Reactivate Job" : "Cancel job"}
-              /> */}
+
           </Form>
         </Grid.Column>
       </Grid>
