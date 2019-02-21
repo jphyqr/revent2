@@ -4,17 +4,17 @@ import { closeModal, openModal } from "../modalActions";
 import { connect } from "react-redux";
 import { Loader, Dimmer, Button } from "semantic-ui-react";
 import FormBuilder from "./FormBuilder/FormBuilder";
-import { withFirestore, isEmpty, isLoading } from "react-redux-firebase";
+import { withFirestore, isEmpty, isLoaded } from "react-redux-firebase";
 import { compose } from "redux";
 import TaskForm from "./TaskForm";
 import TaskMedia from "./TaskMedia";
 import TaskContract from './TaskContract/TaskContract'
-import { updateTaskPhoto, uploadTaskPhoto, updateContractPhases} from "./taskActions";
+import { updateTaskPhoto, uploadTaskPhoto} from "./taskActions";
 const actions = {
   closeModal,
   openModal,
   updateTaskPhoto,
-  uploadTaskPhoto, updateContractPhases
+  uploadTaskPhoto, 
 };
 
 const objIsEmpty = obj => {
@@ -29,7 +29,12 @@ const mapState = state => {
     loading: state.async.loading,
     fields: state.firestore.ordered.fields,
     field: state.field,
-    task: state.task
+  
+
+    task :
+    !isEmpty(state.task) &&
+    isLoaded(state.task) &&
+    state.task
   };
 };
 
@@ -43,13 +48,17 @@ class TaskModal extends Component {
     showMedia: false,
     displayPhotoHasUpdated: false,
     displayURL: "",
-    currentPhases: []
+    currentPhases: [],
+
   };
 
   async componentDidMount() {
     const { firestore, task } = this.props;
     await firestore.setListener(`fields`);
-    this.setState({
+    await this.setState({
+     
+      stateTask: task,
+
       displayURL:
       task &&
         task.value &&
@@ -58,47 +67,28 @@ class TaskModal extends Component {
     });
   }
 
+
+  componentWillReceiveProps = nextProps => {
+    console.log("nxtProps", nextProps);
+    if (nextProps.task !== this.state.stateTask) {
+      this.setState({ stateTask: nextProps.task });
+    }
+
+   
+  };
+
+
+
   async componentWillUnmount() {
     const { firestore } = this.props;
     await firestore.unsetListener(`fields`);
   }
  
 
-  handlePhasesUpdated = async (phases) =>{
-    const current = this.state.currentPhases
-       const length = current.length+1 //havent updated state yet so assuming we will add to state
-   const percent = 100/length
-   current.push(phases)
-   for(var i=0; i<current.length; i++){
-    current[i].percent= percent
-   }
-   
-   //phases.percent=percent
-  // current.percent = percent
-   console.log({percent})
-
-   //phases = {...{percent:percent}}
-   
-    
-
-    await this.setState({currentPhases: current})
-    await this.props.updateContractPhases(this.state.currentPhases, this.props.task);
-  }
 
 
-handleDeletePhaseItem = async (index)=>{
 
-  const current=this.state.currentPhases
-  const length = current.length -1
-  const percent = 100/length
-  current.splice(index,1)
-  for(var i=0; i<current.length; i++){
-    current[i].percent= percent
-   }
-   
-  await this.setState({currentPhases: current})
-  await this.props.updateContractPhases(this.state.currentPhases, this.props.task);
-}
+
 
   handlePhotoUploaded = async url => {
     console.log("photo uploaded url", url);
@@ -123,7 +113,7 @@ handleDeletePhaseItem = async (index)=>{
       loading,
       fields,
       field,
-      task
+      task, addPhase, addClauseToPhase, addSectionToPhase
     } = this.props;
     const {
       showBasic,
@@ -166,7 +156,7 @@ handleDeletePhaseItem = async (index)=>{
                   {
                     
                     showContract?
-                    <TaskContract handleDeletePhaseItem={this.handleDeletePhaseItem} task={task} handlePhasesUpdated={this.handlePhasesUpdated} currentPhases={this.state.currentPhases} updateContractPhases={updateContractPhases} />
+                    <TaskContract  />
                     : 
 
                     showBasic ? (

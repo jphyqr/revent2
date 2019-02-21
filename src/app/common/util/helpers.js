@@ -71,6 +71,20 @@ export const createNewCategory  = (category) => {
   };
 };
 
+
+export const createNewJournalEntry  = (user,photoURL,entry) => {
+  return {
+    ...entry,
+    photoURL:photoURL,
+    author: user.displayName,
+    authorUid: user.uid,
+    created: Date.now(),
+
+  };
+};
+
+
+
 export const createNewField  = (field, icon, example, selectItems) => {
   return {
     ...field,

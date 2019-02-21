@@ -9,27 +9,21 @@ state={checkedContract:false}
 
   expandPhase = phase => {
     console.log("expandPhase", phase);
-    const array = objectToArray(phase);
-    console.log("expandedPhase object", array);
-    let fieldTitles = [];
-    //get the titles of the fieldTitles
-    for (var i = 0; i < array.length; i++) {
-      if (array[i].id !== "name") {
-        fieldTitles.push(array[i].id);
-      }
-    }
 
-    console.log({ fieldTitles });
 
-    //loop through field titles, for each title, build panel objects
+
     let panels = [];
-    for (var f = 0; f < fieldTitles.length; f++) {
+    //get the titles of the fieldTitles
+    for (var i = 0; i < (phase.sectionsIncluded&&phase.sectionsIncluded.length); i++) {
+     
       panels.push({
-        key: f,
-        title: fieldTitles[f],
-        content: phase[fieldTitles[f]]
+        key: i,
+        title: phase.sectionsIncluded[i].sectionName,
+        content: {content: this.expandSection(phase.sectionsIncluded[i])}
       });
     }
+
+
 
     console.log({ panels });
 
@@ -40,6 +34,36 @@ state={checkedContract:false}
 
     )
   };
+
+
+  expandSection = section => {
+
+    console.log("expand Section", section);
+
+
+
+    let sectionPanels = [];
+    //get the titles of the fieldTitles
+    for (var i = 0; i < (section.clausesIncluded&&section.clausesIncluded.length); i++) {
+     
+      sectionPanels.push({
+        key: i,
+        title: section.clausesIncluded[i].clause,
+        content: section.clausesIncluded[i].clause
+      });
+    }
+
+
+
+    console.log({ sectionPanels });
+
+      return (<div>
+
+     <Accordion panels={sectionPanels}  />
+      </div>
+
+    )
+  }
 
 toggleContract=()=> this.setState({checkedContract: !this.state.checkedContract})
 
@@ -55,7 +79,7 @@ toggleContract=()=> this.setState({checkedContract: !this.state.checkedContract}
       console.log({ phase });
       rootPanels.push({
         key: phase.name,
-        title: `Phase ${i+1}: ${phase.name}`,
+        title: `Phase ${i+1}: ${phase.phaseName}`,
         content: {content: this.expandPhase(phase)}
       });
     }

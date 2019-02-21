@@ -93,7 +93,8 @@ class JobDashboard extends Component {
     //   if (this.state.loadingInitial) return <LoadingComponent inverted={true} />;
 
     return (
-      <Grid>
+      <div style={{minHeight:'500px'}}>
+      <Grid >
         <Grid.Row>
           <Grid.Column width={3}>
             <Segment
@@ -106,6 +107,7 @@ class JobDashboard extends Component {
               <MyJobs
                 myJobs={this.props.myJobs}
                 handleDelete={this.handleDelete}
+                handleClickShowLogs={this.props.handleClickShowLogs}
               />
             </Segment>
           </Grid.Column>
@@ -115,6 +117,7 @@ class JobDashboard extends Component {
               lat={50.44}
               lng={-104.61}
               handleMapItemClick={this.handleMapItemClick}
+            
             />
           </Grid.Column>
           <Grid.Column width={3}>
@@ -153,6 +156,7 @@ class JobDashboard extends Component {
           </Grid.Column>
         </Grid.Row> */}
       </Grid>
+      </div>
     );
   }
 }

@@ -3,7 +3,7 @@ import {selectDraftToEdit, postToggle} from '../../../build/draftActions'
 import {openModal} from '../../../modals/modalActions'
 import {connect} from 'react-redux'
 import MyJobsItem from './MyJobsItem'
-
+import {Button} from 'semantic-ui-react'
 const actions = {
     selectDraftToEdit, postToggle, openModal
 }
@@ -35,13 +35,14 @@ handleEdit = async jobId =>{
         <div
           style={{
             width: "100%",
+            height: "30px",
             padding: 0,
             backgroundColor: "grey",
             position: "absolute",
             top: 0
           }}
         >
-          <label style={{ fontSize: 16 }}>My Jobs </label>
+         <Button onClick={()=>this.props.handleClickShowLogs()}>Show Logs</Button> <label style={{ fontSize: 16 }}>My Jobs </label>
         </div>
         <div
           style={{

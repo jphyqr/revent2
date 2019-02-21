@@ -35,7 +35,174 @@ import {
       }
 
 
+      export  const addClauseToPhase = (values, task, phaseIndex, sectionIndex, selectedSection, selectedSectionIndex, selectedPhaseIndex) => async (dispatch, getState, {getFirestore})=>{
+        console.log('addClauseToPhase ', values)
+        console.log('addClauseToPhase ', task)
+        console.log('addClauseToPhase ', phaseIndex)
+        console.log('addClauseToPhase ', sectionIndex)
+        console.log('addClauseToPhase ', selectedSection)
+        
+        const firestore = getFirestore();
+        const newTask= task
 
+        var searchTerm = selectedSection.id
+        var index = -1;
+    for(var i = 0, len = newTask.value.phases[phaseIndex].sectionsIncluded.length; i < len; i++) {
+        if (newTask.value.phases[phaseIndex].sectionsIncluded[i].id === searchTerm) {
+            index = i;
+            break;
+        }
+    }
+      
+
+        const indexOfSection = index
+      console.log('addClauseToPHase index of section', indexOfSection)
+
+        if(newTask.value.phases[selectedPhaseIndex].sectionsIncluded[indexOfSection].clausesIncluded)
+          newTask.value.phases[selectedPhaseIndex].sectionsIncluded[indexOfSection].clausesIncluded.push(values)
+          else
+          newTask.value.phases[selectedPhaseIndex].sectionsIncluded[indexOfSection].clausesIncluded=[values]
+        try {
+          
+       
+        await firestore.set(`tasks/${task.key}`, newTask.value)
+    
+        const payload = {key: task.key, value:newTask.value}
+        
+        dispatch({
+            type: FETCH_TASK,
+            payload: {payload}
+        })
+        return newTask
+      } catch (error){
+        console.log(error)
+     
+    }
+      }
+
+
+
+      export  const removeSectionFromPhase = (section, task, phaseIndex) => async (dispatch, getState, {getFirestore})=>{
+        
+        console.log('removeSection section', section)
+        console.log('removeSection  task', task)
+        console.log('phase index', phaseIndex)
+            const firestore = getFirestore();
+     
+            try{ 
+            
+    
+              let newTask = task
+              
+              let sectionsIncluded = newTask.value.phases[phaseIndex].sectionsIncluded
+              console.log({sectionsIncluded})
+             let remainingSections = sectionsIncluded.filter(sec => sec.id !== section.id)
+              console.log({remainingSections})
+              newTask.value.phases[phaseIndex].sectionsIncluded = remainingSections
+
+
+              await firestore.set(`tasks/${task.key}`, newTask.value)
+        
+    
+    
+    
+    
+    
+          
+          
+            const payload = {key: task.key, value:newTask.value}
+            
+            dispatch({
+                type: FETCH_TASK,
+                payload: {payload}
+            })
+      
+            return newTask
+          } catch (error){
+            console.log(error)
+          
+        }
+          }
+    
+
+
+      export  const addSectionToPhase = (section, task, phaseIndex) => async (dispatch, getState, {getFirestore})=>{
+        
+    console.log('addSectionToPhase section', section)
+    console.log('addSection  task', task)
+    console.log('phase index', phaseIndex)
+        const firestore = getFirestore();
+        section.clausesIncluded=[]
+        try{ 
+        
+
+          let newTask = task
+          
+          if(newTask.value.phases[phaseIndex].sectionsIncluded)
+          newTask.value.phases[phaseIndex].sectionsIncluded.push(section)
+          else
+          newTask.value.phases[phaseIndex].sectionsIncluded=[section]
+     
+
+          await firestore.set(`tasks/${task.key}`, newTask.value)
+    
+
+
+
+
+
+      
+      
+        const payload = {key: task.key, value:newTask.value}
+        
+        dispatch({
+            type: FETCH_TASK,
+            payload: {payload}
+        })
+  
+        return newTask
+      } catch (error){
+        console.log(error)
+      
+    }
+      }
+
+
+
+      export  const addPhase = (values, task) => async (dispatch, getState, {getFirestore})=>{
+        
+  
+        const firestore = getFirestore();
+        const newTask= task
+        console.log('1..addphase newTask', newTask)
+        console.log('2...addPhase values', values)
+
+        if(newTask.value.phases)
+          newTask.value.phases.push({phaseName: values.phaseName, sectionsIncluded:[]})
+          else
+          newTask.value.phases=[{phaseName:values.phaseName, sectionsIncluded:[]}]
+
+          console.log('2..addphase newTask', newTask.value)
+
+
+        try {
+          
+       
+        await firestore.set(`tasks/${task.key}`, newTask.value)
+    
+        const payload = {key: task.key, value:newTask.value}
+        
+        dispatch({
+            type: FETCH_TASK,
+            payload: {payload}
+        })
+        return newTask
+      } catch (error){
+        console.log(error)
+      
+    }
+      }
+    
 
 
       export  const updateContractPhases = (phases, task) => async (dispatch, getState, {getFirestore})=>{
