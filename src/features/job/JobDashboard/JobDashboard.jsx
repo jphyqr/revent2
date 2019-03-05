@@ -8,7 +8,7 @@ import { getJobsForDashboard } from "../jobActions";
 import { deleteJobDraft } from "../../user/userActions";
 import {selectDraftToEdit} from '../../build/draftActions'
 import { firestoreConnect } from "react-redux-firebase"; //even though we using firestore this gives our binding
-import MyJobs from "./MyJobs/MyJobs";
+
 import OpenJobsSlider from './OpenJobsSlider/OpenJobsSlider'
 import OpenJobExpanded from './OpenJobExpanded'
 const query = ({ auth }) => {
