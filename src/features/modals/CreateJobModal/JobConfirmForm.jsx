@@ -53,16 +53,14 @@ this.setState({zoom:e.zoom})
     const {lat, lng} = venueLatLng
     const customFieldsArray = objectToArray(customFields)
     const subscriberArray = objectToArray(subscribers)
-    console.log({customFieldsArray})
-    console.log({subscriberArray})
+
     const center = [lat, lng];
-    console.log({lat})
-    console.log({lng})
+
     const randomLat = Math.random()*((lat+0.002)-(lat-0.002))+(lat-0.002)
-    console.log({randomLat})
+
     const randomLng = Math.random()*((lng+0.002)-(lng-0.002))+(lng-0.002)
-     console.log({randomLng})
-   // const zoom = 11;
+
+
     return (
       <div>
        <div style={{height:400, overflowY:"auto", width:'auto'}}>
