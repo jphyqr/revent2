@@ -26,6 +26,7 @@ import MapMarker from './MapMarker'
           {jobs&&jobs.map((job, index)=>(
             
             <MapMarker 
+            hoveredJobId={this.props.hoveredJobId}
             handleMapItemClick = {this.props.handleMapItemClick}
             lat={job&&job.venueLatLng&&job.venueLatLng.lat}
             lng={job&&job.venueLatLng&&job.venueLatLng.lng}

@@ -10,8 +10,10 @@ import {
 
   export const selectDraftToEdit = draftId => async (dispatch, getState) =>{
 
+  console.log('selectDraftoEdit draft', draftId)
 const firestore = firebase.firestore();
-
+// let draftUserId= draft.id
+// let draftId = draftUserId.split('_')[0]
 try {
  dispatch(asyncActionStart())
 let draftSnap = await firestore.collection("jobs").doc(draftId).get()
@@ -42,14 +44,25 @@ dispatch (asyncActionFinish())
     try {
         toastr.confirm(message, {
             onOk: () =>
-             firestore.update(`jobs/${jobId}`, {
+             {
+               firestore.update(`jobs/${jobId}`, {
                 inDraft: !posted
               }).then(()=>{
                 firestore.update(`job_attendee/${jobId}_${userUid}`, {inDraft:!posted})
               })
-
-              
+             
+            }
+         
           });
+
+          let draftSnap = await firestore.collection("jobs").doc(jobId).get()
+          let draft = draftSnap.data()
+           const payload = {key: jobId, value:draft}
+          
+          dispatch({
+              type: FETCH_DRAFT,
+              payload: {payload}
+          })
     } catch (error){
         console.log(error)
         dispatch(asyncActionError())

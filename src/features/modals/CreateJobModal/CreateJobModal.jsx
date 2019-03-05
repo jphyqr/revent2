@@ -14,7 +14,8 @@ import JobContractForm from "./JobContractForm";
 import JobPhotos from "./JobPhotos";
 import JobProgress from "./JobProgress";
 import { Button } from "semantic-ui-react";
-import { uploadJobPhoto, updateJobCustom, updateJobPhotosPage, updateJobSchedule ,updateJobBasic, updateJobContract} from "../../job/jobActions";
+import {postToggle} from '../../build/draftActions'
+import { dispatchJob, uploadJobPhoto, updateJobCustom, updateJobPhotosPage, updateJobSchedule ,updateJobBasic, updateJobContract} from "../../job/jobActions";
 const actions = {
   uploadJobPhoto,
   closeModal,
@@ -22,7 +23,9 @@ const actions = {
   updateJobPhotosPage,
   updateJobSchedule,
   updateJobBasic,
-  updateJobContract
+  updateJobContract,
+  postToggle,
+  dispatchJob
 };
 
 const objIsEmpty = obj => {
@@ -40,7 +43,13 @@ const mapState = state => {
 };
 
 class CreateJobModal extends Component {
-  state = { showModal: true };
+  state = { showModal: true, jobSuccess: false };
+
+ handleJobPosted = async () => {
+  await this.setState({jobSuccess:true})
+ }
+
+ 
 
   handlePhotoUploaded = async url => {
     console.log("Create JobModal photo uploaded url", url);
@@ -58,7 +67,7 @@ class CreateJobModal extends Component {
       showContractSpecific,
       job,
       loading,
-      draft,updateJobCustom, updateJobPhotosPage, updateJobSchedule,updateJobBasic,updateJobContract
+      draft,updateJobCustom, dispatchJob, postToggle, postJob, updateJobPhotosPage, updateJobSchedule,updateJobBasic,updateJobContract
     } = this.props;
 
     const { value: draftValue } = draft;
@@ -74,7 +83,9 @@ class CreateJobModal extends Component {
           {draft.value.name}
           <Button onClick={closeModal}>x</Button>
         </Modal.Header>
-
+        {job}
+        {this.state.jobSuccess ? <div>Job Posted!</div> : 
+<div>
         <JobProgress showState={showState} />
         <Modal.Content>
           <Modal.Description>
@@ -109,11 +120,13 @@ class CreateJobModal extends Component {
                 updateJobSchedule={updateJobSchedule}
                 />
               ) : showState.showConfirm ? (
-                <JobConfirmForm  draft={draft}/>
+                <JobConfirmForm handleJobPosted={this.handleJobPosted} draft={draft} postJob={postJob} dispatchJob={dispatchJob}/>
               ) : null}
             </div>
           </Modal.Description>
         </Modal.Content>
+        </div>
+        }
       </Modal>
     );
   }

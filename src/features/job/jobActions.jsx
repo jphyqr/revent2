@@ -14,6 +14,39 @@ import compareAsc from "date-fns/compare_asc";
 
 import { addMinutes } from "date-fns";
 
+
+
+export const dispatchJob = (jobId) => async (dispatch, getState, {getFirestore}) =>{
+
+  const firestore = getFirestore();
+  const userUid = firestore.auth().currentUser.uid;
+ let okay = false
+
+  try {
+    dispatch(asyncActionStart())
+     
+        
+             firestore.update(`jobs/${jobId}`, {
+              inDraft: false
+            }).then(()=>{
+              firestore.update(`job_attendee/${jobId}_${userUid}`, {inDraft:false})
+            })
+            okay = true
+          
+       
+      
+
+        
+        dispatch(asyncActionFinish())
+        return okay
+  } catch (error){
+      console.log(error)
+      dispatch(asyncActionError())
+  }
+    }
+
+
+
 export const subscribeToJob = currentJob => {
   return async (dispatch, getState, { getFirestore }) => {
     dispatch(asyncActionStart());

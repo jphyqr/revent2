@@ -49,7 +49,7 @@ class MapMarker extends Component {
           name={categoryIcon}
           inverted
           size="big"
-          color="red"
+          color={this.props.hoveredJobId===this.props.job.id? "red" : "blue"}
           lat={lat}
           lng={lng}
           key={key}

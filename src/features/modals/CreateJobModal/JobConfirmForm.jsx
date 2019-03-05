@@ -5,14 +5,38 @@ import GoogleMapReact from 'google-map-react';
 import moment from 'moment'
 import format from 'date-fns/format'
 import {objectToArray} from '../../../app/common/util/helpers'  
-//import ContractorSlider from '../../build/BuildDashboard/BuildDetail/BuildCarousel/BuildExpanded/BuildContractorTab/ContractorSlider'
-import ContractorItem from '../../build/BuildDashboard/BuildDetail/BuildCarousel/BuildExpanded/BuildContractorTab/ContractorItem'
-import JobPhotos from './JobPhotos';
+import {toastr} from 'react-redux-toastr'
+
 class JobConfirmForm extends Component {
  
    state={
      zoom:11
    }
+
+
+handlePostJob = async () =>{
+
+
+  console.log('handlePostJob')
+
+  toastr.confirm("Dispatch job to local contractors?", {
+    onOk: async ()  =>
+      { 
+       await this.props.dispatchJob(this.props.draft.key)
+        this.props.handleJobPosted()
+      }
+      
+  });
+
+
+ 
+     
+
+
+  }
+
+
+
 handleMapChange = (e) => {
 console.log('handlkeMapChange', e)
 this.setState({zoom:e.zoom})
@@ -25,7 +49,7 @@ this.setState({zoom:e.zoom})
     const Marker2 = () => <Icon name="marker"   size="big" color="red" />;
     const LeftLine = () => <div style={{height:'40px', width: '2px', backgroundColor: "blue"}}/>
    
-    const {city, jobPhotos, date, description, fields, flatContractor, flatOwner, hourlyContractor, inDraft, managedBy, name, owneredBy, phases, startDate, subscribers, timesSelected, title, type, acceptsFlatOwner, acceptsFlatContractor, acceptsRateContractor, acceptsRateOwner, venue, venueLatLng, customFields, confirmStamp} = draftValue
+    const {city, jobPhotos, description,  subscribers, timesSelected, title,   venueLatLng, customFields} = draftValue
     const {lat, lng} = venueLatLng
     const customFieldsArray = objectToArray(customFields)
     const subscriberArray = objectToArray(subscribers)
@@ -41,7 +65,7 @@ this.setState({zoom:e.zoom})
    // const zoom = 11;
     return (
       <div>
-       <div style={{height:400, overflowY:"auto"}}>
+       <div style={{height:400, overflowY:"auto", width:'auto'}}>
           <Grid>
           <Grid.Row>
         <Grid.Column style={{fontSize:'18px'}}>Title: {title}</Grid.Column>
@@ -110,9 +134,7 @@ this.setState({zoom:e.zoom})
               )}
             </Grid.Row>
             <Grid.Row>
-      
-      <Grid.Column style={{fontSize:'16px'}}>Contractors Subscribed</Grid.Column>
-    
+
         </Grid.Row>
             <Grid.Row>
             <div
@@ -135,31 +157,7 @@ this.setState({zoom:e.zoom})
         }}
       >
 
-        {subscriberArray &&
-          subscriberArray.map((item, i) => (
-            <div style={{position:'relative', width:'auto', backgroundColor:'grey'}}>
-           
-            <ContractorItem
-              index={i}
-            //  category={this.props.category}
-              item={item}
-            //   scrollRightClicked={this.state.scrollRightClicked}
-            //   scrollToMyRef={this.props.scrollToMyRef}
-            //   showExpanded={this.props.showExpanded}
-            //   handleShowExpanded={this.props.handleShowExpanded}
-            //   toggleLockInHover={this.props.toggleLockInHover}
-            //   lockHover={this.props.lockInHover}
-            //   handleChildExpanding={this.props.handleChildExpanding}
-            //   handleChildCompressing={this.props.handleChildCompressing}
-            //   handleSubscribe={this.props.handleSubscribe}
-            //   handleUnsubscribe={this.props.handleUnsubscribe}
-            //   auth={this.props.auth}
-            //   loading={this.props.loading}
-            //   selectedJobId={this.props.selectedJobId}
-            //   subscribeButtonLoading={this.props.subscribeButtonLoading}
-            />
-            </div>
-          ))}
+
       </div>
             </Grid.Row>
 
@@ -168,7 +166,7 @@ this.setState({zoom:e.zoom})
 
 
        </div>
-       <Button>Dispatch Job</Button>
+      <Button>Back</Button> <Button onClick={()=>this.handlePostJob()}>Dispatch Job</Button>
       </div>
     )
   }

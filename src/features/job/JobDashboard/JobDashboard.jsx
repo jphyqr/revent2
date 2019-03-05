@@ -6,8 +6,11 @@ import JobMap from "./JobMap";
 import JobList from "../JobList/JobList";
 import { getJobsForDashboard } from "../jobActions";
 import { deleteJobDraft } from "../../user/userActions";
+import {selectDraftToEdit} from '../../build/draftActions'
 import { firestoreConnect } from "react-redux-firebase"; //even though we using firestore this gives our binding
 import MyJobs from "./MyJobs/MyJobs";
+import OpenJobsSlider from './OpenJobsSlider/OpenJobsSlider'
+import OpenJobExpanded from './OpenJobExpanded'
 const query = ({ auth }) => {
   return [
     {
@@ -22,12 +25,14 @@ const mapState = state => ({
   jobs: state.jobs,
   loading: state.async.loading,
   auth: state.firebase.auth.uid,
-  myJobs: state.firestore.ordered.jobs_attended
+  myJobs: state.firestore.ordered.jobs_attended,
+  selectedJob: state.draft&&state.draft.value
 });
 
 const actions = {
   getJobsForDashboard,
-  deleteJobDraft
+  deleteJobDraft,
+  selectDraftToEdit
 };
 
 class JobDashboard extends Component {
@@ -36,8 +41,23 @@ class JobDashboard extends Component {
     loadingInitial: true,
     loadedJobs: [],
     contextRef: {},
-    scrollToId: ""
+    scrollToId: "",
+    hoveredJobId: "",
+    showExpanded: false,
+    selectedJob: {}
   };
+
+
+handleHideMap = () =>{
+  this.setState({showExpanded:false, selectedJob:{}})
+}
+handleSelectOpenJob = job => {
+  this.props.selectDraftToEdit(job.id)
+  this.setState({showExpanded:true, selectedJob:this.props.selectedJob})
+}
+handleHoverJob = jobId =>{
+  this.setState({hoveredJobId: jobId})
+}
 
   async componentDidMount() {
     let next = await this.props.getJobsForDashboard();
@@ -93,11 +113,14 @@ class JobDashboard extends Component {
     //   if (this.state.loadingInitial) return <LoadingComponent inverted={true} />;
 
     return (
+<div>
+           <OpenJobsSlider handleSelectOpenJob={this.handleSelectOpenJob} handleHoverJob={this.handleHoverJob} jobs={loadedJobs}/>  
       <div style={{minHeight:'500px'}}>
+
       <Grid >
         <Grid.Row>
-          <Grid.Column width={3}>
-            <Segment
+          <Grid.Column width={3}>=
+            {/* <Segment
               style={{
                 padding: 0,
                 borderRadius: "0px",
@@ -109,19 +132,22 @@ class JobDashboard extends Component {
                 handleDelete={this.handleDelete}
                 handleClickShowLogs={this.props.handleClickShowLogs}
               />
-            </Segment>
+            </Segment> */}
           </Grid.Column>
+
           <Grid.Column width={10}>
-            <JobMap
+          {this.state.showExpanded ? <OpenJobExpanded handleHideMap={this.handleHideMap} selectedJob={this.state.selectedJob} />: <JobMap
+              hoveredJobId={this.state.hoveredJobId}
               jobs={loadedJobs}
               lat={50.44}
               lng={-104.61}
               handleMapItemClick={this.handleMapItemClick}
             
-            />
+            />}
+            
           </Grid.Column>
           <Grid.Column width={3}>
-            <div ref={this.handleContextRef}>
+            {/* <div ref={this.handleContextRef}>
               <JobList
                 offset={100}
                 jobs={loadedJobs}
@@ -130,7 +156,7 @@ class JobDashboard extends Component {
                 getNextJobs={this.getNextJobs}
                 scrollToId={this.state.scrollToId}
               />
-            </div>
+            </div> */}
           </Grid.Column>
         </Grid.Row>
         {/* <Grid.Row>
@@ -156,6 +182,7 @@ class JobDashboard extends Component {
           </Grid.Column>
         </Grid.Row> */}
       </Grid>
+      </div>
       </div>
     );
   }

@@ -49,8 +49,8 @@ class BuildCarousel extends Component {
   if(tasks.length > 0){
    
     this.setState({tasks:tasks, selectedJob:this.props.task})
-  }
  }
+}
 async componentDidMount(){
   let tasks = await this.props.getTasksForCarousel(this.props.category);
 

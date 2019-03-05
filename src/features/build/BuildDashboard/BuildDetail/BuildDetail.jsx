@@ -3,11 +3,23 @@ import BuildCarousel from "./BuildCarousel/BuildCarousel";
 //import { categories } from "../../../../app/data/buildData";
 import scrollToComponent from "react-scroll-to-component";
 import {withFirestore, isLoaded} from 'react-redux-firebase'
+import { firestoreConnect } from "react-redux-firebase"; //even though we using firestore this gives our binding
 import {connect} from 'react-redux'
 import LoadingComponent from '../../../../app/layout/LoadingComponent'
-
+import MyJobsCarousel from './MyJobsCarousel/MyJobsCarousel'
+import {selectDraftToEdit, postToggle} from '../../draftActions'
+import {openModal} from '../../../modals/modalActions'
+const query = ({ auth }) => {
+  return [
+    {
+      collection: "job_attendee",
+      where: [["userUid", "==", `${auth}`]],
+      storeAs: "jobs_attended"
+    }
+  ];
+};
 const actions = {
-
+  selectDraftToEdit, postToggle, openModal
 }
 
 
@@ -15,8 +27,12 @@ const mapState = state => {
 
 
   return {
+    auth:state.firebase.auth.uid,
     categories: state.firestore.ordered.categories,
-    loading: state.async.loading
+    loading: state.async.loading,
+    myJobs: state.firestore.ordered.jobs_attended,
+    draft: state.draft,
+   
   };
 };
 
@@ -29,6 +45,18 @@ class BuildDetail extends Component {
     await firestore.setListener(`categories`);
   }
 
+
+
+
+
+   componentWillReceiveProps = nextProps =>{
+   if(nextProps.draft !== this.state.draft)
+   {
+     this.setState({draft: nextProps.draft})
+     console.log('updated draft State')
+   }
+ }
+
   async componentWillUnmount() {
     const { firestore } = this.props;
     await firestore.unsetListener(`categories`);
@@ -37,8 +65,24 @@ class BuildDetail extends Component {
 
   state = {
     contextRef: {},
-    selectedJob: ""
+    selectedJob: "",
+    draft: {},
+    pauseButtonLoading: false
   };
+
+  handleEditDraft = async jobId =>{
+  
+    await this.props.selectDraftToEdit(jobId)
+     this.props.openModal("CreateJobModal")
+ }
+
+
+
+ handlePostJob = async (posted, jobId) =>{
+  await this.setState({pauseButtonLoading: true})
+  await this.props.postToggle(posted, jobId)
+  await this.setState({pauseButtonLoading: false})
+}
 
   handleContextRef = contextRef =>
     this.setState({
@@ -57,11 +101,14 @@ class BuildDetail extends Component {
     
   };
   render() {
-    const {categories} = this.props
+    const {categories,selectDraftToEdit} = this.props
  
     return (
-      
+
       <div style={{marginTop:10}}>
+       
+        <MyJobsCarousel  pauseButtonLoading={this.state.pauseButtonLoading} handlePostJob={this.handlePostJob} handleEditDraft={this.handleEditDraft} draft={this.state.draft} scrollToMyRef={this.scrollToMyRef} myJobs={this.props.myJobs} selectDraftToEdit={selectDraftToEdit}/>
+
        {!isLoaded(categories)? <LoadingComponent/> : 
        categories &&
           categories.map(category => (
@@ -70,6 +117,7 @@ class BuildDetail extends Component {
               category={category}
               scrollToMyRef={this.scrollToMyRef}
               handleContextRef={this.handleContextRef}
+             
             />
           ))}
         
@@ -78,4 +126,9 @@ class BuildDetail extends Component {
   }
 }
 
-export default withFirestore(connect(mapState, actions)(BuildDetail));
+
+
+export default connect(
+  mapState,
+  actions
+)(firestoreConnect(props => query(props))(BuildDetail));

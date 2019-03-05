@@ -6,7 +6,7 @@ import LogDashboard from './LogDashboard/LogDashboard'
 class BuildDashboard extends Component {
 
   state={
-    showJobs:false
+    showJobs:true
   }
 
   handleClickShowJobs = () => {
@@ -21,9 +21,10 @@ class BuildDashboard extends Component {
   render() {
     return (
       <div >
-       <div style={{height:'510px'}}>z
+       
+       <div style={{height:'600'}}>
         {this.state.showJobs?  <JobDashboard handleClickShowLogs={this.handleClickShowLogs} />: <LogDashboard  handleClickShowJobs={this.handleClickShowJobs}/> }
-        </div>
+        </div>       
           <BuildDetail />
           </div>
     );
