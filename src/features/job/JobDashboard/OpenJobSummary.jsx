@@ -29,7 +29,7 @@ import format from 'date-fns/format'
           const randomLng = Math.random()*((lng+0.002)-(lng-0.002))+(lng-0.002)
       const Marker = () => <Icon name="bullseye"   size="big" color="red" />;
     return (
-        <div>
+        <div >
         <div style={{paddingTop:"10px", paddingLeft:"10px", background:"lightgrey", height:465, overflowY:"auto", overflowX:"hidden", width:'100%'}}>
            <Grid>
            <Grid.Row>
@@ -78,7 +78,7 @@ import format from 'date-fns/format'
             </Grid.Row> 
          ))}
  
- <Grid.Row style={{fontSize:'16px'}}>Job Photos</Grid.Row>
+ <Grid.Row style={{fontSize:'16px', paddingLeft:"10px"}}>Job Photos</Grid.Row>
  <Grid.Row style={{paddingLeft:"10px"}} >
                {jobPhotos && (
                  <ExamplePhotoSlider

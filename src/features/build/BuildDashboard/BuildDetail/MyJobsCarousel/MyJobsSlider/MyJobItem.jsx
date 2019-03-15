@@ -1,10 +1,37 @@
-import React, { Component } from 'react'
-import {Icon} from 'semantic-ui-react'
+import React, { Component } from "react";
+import { Icon } from "semantic-ui-react";
+
+
+
+
 class MyJobItem extends Component {
+  state = {
+    jobQuotes: {}
+  };
+
+  componentDidMount() {
+    console.log("MyJobItem CDM");
+    this.setState({ jobQuotes: this.props.jobQuotes });
+    //  {
+    //   console.log('MyJobItem CWRP', nextProps)
+    //    this.setState({jobQuotes: nextProps.jobQuotes})
+    //  }
+  }
+  componentWillReceiveProps = nextProps => {
+    console.log({ nextProps });
+    if (this.state.jobQuotes !== nextProps.jobQuotes) {
+      console.log("MyJobItem CWRP V2", nextProps);
+              this.setState({jobQuotes: nextProps.jobQuotes})
+    }
+    //  {
+    //   console.log('MyJobItem CWRP', nextProps)
+
+    //  }
+  };
 
   handleClick = async (e, myJob) => {
     this.setState({ clicked: true });
- //   this.setState({isSelected:true})
+    //   this.setState({isSelected:true})
     this.props.toggleLockInHover();
     this.setState({ expanded: true });
     this.setState({ hovered: false });
@@ -14,15 +41,14 @@ class MyJobItem extends Component {
     }
   };
 
-
   render() {
-      const {myJob, index, selectDraftToEdit} = this.props
+    const { myJob, index, selectDraftToEdit } = this.props;
     return (
-        <div
+      <div
         ref={index}
         className="ui  image"
-     //   onMouseEnter={this.onMouseEnterHandler}
-     //   onMouseLeave={this.onMouseLeaveHandler}
+        //   onMouseEnter={this.onMouseEnterHandler}
+        //   onMouseLeave={this.onMouseLeaveHandler}
         onClick={e => this.handleClick(e, myJob)}
         style={{
           boxShadow:
@@ -32,13 +58,13 @@ class MyJobItem extends Component {
           width: 300, //: 400,
           marginLeft: 15,
           //left: this.state.hovered ? -30: 0,
-      //    opacity: (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
+          //    opacity: (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
           // transition: "opacity 1500ms, height 1500ms , width 1500ms ",
           //   transform: this.state.hovered ? "scaleY(1.5)" : this.props.scrollRightClicked ? "translateX(-500%)" : "scaleY(1)" ,
           //transform: this.state.clicked ? "translateX(-100%)" : "translateX(0%)",
           // transformOrigin: "50% 50%",
           boxSizing: "border-box",
-          transition: "0.15s all ease",
+          transition: "0.15s all ease"
           //  transitionDelay: "100ms"
         }}
       >
@@ -53,13 +79,13 @@ class MyJobItem extends Component {
               height: 150, //this.state.hovered ? 200 : 150,
               width: 300, //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
               //    left:this.state.hovered ? 50 : 0,
-       //       opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              //       opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               //    transition: "opacity 1500ms , height 1500ms , width 1500ms ",
               //      transform: this.state.hovered?"scale(1.5)":"scale(1)",
               //    transformOrigin: "50% 50%",
               transition: "0.15s all ease"
             }}
-            src={myJob.displayURL}
+            src={myJob.jobPhotoURL}
           />
         </div>
         <div
@@ -75,7 +101,9 @@ class MyJobItem extends Component {
             textAlign: "right",
             width: "100%",
             height: "auto",
-            wordWrap: 'break-word'
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden"
           }}
         >
           {myJob.taskName}
@@ -90,13 +118,13 @@ class MyJobItem extends Component {
             textAlign: "center",
             width: "100%",
 
-       //     opacity: this.state.hovered ? 0.8 : 0,
+            //     opacity: this.state.hovered ? 0.8 : 0,
             height: "auto"
           }}
         >
           <Icon color="white" size="huge" name="arrow down" />
         </div>
-        {myJob.inDraft  ? (
+        {myJob.inDraft ? (
           <div
             style={{
               position: "absolute",
@@ -175,8 +203,8 @@ class MyJobItem extends Component {
           )} */}
         </div>
       </div>
-    )
+    );
   }
 }
 
-export default  MyJobItem
+export default (MyJobItem);

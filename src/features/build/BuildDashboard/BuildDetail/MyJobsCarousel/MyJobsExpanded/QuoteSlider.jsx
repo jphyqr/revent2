@@ -1,44 +1,61 @@
-import React, { Component } from 'react'
-import OpenJobItem from './OpenJobItem'
-class OpenJobsSlider extends Component {
+import React, { Component } from "react";
+import QuoteItem from "./QuoteItem";
+import {objectToArray} from '../../../../../../app/common/util/helpers'
+class QuoteSlider extends Component {
+
+state = {
+    quotes: []
+}
+    componentDidMount(){
+        const {quotes} = this.props
+       // const subscribers = items&&objectToArray(items); 
+
+        this.setState({quotes: quotes})
+    }
+
+    componentWillReceiveProps = nextProps=>{
+        if(this.state.quotes != nextProps.quotes)
+        {
+            this.setState({quotes: nextProps.quotes})
+        }
+    }
+
   render() {
-      const {jobs} = this.props
+      const {quotes} = this.state
+      const quotesArray = objectToArray(quotes) || []
     return (
-        <div
+      <div
         class="list"
       //  onMouseEnter={this.props.onMouseEnterHandler}
       //  onMouseLeave={this.props.onMouseLeaveHandler}
         style={{
-          height: 110,
+          height: 160,
           marginBottom: 1,
-          width: "100%",
-          // backgroundColor: "blue",
+          width: "100vw",
+        // backgroundColor: "grey",
           paddingTop: 0,
           //   paddingLeft: this.props.childIsExpanding&&!this.props.showExpanded ? 0 : 30,
           transition: "0.15s all ease",
-          //  overflow: "scroll",
+         // overflow: "scroll",
           overflowX: "auto",
           overflowY: "hidden",
           whiteSpace: "nowrap",
           position: "relative",
-          verticalAlign: "middle"
+          top:"10",
+          verticalAlign: "middle",
         }}
       >
-        {jobs &&
-          jobs.map((job, i) => (
-            <OpenJobItem
-            myQuotes={this.props.myQuotes}
-            handleSelectOpenJob={this.props.handleSelectOpenJob}
-            handleHoverJob={this.props.handleHoverJob}
+        {quotesArray &&
+          quotesArray.map((item, i) => (
+            <QuoteItem
               index={i}
-           //   category={this.props.category}
-              job={job}
-        //      selectDraftToEdit={selectDraftToEdit}
+            //  category={this.props.category}
+              item={item}
             //   scrollRightClicked={this.state.scrollRightClicked}
-               scrollToMyRef={this.props.scrollToMyRef}
+            //   scrollToMyRef={this.props.scrollToMyRef}
             //   showExpanded={this.props.showExpanded}
-               handleShowExpanded={this.props.handleShowExpanded}
-               toggleLockInHover={this.props.toggleLockInHover}
+            //   handleShowExpanded={this.props.handleShowExpanded}
+            //   toggleLockInHover={this.props.toggleLockInHover}
             //   lockHover={this.props.lockInHover}
             //   handleChildExpanding={this.props.handleChildExpanding}
             //   handleChildCompressing={this.props.handleChildCompressing}
@@ -48,12 +65,11 @@ class OpenJobsSlider extends Component {
             //   loading={this.props.loading}
             //   selectedJobId={this.props.selectedJobId}
             //   subscribeButtonLoading={this.props.subscribeButtonLoading}
-            //   expandedLoading={this.props.expandedLoading}
             />
           ))}
       </div>
-    )
+    );
   }
 }
 
-export default OpenJobsSlider
+export default QuoteSlider;

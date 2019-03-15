@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 import { Tab, Grid, Button, Icon, Dimmer, Loader } from "semantic-ui-react";
-import { connect } from "react-redux";
+
 //import BuildExpandedNavBar from "./BuildExpandedNavBar";
 // import {
 //   createJobDraft,
@@ -13,6 +13,27 @@ import { selectDraftToEdit } from "../../../../draftActions";
 import { selectTaskToEdit } from "../../../../../modals/TaskModal/taskActions";
 //import ContractorSlider from "./BuildContractorTab/ContractorSlider";
 import { openModal } from "../../../../../modals/modalActions";
+import {compose} from 'redux'
+import {connect} from 'react-redux'
+import { firestoreConnect } from "react-redux-firebase";
+import QuoteSlider from "./QuoteSlider";
+
+const query = ({ selectedJobId }) => {
+
+  console.log("QUERY", selectedJobId);
+  return [
+    {
+      collection: "job_quotes",
+      where: [["jobId", "==", `${selectedJobId}`]],
+      storeAs: "job_quotes"
+    }
+  ];
+};
+
+const mapState = state => ({
+  jobQuotes: state.firestore.ordered.job_quotes || {}
+});
+
 // const actions = {
 //  // createJobDraft,
 //  // cancelToggle,
@@ -31,7 +52,7 @@ import { openModal } from "../../../../../modals/modalActions";
 class MyJobsExpanded extends Component {
   state = {
     currentJob: {},
-    selectedTab: "overview",
+    selectedTab: "quotes",
     loading: false,
     isLoading: false,
     pauseButtonLoading: false
@@ -45,20 +66,21 @@ class MyJobsExpanded extends Component {
   };
   componentDidMount() {
     const { selectedJob, auth } = this.props;
-    const subscribers =
+    const jobQuotes =
       selectedJob &&
-      selectedJob.subscribers &&
-      objectToArray(selectedJob.subscribers);
-    const isSubscribed =
-      subscribers && auth && subscribers.some(a => a.id === auth.uid);
-    const isManager = selectedJob&&selectedJob.managerUid === auth.uid;
+      selectedJob.jobQuotes &&
+      objectToArray(selectedJob.jobQuotes);
+    // const isSubscribed =
+    //   subscribers && auth && subscribers.some(a => a.id === auth.uid);
+  //  const isManager = selectedJob&&selectedJob.managerUid === auth.uid;
 
     this.setState({
-      subscribers: subscribers,
-      isSubscribed: isSubscribed,
+      quotes: jobQuotes,
+   //   isSubscribed: isSubscribed,
       isLoading: false,
       currentJob: selectedJob,
-      isManager: isManager
+    //  isManager: isManager,
+      selectedTab: "quotes"
     });
   }
 
@@ -90,7 +112,7 @@ class MyJobsExpanded extends Component {
         isLoading: false,
         currentJob: selectedJob,
      //   isManager: isManager,
-        selectedTab: "overview"
+        selectedTab: "quotes"
       });
       this.forceUpdate();
     }
@@ -158,7 +180,7 @@ class MyJobsExpanded extends Component {
             minHeight: 475,
             maxHeight: 475,
             background: `url('/assets/categoryImages/${
-              currentJob
+              currentJob.jobPhotoURL
             }.jpg') center center no-repeat `,
             backgroundSize: "cover"
           }}
@@ -287,10 +309,9 @@ Dispatch Job
             &&
               <button
                 onClick={()=>this.props.handleEditDraft(this.props.selectedJobId)}
-                disabled
+                
                 style={{
                   width: 200,
-                  disabled:"true",
                   marginLeft: "30px",
                   cursor: "pointer",
                   color: "white",
@@ -302,7 +323,7 @@ Dispatch Job
            }
           </div>
 
-          {selectedTab === "contractors" && (
+          {selectedTab === "quotes" && (
             <div>
               {/* <div
               className="contractors"
@@ -337,7 +358,7 @@ Dispatch Job
                 }}
               >
                 {" "}
-                {/* <ContractorSlider items={this.state.currentJob.subscribers} /> */}
+                 <QuoteSlider quotes={this.props.jobQuotes} /> 
               </div>
             </div>
           )}
@@ -425,7 +446,10 @@ Dispatch Job
   }
 }
 
-export default connect(
-  null,
-  null
+
+
+
+export default compose(
+  connect(mapState),
+  firestoreConnect(props => query(props))
 )(MyJobsExpanded);

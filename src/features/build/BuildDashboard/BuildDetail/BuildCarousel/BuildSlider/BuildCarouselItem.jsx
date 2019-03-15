@@ -191,7 +191,10 @@ editTask = item =>{
             //right: "100",
             textAlign: "right",
             width: "100%",
-            height: "auto"
+            height: "auto",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden"
           }}
         >
           {item.name}

@@ -15,6 +15,7 @@ import {firebaseReducer} from 'react-redux-firebase'
 import {firestoreReducer} from 'redux-firestore'
 import {reducer as toastrRedcer} from 'react-redux-toastr';
 import draftReducer from '../../features/build/draftReducer'
+import quoteReducer from '../../features/modals/QuoteJobModal/quoteReducer'
  
 const rootReducer = combineReducers({
   test: testReducer,
@@ -32,7 +33,8 @@ const rootReducer = combineReducers({
   draft: draftReducer,
   category: categoryReducer,
   task: taskReducer,
-  field: fieldReducer
+  field: fieldReducer,
+  quote: quoteReducer
 })
 
 export default rootReducer

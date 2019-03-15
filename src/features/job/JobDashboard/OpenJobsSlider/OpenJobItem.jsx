@@ -1,10 +1,50 @@
 import React, { Component } from 'react'
 import {Icon} from 'semantic-ui-react'
+import moment from 'moment'
+import format from 'date-fns/format'
+import distanceInWords from 'date-fns/distance_in_words'
 export default class OpenJobItem extends Component {
 
+  state = {
+    quoteId: "", quoteSubmitted: false, quoteExists:false, hovered: false, isSelected: false
+  }
+
+    componentDidMount(){
+      const {myQuotes, job}= this.props
+      const {id, date, startDate} = job
+
+
+    //  const { jobId } = this.state;
+   //   const { selectedJobId, myQuotes } = nextProps;
+      // if (jobId == "" || selectedJobId !== jobId) {
+      //   this.setState({
+      //     jobId: selectedJobId,
+      //     quoteId: "",
+      //     showEditButton: false,
+      //     quoteButtonLoading: true
+      //   });
+  
+        for (var i = 0; i < myQuotes.length; i++) {
+          if (
+            typeof myQuotes[i] == "object" &&
+            myQuotes[i].jobId === id
+          ) {
+            this.setState({ quoteId: myQuotes[i].quoteId, quoteSubmitted:myQuotes[i].submitted, quoteExists: true });
+          }
+        }
+      }
+
+
+    
+    
     onMouseEnterHandler = () => {
-        this.props.handleHoverJob(this.props.job.id)
+        this.props.handleHoverJob(true, this.props.job.id)
+        this.setState({hovered:true})
     }
+    onMouseLeaveHandler = () => {
+      this.props.handleHoverJob(false, this.props.job.id)
+      this.setState({hovered:false})
+  }
 
     handleClick=(e,job)=>{
         this.props.handleSelectOpenJob(job)
@@ -12,12 +52,27 @@ export default class OpenJobItem extends Component {
 
     render() {
         const {job, index} = this.props
+        const { date, created, startDate} = job
+        let postedDistance = distanceInWords(created , Date.now())
+        let startDistance = distanceInWords(startDate.seconds*1000 , Date.now())
+
+        const postedString = `Posted ${postedDistance} ago`
+        let startString; // `Starts in ${startDistance}`
+
+        if(startDate.seconds*1000<Date.now()){
+          //in the past
+          startString = `Started ${startDistance} ago.`
+        } else {
+          //in the future
+          startString = `Starts in ${startDistance}`
+        }
+
       return (
         <div
         ref={index}
         className="ui  image"
         onMouseEnter={this.onMouseEnterHandler}
-     //   onMouseLeave={this.onMouseLeaveHandler}
+        onMouseLeave={this.onMouseLeaveHandler}
         onClick={e => this.handleClick(e, job)}
         style={{
           boxShadow:
@@ -27,7 +82,7 @@ export default class OpenJobItem extends Component {
           width: 300, //: 400,
           marginLeft: 15,
           //left: this.state.hovered ? -30: 0,
-      //    opacity: (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
+          opacity: (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
           // transition: "opacity 1500ms, height 1500ms , width 1500ms ",
           //   transform: this.state.hovered ? "scaleY(1.5)" : this.props.scrollRightClicked ? "translateX(-500%)" : "scaleY(1)" ,
           //transform: this.state.clicked ? "translateX(-100%)" : "translateX(0%)",
@@ -48,13 +103,13 @@ export default class OpenJobItem extends Component {
               height: 100, //this.state.hovered ? 200 : 150,
               width: 300, //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
               //    left:this.state.hovered ? 50 : 0,
-              opacity: 0.5 ,//(this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               //    transition: "opacity 1500ms , height 1500ms , width 1500ms ",
               //      transform: this.state.hovered?"scale(1.5)":"scale(1)",
               //    transformOrigin: "50% 50%",
               transition: "0.15s all ease"
             }}
-            src={job.managerPhotoURL}
+            src={job.jobPhotoURL||job.managerPhotoURL}
           />
         </div>
         <div
@@ -70,7 +125,9 @@ export default class OpenJobItem extends Component {
             textAlign: "right",
             width: "100%",
             height: "auto",
-            wordWrap: 'break-word'
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden"
           }}
         >
           {job.title}
@@ -85,19 +142,80 @@ export default class OpenJobItem extends Component {
             textAlign: "center",
             width: "100%",
 
-       //     opacity: this.state.hovered ? 0.8 : 0,
+           opacity: this.state.hovered ? 0.8 : 0,
             height: "auto"
           }}
         >
           <Icon color="white" size="huge" name="arrow down" />
         </div>
+
+        {this.state.quoteSubmitted  ? (
+          <div
+            style={{
+              position: "absolute",
+              top: 5,
+              left: 5,
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              color: "blue",
+              background:"white"
+            }}
+          >
+            Quote Submitted!
+          </div>
+        ) : this.state.quoteExists ? (
+          <div
+            style={{
+              position: "absolute",
+              top: 5,
+              left: 5,
+              background: "black",
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              color: "yellow"
+            }}
+          >
+            Quote Started
+          </div>
+        ): null}
+
+<div
+            style={{
+              position: "absolute",
+              top: 5,
+              right: 100,
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              color: "white"
+            }}
+          >
+   {postedString}
+
+          </div>
+
+
+          <div
+            style={{
+              position: "absolute",
+              top: 20,
+              right: 100,
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              color: "white"
+            }}
+          >
+   {startString}
+
+          </div>
+
+
+
+
+
+
         {job.inDraft  ? (
           <div
             style={{
               position: "absolute",
               top: 5,
               right: 5,
-              opacity: 0.6,
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "white"
             }}
           >
@@ -109,7 +227,7 @@ export default class OpenJobItem extends Component {
               position: "absolute",
               top: 5,
               right: 5,
-            //  opacity: 0.6,
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "white"
             }}
           >

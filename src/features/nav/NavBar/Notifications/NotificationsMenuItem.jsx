@@ -5,6 +5,7 @@ import NotificationList from "./NotificationList";
 import { firestoreConnect } from "react-redux-firebase";
 
 const query = ({ auth }) => {
+  if (auth !== null){
   return [
     {
       collection: "users",
@@ -16,7 +17,7 @@ const query = ({ auth }) => {
       storeAs: "notifications"
     }
   ];
-};
+}};
 
 const mapState = state => {
   return {

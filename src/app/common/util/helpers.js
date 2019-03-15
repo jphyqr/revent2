@@ -10,7 +10,7 @@ export const objectToArray = (object) => {
 
 export const createSchedule = scheduleStartDate => {
   var days = [];
-  var labels = ["8-10", "10-12", "12-1", "1-3", "3-5", "5-7", "7-9"];
+  var labels = ["8am-10am", "10am-12pm", "12pm-1pm", "1pm-3pm", "3pm-5pm", "5pm-7pm", "7pm-9pm"];
 
   console.log('1. createSchedule.. scheduleStartDate', scheduleStartDate)
   for (var i = 0; i < 6; i++) {
@@ -36,6 +36,32 @@ export const createSchedule = scheduleStartDate => {
   }
   return days;
 };
+
+export const createNewQuote  =  (user, photoURL, jobValues, jobId) => {
+  jobValues.date = moment(jobValues.date).toDate();
+
+
+  let quoteDate = moment().unix()
+  //let scheduleStartDate = Date(Date.now()).toString()
+  console.log('start date createNewJob moment.unix()', quoteDate)
+
+  let showState = {showBidType:true, showLineItems:false, showSchedule:false, showNotes:false, showPayments:false, showConfirm:false}
+console.log({showState})
+  return {
+    showState: showState,
+    quoteDate: moment().toDate(),
+    jobId: jobId.jobId,
+    quoterUid: user.uid,
+    inDraft: true,
+    quotedBy: user.displayName,
+    quotedByPhotoURL: photoURL || "/assets/user.png",
+    created: Date.now(),
+
+  };
+};
+
+
+
 export const createNewJob  =  (user, photoURL, job, taskID) => {
   job.date = moment(job.date).toDate();
 
@@ -54,6 +80,7 @@ console.log({showState})
     taskID: taskID.taskID,
     ownerUid: user.uid,
     inDraft: true,
+    jobPhotoURL: job.displayURL, 
     title: `${user.displayName}'s ${job.name} job`,
     owneredBy: user.displayName,
     ownerPhotoURL: photoURL || "/assets/user.png",

@@ -1,7 +1,7 @@
 import { toastr } from "react-redux-toastr";
 
 import { FETCH_JOBS } from "./jobConstants";
-import {FETCH_DRAFT} from '../build/draftConstants'
+import { FETCH_DRAFT } from "../build/draftConstants";
 import {
   asyncActionStart,
   asyncActionFinish,
@@ -14,38 +14,36 @@ import compareAsc from "date-fns/compare_asc";
 
 import { addMinutes } from "date-fns";
 
-
-
-export const dispatchJob = (jobId) => async (dispatch, getState, {getFirestore}) =>{
-
+export const dispatchJob = jobId => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
   const firestore = getFirestore();
   const userUid = firestore.auth().currentUser.uid;
- let okay = false
+  let okay = false;
 
   try {
-    dispatch(asyncActionStart())
-     
-        
-             firestore.update(`jobs/${jobId}`, {
-              inDraft: false
-            }).then(()=>{
-              firestore.update(`job_attendee/${jobId}_${userUid}`, {inDraft:false})
-            })
-            okay = true
-          
-       
-      
+    dispatch(asyncActionStart());
 
-        
-        dispatch(asyncActionFinish())
-        return okay
-  } catch (error){
-      console.log(error)
-      dispatch(asyncActionError())
+    firestore
+      .update(`jobs/${jobId}`, {
+        inDraft: false
+      })
+      .then(() => {
+        firestore.update(`job_attendee/${jobId}_${userUid}`, {
+          inDraft: false
+        });
+      });
+    okay = true;
+
+    dispatch(asyncActionFinish());
+    return okay;
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
   }
-    }
-
-
+};
 
 export const subscribeToJob = currentJob => {
   return async (dispatch, getState, { getFirestore }) => {
@@ -95,6 +93,7 @@ export const createJobDraft = (job, jobId) => {
         title: newJobInDraft.title,
         userUid: user.uid,
         owner: true,
+        jobPhotoURL: newJobInDraft.jobPhotoURL,
         taskID: newJobInDraft.taskID,
         taskName: newJobInDraft.name,
         inDraft: newJobInDraft.inDraft
@@ -118,7 +117,7 @@ export const createJob = job => {
     //need to shape job for what we want to store inside firestore
     let newJob = createNewJob(user, photoURL, job);
 
-    console.log('createJob after showstate', newJob)
+    console.log("createJob after showstate", newJob);
     try {
       let createdJob = await firestore.add(`jobs`, newJob);
       await firestore.set(`job_attendee/${createdJob.id}_${user.uid}`, {
@@ -136,29 +135,23 @@ export const createJob = job => {
   };
 };
 
-export const uploadJobPhoto = (key,jobPhotoURL) => {
-  return async (dispatch, getState, {getFirebase, getFirestore} )=> {
+export const uploadJobPhoto = (key, jobPhotoURL) => {
+  return async (dispatch, getState, { getFirebase, getFirestore }) => {
     dispatch(asyncActionStart());
 
-    console.log('upload job photo key', key)
-    console.log('upload job photo url', jobPhotoURL)
+    console.log("upload job photo key", key);
+    console.log("upload job photo url", jobPhotoURL);
 
     const firestore = getFirestore();
 
-
-    
-    try {   
-
-
+    try {
       let job = await firestore.get(`jobs/${key}`);
-       let jobData = job.data()
-      let jobPhotos = jobData.jobPhotos || []
-      jobPhotos.push({url:jobPhotoURL})
-      jobData.jobPhotos = jobPhotos
+      let jobData = job.data();
+      let jobPhotos = jobData.jobPhotos || [];
+      jobPhotos.push({ url: jobPhotoURL });
+      jobData.jobPhotos = jobPhotos;
 
-
-
- await  firestore.set(`jobs/${key}`, jobData)
+      await firestore.set(`jobs/${key}`, jobData);
 
       // await firestore.update(
       //   {
@@ -171,39 +164,42 @@ export const uploadJobPhoto = (key,jobPhotoURL) => {
       //   }
       // );
 
+      const payload = { key: key, value: jobData };
 
-      const payload = {key: key, value:jobData}
-  
       dispatch({
-          type: FETCH_DRAFT,
-          payload: {payload}
-      })
-  
+        type: FETCH_DRAFT,
+        payload: { payload }
+      });
 
       dispatch(asyncActionFinish());
       toastr.success("Success", "Example job photo uploaded");
     } catch (error) {
       dispatch(asyncActionError());
       toastr.error("Oops", "Something went wrong uploading job photo");
-      console.log(error)
+      console.log(error);
     }
   };
 };
 
-
-export const updateJobPhotosPage = (draft) => {
+export const updateJobPhotosPage = draft => {
   return async (dispatch, getState) => {
     dispatch(asyncActionStart());
     const { key: jobId, value: draftValues } = draft;
     console.log({ draft });
-    let showState = {showPhotos:false, showCustom:false, showBasic:false, showContract:false, showConfirm:false, showSchedule:true, showOverview:false}
-   
-    
+    let showState = {
+      showPhotos: false,
+      showCustom: false,
+      showBasic: false,
+      showContract: false,
+      showConfirm: false,
+      showSchedule: true,
+      showOverview: false
+    };
 
-    draftValues.showState=showState
+    draftValues.showState = showState;
     const firestore = firebase.firestore();
 
-   try {
+    try {
       let jobDocRef = firestore.collection("jobs").doc(jobId);
       //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {
@@ -219,7 +215,7 @@ export const updateJobPhotosPage = (draft) => {
             .doc(jobAttendeeQuerySnap.docs[i].id);
 
           await batch.update(jobAttendeeDocRef, {
-            jobDate: draftValues.date,
+            jobDate: draftValues.date
           });
         }
 
@@ -228,13 +224,12 @@ export const updateJobPhotosPage = (draft) => {
         await jobDocRef.update(draftValues);
       }
 
-
-      const payload = {key: jobId, value:draftValues}
+      const payload = { key: jobId, value: draftValues };
 
       dispatch({
-          type: FETCH_DRAFT,
-          payload: {payload}
-      })
+        type: FETCH_DRAFT,
+        payload: { payload }
+      });
 
       dispatch(asyncActionFinish());
       toastr.success("Success", "Job has been updated");
@@ -246,22 +241,29 @@ export const updateJobPhotosPage = (draft) => {
   };
 };
 
-
-export const updateJobContract = (draft) => {
+export const updateJobContract = draft => {
   return async (dispatch, getState) => {
     dispatch(asyncActionStart());
     const { key: jobId, value: draftValues } = draft;
     console.log({ draft });
-    let showState = {showPhotos:false, showCustom:false, showBasic:false, showContract:false, showConfirm:true, showSchedule:false, showOverview:false}
-   
-    const localIpUrl = require('local-ip-url');
-    console.log(localIpUrl())
-    
-    draftValues.showState=showState
-    draftValues.confirmStamp={ip:localIpUrl(), date: Date.now()}
+    let showState = {
+      showPhotos: false,
+      showCustom: false,
+      showBasic: false,
+      showContract: false,
+      showConfirm: true,
+      showSchedule: false,
+      showOverview: false
+    };
+
+    const localIpUrl = require("local-ip-url");
+    console.log(localIpUrl());
+
+    draftValues.showState = showState;
+    draftValues.confirmStamp = { ip: localIpUrl(), date: Date.now() };
     const firestore = firebase.firestore();
 
-   try {
+    try {
       let jobDocRef = firestore.collection("jobs").doc(jobId);
       //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {
@@ -277,7 +279,7 @@ export const updateJobContract = (draft) => {
             .doc(jobAttendeeQuerySnap.docs[i].id);
 
           await batch.update(jobAttendeeDocRef, {
-            jobDate: draftValues.date,
+            jobDate: draftValues.date
           });
         }
 
@@ -286,13 +288,12 @@ export const updateJobContract = (draft) => {
         await jobDocRef.update(draftValues);
       }
 
-
-      const payload = {key: jobId, value:draftValues}
+      const payload = { key: jobId, value: draftValues };
 
       dispatch({
-          type: FETCH_DRAFT,
-          payload: {payload}
-      })
+        type: FETCH_DRAFT,
+        payload: { payload }
+      });
 
       dispatch(asyncActionFinish());
       toastr.success("Success", "Job has been updated");
@@ -303,25 +304,26 @@ export const updateJobContract = (draft) => {
     }
   };
 };
-
-
-
-
-
 
 export const updateJobBasic = (draft, values) => {
   return async (dispatch, getState) => {
     dispatch(asyncActionStart());
     const { key: jobId, value: draftValues } = draft;
     console.log({ draft });
-    let showState = {showPhotos:false, showCustom:true, showBasic:false, showContract:false, showConfirm:false, showSchedule:false, showOverview:false}
-   
-    
-   
-    values.showState=showState
+    let showState = {
+      showPhotos: false,
+      showCustom: true,
+      showBasic: false,
+      showContract: false,
+      showConfirm: false,
+      showSchedule: false,
+      showOverview: false
+    };
+
+    values.showState = showState;
     const firestore = firebase.firestore();
 
-   try {
+    try {
       let jobDocRef = firestore.collection("jobs").doc(jobId);
       //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {
@@ -347,13 +349,12 @@ export const updateJobBasic = (draft, values) => {
         await jobDocRef.update(values);
       }
 
-
-      const payload = {key: jobId, value:values}
+      const payload = { key: jobId, value: values };
 
       dispatch({
-          type: FETCH_DRAFT,
-          payload: {payload}
-      })
+        type: FETCH_DRAFT,
+        payload: { payload }
+      });
 
       dispatch(asyncActionFinish());
       toastr.success("Success", "Job has been updated");
@@ -365,22 +366,26 @@ export const updateJobBasic = (draft, values) => {
   };
 };
 
-
-
 export const updateJobCustom = (draft, values) => {
   return async (dispatch, getState) => {
     dispatch(asyncActionStart());
     const { key: jobId, value: draftValues } = draft;
     console.log({ draft });
-    let showState = {showPhotos:true, showCustom:false, showBasic:false, showContract:false, showConfirm:false, showSchedule:false, showOverview:false}
-   
-    
+    let showState = {
+      showPhotos: true,
+      showCustom: false,
+      showBasic: false,
+      showContract: false,
+      showConfirm: false,
+      showSchedule: false,
+      showOverview: false
+    };
 
-    draftValues.showState=showState
+    draftValues.showState = showState;
     const firestore = firebase.firestore();
-    draftValues.customFields=values
-    console.log('draftValues after Add', draftValues)
-   try {
+    draftValues.customFields = values;
+    console.log("draftValues after Add", draftValues);
+    try {
       let jobDocRef = firestore.collection("jobs").doc(jobId);
       //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {
@@ -396,7 +401,7 @@ export const updateJobCustom = (draft, values) => {
             .doc(jobAttendeeQuerySnap.docs[i].id);
 
           await batch.update(jobAttendeeDocRef, {
-            jobDate: draftValues.date,
+            jobDate: draftValues.date
           });
         }
 
@@ -405,13 +410,12 @@ export const updateJobCustom = (draft, values) => {
         await jobDocRef.update(draftValues);
       }
 
-
-      const payload = {key: jobId, value:draftValues}
+      const payload = { key: jobId, value: draftValues };
 
       dispatch({
-          type: FETCH_DRAFT,
-          payload: {payload}
-      })
+        type: FETCH_DRAFT,
+        payload: { payload }
+      });
 
       dispatch(asyncActionFinish());
       toastr.success("Success", "Job has been updated");
@@ -423,27 +427,32 @@ export const updateJobCustom = (draft, values) => {
   };
 };
 
-
-
 export const updateJobSchedule = (draft, values, timesSelected) => {
   return async (dispatch, getState) => {
     dispatch(asyncActionStart());
     const { key: jobId, value: draftValues } = draft;
     console.log({ draft });
-    let showState = {showPhotos:false, showCustom:false, showBasic:false, showContract:true, showConfirm:false, showSchedule:false, showOverview:false}
-   
-    
-    draftValues.showState=showState
+    let showState = {
+      showPhotos: false,
+      showCustom: false,
+      showBasic: false,
+      showContract: true,
+      showConfirm: false,
+      showSchedule: false,
+      showOverview: false
+    };
+
+    draftValues.showState = showState;
     const firestore = firebase.firestore();
     draftValues.startDate = moment(values.startDate).toDate();
-    draftValues.timesSelected = timesSelected
+    draftValues.timesSelected = timesSelected;
     try {
       let jobDocRef = firestore.collection("jobs").doc(jobId);
       let dateEqual = compareAsc(draftValues.date.toDate(), draftValues.date);
       //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {
         let batch = firestore.batch();
-        await batch.update(jobDocRef, values);
+        await batch.update(jobDocRef, draftValues);
         let jobAttendeeRef = firestore.collection("job_attendee");
         let jobAttendeeQuery = await jobAttendeeRef.where("jobId", "==", jobId);
         let jobAttendeeQuerySnap = await jobAttendeeQuery.get();
@@ -454,7 +463,7 @@ export const updateJobSchedule = (draft, values, timesSelected) => {
             .doc(jobAttendeeQuerySnap.docs[i].id);
 
           await batch.update(jobAttendeeDocRef, {
-            jobDate: draftValues.date,
+            jobDate: draftValues.startDate
           });
         }
 
@@ -463,13 +472,12 @@ export const updateJobSchedule = (draft, values, timesSelected) => {
         await jobDocRef.update(draftValues);
       }
 
-
-      const payload = {key: jobId, value:draftValues}
+      const payload = { key: jobId, value: draftValues };
 
       dispatch({
-          type: FETCH_DRAFT,
-          payload: {payload}
-      })
+        type: FETCH_DRAFT,
+        payload: { payload }
+      });
 
       dispatch(asyncActionFinish());
       toastr.success("Success", "Job has been updated");
@@ -504,6 +512,7 @@ export const cancelToggle = (cancelled, jobId) => async (
 
 export const getJobsForDashboard = lastJob => async (dispatch, getState) => {
   let today = new Date(Date.now());
+  console.log('today', today)
   const firestore = firebase.firestore();
   const jobsRef = firestore.collection("jobs");
   try {
@@ -520,14 +529,14 @@ export const getJobsForDashboard = lastJob => async (dispatch, getState) => {
       ? (query = jobsRef
           //#DATE UPDATE JOBS
           .where("inDraft", "==", false)
-          //   .where("date", ">=", today)
-          //   .orderBy("date")
+          .where("startDate", ">=", today)
+          .orderBy("startDate")
           .startAfter(startAfter))
       : //     .limit(4)
-        (query = jobsRef.where("inDraft", "==", false));
-        //   .where("date", ">=", today)
-        //    .orderBy("date")
-        //    .limit(4)
+        (query = jobsRef.where("inDraft", "==", false))
+          .where("startDate", ">=", today)
+          .orderBy("startDate");
+    //    .limit(4)
 
     let querySnap = await query.get();
 

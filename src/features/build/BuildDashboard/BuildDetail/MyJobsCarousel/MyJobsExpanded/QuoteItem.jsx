@@ -1,8 +1,38 @@
 import React, { Component } from "react";
 import { Card, Icon, Image, Rating } from "semantic-ui-react";
-class ContractorItem extends Component {
+class QuoteItem extends Component {
   render() {
     const { item } = this.props;
+    const {quoterRating, quoterVolume} = item || {};
+    const averageRating =
+      (quoterRating &&
+        (quoterRating.clean +
+          quoterRating.craftsmanship +
+          quoterRating.professionalism +
+          quoterRating.punctuality) /
+          4) ||
+      0;
+
+    const totalVolume =
+      (quoterVolume &&
+        quoterVolume.totalVolume )||
+      0;
+    const numberOfJobs =
+      (quoterVolume &&
+        quoterVolume.numberOfJobs) ||
+      0;
+    let totalVolumeString = "";
+
+    if (totalVolume < 1000) {
+      totalVolumeString = `$${totalVolume}`;
+    } else if (totalVolume < 10000) {
+      totalVolumeString = `$${parseFloat(totalVolume / 1000).toFixed(1)}K`;
+    } else if (totalVolume < 1000000) {
+      totalVolumeString = `$${parseFloat(totalVolume / 1000).toFixed(0)}K`;
+    }
+
+
+
     return (
       //     <Card>
       //     <Image src={item.photoURL} />
@@ -21,7 +51,9 @@ class ContractorItem extends Component {
       //     </Card.Content>
       //   </Card>
       <div
+      
         style={{
+           
           height: 135,
           width: 250,
 
@@ -34,7 +66,7 @@ class ContractorItem extends Component {
           marginTop: 10,
           display: "inline-block",
           whiteSpace: "nowrap",
-          overflow: "hidden"
+            overflow: "hidden"
         }}
       >
         <img
@@ -48,7 +80,7 @@ class ContractorItem extends Component {
             top: 5,
             left: 5
           }}
-          src={item.photoURL}
+          src={item.quotedByPhotoURL}
         />
 
         <label
@@ -58,11 +90,11 @@ class ContractorItem extends Component {
             color: "grey",
             top: 10,
             left: 90,
-            textOverflow: "ellipsis",
-           
+            textOverflow:"ellipsis",
+            
           }}
         >
-        {item.displayName}
+        {item.quotedBy}
    </label>
 <label
           style={{
@@ -73,7 +105,7 @@ class ContractorItem extends Component {
             left: 90
           }}
         >
-          Contractor
+          Quote
         </label>
 
         <label
@@ -87,12 +119,12 @@ class ContractorItem extends Component {
         >
           Cool Company
         </label>
-        <Rating
-          style={{ position: "absolute", top: 92, left: 5 , opacity:0.6}}
-          icon="star"
-          defaultRating={4}
-          maxRating={5}
-        />
+        <label
+          style={{ position: "absolute", fontSize: 20,
+          color: "orange",  top: 92, left: 20 , opacity:0.6}}
+          
+          
+        >{averageRating||"No Rating"}</label>
 
 <label
           style={{
@@ -104,7 +136,7 @@ class ContractorItem extends Component {
             left: 120, opacity:0.6
           }}
         >
-          >10K
+         {totalVolumeString||"No Volume"}
         </label>
 
         <label
@@ -117,11 +149,11 @@ class ContractorItem extends Component {
             left: 180, opacity:0.6
           }}
         >
-          V3
+          {numberOfJobs || "No Jobs"}
         </label>
       </div>
     );
   }
 }
 
-export default ContractorItem;
+export default QuoteItem;

@@ -10,7 +10,7 @@ import TaskModal from './TaskModal/TaskModal'
 import CreateJobModal from './CreateJobModal/CreateJobModal'
 import ConnectBankAccountModal from './ConnectBankAccountModal/ConnectBankAccountModal'
 import CategoryModal from './CategoryModal/CategoryModal'
-
+import QuoteJobModal from './QuoteJobModal/QuoteJobModal'
 const modalLookup = {
   TestModal,
   LoginModal,
@@ -21,7 +21,8 @@ const modalLookup = {
   CreateJobModal,
   CategoryModal,
   TaskModal,
-  NewFieldModal
+  NewFieldModal,
+  QuoteJobModal
 }
 
 const mapState = (state) => ({

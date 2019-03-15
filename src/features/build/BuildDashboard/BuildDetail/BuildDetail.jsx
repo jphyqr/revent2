@@ -10,14 +10,15 @@ import MyJobsCarousel from './MyJobsCarousel/MyJobsCarousel'
 import {selectDraftToEdit, postToggle} from '../../draftActions'
 import {openModal} from '../../../modals/modalActions'
 const query = ({ auth }) => {
+  if (auth !== null){
   return [
     {
       collection: "job_attendee",
-      where: [["userUid", "==", `${auth}`]],
+      where: [["userUid", "==", `${auth.uid}`]],
       storeAs: "jobs_attended"
     }
   ];
-};
+}};
 const actions = {
   selectDraftToEdit, postToggle, openModal
 }
@@ -27,7 +28,7 @@ const mapState = state => {
 
 
   return {
-    auth:state.firebase.auth.uid,
+    auth:state.firebase.auth,
     categories: state.firestore.ordered.categories,
     loading: state.async.loading,
     myJobs: state.firestore.ordered.jobs_attended,
@@ -101,13 +102,13 @@ class BuildDetail extends Component {
     
   };
   render() {
-    const {categories,selectDraftToEdit} = this.props
- 
+    const {categories,selectDraftToEdit, auth} = this.props
+    const authenticated = auth.isLoaded && !auth.isEmpty;
     return (
 
       <div style={{marginTop:10}}>
        
-        <MyJobsCarousel  pauseButtonLoading={this.state.pauseButtonLoading} handlePostJob={this.handlePostJob} handleEditDraft={this.handleEditDraft} draft={this.state.draft} scrollToMyRef={this.scrollToMyRef} myJobs={this.props.myJobs} selectDraftToEdit={selectDraftToEdit}/>
+       {authenticated&& <MyJobsCarousel  pauseButtonLoading={this.state.pauseButtonLoading} handlePostJob={this.handlePostJob} handleEditDraft={this.handleEditDraft} draft={this.state.draft} scrollToMyRef={this.scrollToMyRef} myJobs={this.props.myJobs} selectDraftToEdit={selectDraftToEdit}/>}
 
        {!isLoaded(categories)? <LoadingComponent/> : 
        categories &&

@@ -3,7 +3,7 @@ import JobScheduleItem from './JobScheduleItem'
 
 class JobSchedule extends Component {
   render() {
-      const {schedule, currentTimesSelected} = this.props
+      const {currentTimesSelected} = this.props
 
     return (
       <div style={{padding:"5px", height:170, width:"auto", backgroundColor:'grey',          overflowX: "auto",

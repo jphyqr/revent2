@@ -6,6 +6,7 @@ import { firestoreConnect } from "react-redux-firebase";
 import { getLastMessage } from "../../../user/userActions";
 
 const query = ({ auth }) => {
+  if (auth !== null){
     return [
       {
         collection: "users",
@@ -20,7 +21,8 @@ const query = ({ auth }) => {
         storeAs: "lastmessage"
       }
     ];
-  };
+  }
+};
 
 
   const actions = {
