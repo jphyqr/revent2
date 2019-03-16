@@ -90,53 +90,13 @@ this.props.clearAccount()
       <Menu inverted fixed="top">
         <Container>
           <Menu.Item as={Link} to="/" header>
-            <img src="/assets/logo.png" alt="logo" />
-            Re-vents
+            <img src="/assets/white on orange logo.png" alt="logo" />
+            yAYbour
           </Menu.Item>
-        {/* <Menu.Item as={NavLink} to="/events" name="Events" /> */}
-          {/* <Menu.Item as={NavLink} to="/jobs" name="Jobs" /> */}
-          <Menu.Item as={NavLink} to="/test" name="Test" />
-          <Menu.Item as={NavLink} to="/testAnimations" name="Animation Test" />
-          {/* {authenticated && (
-            <Menu.Item as={NavLink} to="/people" name="People" />
-          )} */}
-          {authenticated && (
-            <Menu.Item as={NavLink} to="/messages" name="Messages" />
-          )}
-                    {authenticated && (
-            <Menu.Item as={NavLink} to="/build" name="Build" />
-          )}
-          {/* {authenticated && (
-            <Menu.Item as={NavLink} to="/newmessages" name="New Messages" />
-          )} */}
+   
           
 
 
-  {/* authenticated && (
-  <Menu.Item>
-    <Button
-      onClick={this.handleCreateTask}
-      floated="right"
-      positive
-      inverted
-      content="Create Task"
-    />
-  </Menu.Item>
-) */}
-
-
-
-{/* authenticated && (
-            <Menu.Item>
-              <Button
-                onClick={this.handleCreateCategory}
-                floated="right"
-                positive
-                inverted
-                content="Create Category"
-              />
-            </Menu.Item>
-          ) */}
 
 
             {authenticated? <BankAccountMenuItem

@@ -571,3 +571,65 @@ quoterIsContractor: user.isContractor||false
     }
   };
 };
+
+
+
+
+export const hireContractor = (quote) => {
+  return async (dispatch, getState, {getFirestore}) => {
+    dispatch(asyncActionStart());
+   const {jobId, quoteId, quoterUid} = quote
+
+
+
+    let firestore = getFirestore();
+    let contract = {hiredContractorUid: quoterUid, acceptedDate: Date.now()}
+
+    quote.contract = contract
+
+    try {
+
+    let userSnap = await firestore.get(`users/${quoterUid}`)
+
+        let user = userSnap.data();
+    
+    firestore=firebase.firestore()  
+      console.log ('hireContractor', user)
+      let quoteRef = firestore.collection("quotes").doc(quote.quoteId);
+      let contractRef = firestore.collection("job_contracts")
+      .doc(`${jobId}_${quoteId}`)
+
+      let jobRef = firestore.collection("jobs").doc(quote.jobId)
+      let jobQuotesRef = firestore.collection("job_quotes").doc(`${quote.jobId}_${quote.quoteId}`)
+
+      let userQuotesRef = firestore.collection("users").doc(quoterUid).collection("quotes").doc(quote.quoteId)
+
+
+
+await firestore.runTransaction(async transaction =>{
+  await transaction.update(quoteRef, quote)
+  await transaction.update(userQuotesRef, {contract})
+  await transaction.update(jobRef, {contract})
+  await transaction.update(jobQuotesRef, {contract})
+  await transaction.set(contractRef,{
+...quote,
+contract
+  } )
+})
+
+
+      dispatch({
+        type: FETCH_QUOTE,
+        payload: { quote }
+      });
+
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Quote has been accepted");
+    } catch (error) {
+      dispatch(asyncActionError());
+      console.log(error);
+      toastr.error("Oops", "Something went wrong");
+    }
+  };
+};
+

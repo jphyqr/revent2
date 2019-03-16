@@ -48,9 +48,12 @@ state = {
         {quotesArray &&
           quotesArray.map((item, i) => (
             <QuoteItem
+            handleNewChat={this.props.handleNewChat}
+            handleViewQuote={this.props.handleViewQuote}
               index={i}
             //  category={this.props.category}
               item={item}
+              loading={this.props.loading}
             //   scrollRightClicked={this.state.scrollRightClicked}
             //   scrollToMyRef={this.props.scrollToMyRef}
             //   showExpanded={this.props.showExpanded}

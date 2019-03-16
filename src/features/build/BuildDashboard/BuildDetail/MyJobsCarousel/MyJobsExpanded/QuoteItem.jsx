@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Card, Icon, Image, Rating } from "semantic-ui-react";
+import { Card, Icon, Image, Rating, Button } from "semantic-ui-react";
 class QuoteItem extends Component {
   render() {
-    const { item } = this.props;
+    const { item ,handleNewChat} = this.props;
     const {quoterRating, quoterVolume} = item || {};
     const averageRating =
       (quoterRating &&
@@ -96,29 +96,31 @@ class QuoteItem extends Component {
         >
         {item.quotedBy}
    </label>
-<label
+<Button
+primary
+        onClick={()=>this.props.handleViewQuote(item)}
           style={{
             position: "absolute",
             fontSize: 14,
-            color: "grey",
-            top: 35,
-            left: 90
+            top: 40,
+            left: 125
           }}
         >
-          Quote
-        </label>
+          View Quote
+        </Button>
+        <Button 
+        loading={this.props.loading}
+        onClick={()=>this.props.handleNewChat(item)}
+                  style={{
+                    position: "absolute",
+                    fontSize: 14,
+                    top: 40,
+                    left: 85
+                  }}
+        
+        icon='mail' 
+        secondary/>
 
-        <label
-          style={{
-            position: "absolute",
-            fontSize: 14,
-            color: "grey",
-            top: 55,
-            left: 90
-          }}
-        >
-          Cool Company
-        </label>
         <label
           style={{ position: "absolute", fontSize: 20,
           color: "orange",  top: 92, left: 20 , opacity:0.6}}

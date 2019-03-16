@@ -358,7 +358,7 @@ Dispatch Job
                 }}
               >
                 {" "}
-                 <QuoteSlider quotes={this.props.jobQuotes} /> 
+                 <QuoteSlider loading={this.props.loading} handleNewChat={this.props.handleNewChat} handleViewQuote={this.props.handleViewQuote} quotes={this.props.jobQuotes} /> 
               </div>
             </div>
           )}

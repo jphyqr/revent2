@@ -84,7 +84,7 @@ console.log({showState})
     title: `${user.displayName}'s ${job.name} job`,
     owneredBy: user.displayName,
     ownerPhotoURL: photoURL || "/assets/user.png",
-    created: Date.now(),
+    date: Date.now(),
 
   };
 };

@@ -126,7 +126,8 @@ export const createJob = job => {
         jobDate: job.date,
         title: createdJob.title,
         inDraft: true,
-        owner: true
+        owner: true,
+        date: Date.now()
       });
       toastr.success("Success", "Job has been created");
     } catch (error) {
@@ -510,6 +511,52 @@ export const cancelToggle = (cancelled, jobId) => async (
   }
 };
 
+
+
+
+export const getAllJobsForDashboard = ()=>   {
+  return async (dispatch, getState)=>{
+  const firestore = firebase.firestore();
+  const jobsRef = firestore.collection("jobs");
+  try {
+    dispatch(asyncActionStart());
+    let query = jobsRef.where("inDraft", "==", false)
+    .orderBy("created", "desc");
+
+    let querySnap = await query.get();
+
+        console.log('GET ALL JOBS', querySnap)
+    if (querySnap.docs.length === 0) {
+      dispatch(asyncActionFinish());
+      return querySnap;
+    }
+
+    let jobs = [];
+    for (let i = 0; i < querySnap.docs.length; i++) {
+      let evt = { ...querySnap.docs[i].data(), id: querySnap.docs[i].id };
+      jobs.push(evt);
+    }
+
+    console.log('GET ALL JOBS', jobs)
+
+    dispatch({
+      type: FETCH_JOBS,
+      payload: { jobs }
+    });
+    dispatch(asyncActionFinish());
+
+
+
+
+
+    return querySnap;
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+  }
+}
+}
+
 export const getJobsForDashboard = lastJob => async (dispatch, getState) => {
   let today = new Date(Date.now());
   console.log('today', today)
@@ -539,7 +586,7 @@ export const getJobsForDashboard = lastJob => async (dispatch, getState) => {
     //    .limit(4)
 
     let querySnap = await query.get();
-
+    console.log('GET JOBS FOR DBOARD SNAP', querySnap)
     if (querySnap.docs.length === 0) {
       dispatch(asyncActionFinish());
       return querySnap;

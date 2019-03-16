@@ -46,9 +46,9 @@ dispatch (asyncActionFinish())
             onOk: () =>
              {
                firestore.update(`jobs/${jobId}`, {
-                inDraft: !posted
+                inDraft: !posted, date:Date.now()
               }).then(()=>{
-                firestore.update(`job_attendee/${jobId}_${userUid}`, {inDraft:!posted})
+                firestore.update(`job_attendee/${jobId}_${userUid}`, {inDraft:!posted, date:Date.now()})
               })
              
             }

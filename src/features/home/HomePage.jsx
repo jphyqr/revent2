@@ -8,10 +8,10 @@ const HomePage = ({history}) => {
           <h1 className="ui inverted stackable header">
             <img
               className="ui image massive"
-              src="/assets/logo.png"
+              src="/assets/white on orange logo.png"
               alt="logo"
             />
-            <div className="content">Bidded</div>
+            <div className="content">Yaybour</div>
           </h1>
           <h2></h2>
           <div onClick={() => history.push('/build')} className="ui huge white inverted button">

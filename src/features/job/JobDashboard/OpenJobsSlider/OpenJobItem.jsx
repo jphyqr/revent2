@@ -12,6 +12,7 @@ export default class OpenJobItem extends Component {
     componentDidMount(){
       const {myQuotes, job}= this.props
       const {id, date, startDate} = job
+      
 
 
     //  const { jobId } = this.state;
@@ -52,7 +53,9 @@ export default class OpenJobItem extends Component {
 
     render() {
         const {job, index} = this.props
-        const { date, created, startDate} = job
+        const { date, created, startDate, contract} = job ||{}
+
+        const contractorHired = !(job.contract==undefined)
         let postedDistance = distanceInWords(created , Date.now())
         let startDistance = distanceInWords(startDate.seconds*1000 , Date.now())
 
@@ -149,12 +152,12 @@ export default class OpenJobItem extends Component {
           <Icon color="white" size="huge" name="arrow down" />
         </div>
 
-        {this.state.quoteSubmitted  ? (
+        {(!contractorHired)&&this.state.quoteSubmitted  ? (
           <div
             style={{
               position: "absolute",
               top: 5,
-              left: 5,
+             left:5,
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "blue",
               background:"white"
@@ -162,12 +165,13 @@ export default class OpenJobItem extends Component {
           >
             Quote Submitted!
           </div>
-        ) : this.state.quoteExists ? (
+        ) : (!(contractorHired)&&this.state.quoteExists) ? (
           <div
             style={{
               position: "absolute",
               top: 5,
-              left: 5,
+              left:5,
+            
               background: "black",
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "yellow"
@@ -181,7 +185,8 @@ export default class OpenJobItem extends Component {
             style={{
               position: "absolute",
               top: 5,
-              right: 100,
+              width:"100%",
+              textAlign:"center",
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "white"
             }}
@@ -191,25 +196,36 @@ export default class OpenJobItem extends Component {
           </div>
 
 
-          <div
+          {(!contractorHired)&&      <div
             style={{
               position: "absolute",
               top: 20,
-              right: 100,
+              width:"100%",
+              textAlign:"center",
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "white"
             }}
           >
    {startString}
 
-          </div>
+          </div>}
 
 
 
 
 
-
-        {job.inDraft  ? (
+        {contractorHired?  <div
+            style={{
+              position: "absolute",
+              top: 30,
+              right: 60,
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              color: "white"
+            }}
+          >
+            CONTRACTOR HIRED
+          </div> :
+        job.inDraft  ? (
           <div
             style={{
               position: "absolute",

@@ -4,7 +4,7 @@ import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
 import JobList from "../JobList/JobList";
-import { getJobsForDashboard } from "../jobActions";
+import { getJobsForDashboard, getAllJobsForDashboard } from "../jobActions";
 import { deleteJobDraft } from "../../user/userActions";
 import { selectDraftToEdit } from "../../build/draftActions";
 import { selectQuoteToEdit } from "../../modals/QuoteJobModal/quoteActions";
@@ -53,7 +53,8 @@ const actions = {
   deleteJobDraft,
   selectDraftToEdit,
   openModal,
-  selectQuoteToEdit
+  selectQuoteToEdit,
+  getAllJobsForDashboard
 };
 
 class JobDashboard extends Component {
@@ -103,14 +104,14 @@ class JobDashboard extends Component {
 
   async componentDidMount() {
     this.setState({ quotesLoading: true });
-    let next = await this.props.getJobsForDashboard();
+    await this.props.getAllJobsForDashboard() // this.props.getJobsForDashboard();
 
-    if (next && next.docs && next.docs.length > 1) {
-      this.setState({
-        moreJobs: true,
-        loadingInitial: false
-      });
-    }
+    // if (next && next.docs && next.docs.length > 1) {
+    //   this.setState({
+    //     moreJobs: true,
+    //     loadingInitial: false
+    //   });
+    // }
     this.setState({ quotesLoading: false });
   }
 

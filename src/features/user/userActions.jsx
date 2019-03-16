@@ -11,6 +11,8 @@ import {
 } from "../async/asyncActions";
 
 
+import { OPEN_MESSAGE } from "../popup/popupConstants";
+
 
 
 
@@ -761,6 +763,62 @@ export const selectLastMessage = lastRecipient => async (
     console.log(error);
   }
 };
+
+
+export const newChat = (receiver) => async(dispatch, getState, {getFirestore})=>{
+  console.log("userActions/newChat,", receiver);
+  const firestore = getFirestore();
+  const user = firebase.auth().currentUser;
+  try {
+    dispatch(asyncActionStart());
+    await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "last_message", doc: user.uid }]
+      },
+      {
+        id: receiver.quoterUid
+      }
+    );
+
+   let message = {
+    newMessage: false,
+    id: receiver.quoterUid,
+    displayName: receiver.quotedBy,
+    photoURL: receiver.quotedByPhotoURL,
+    rating: receiver.quoterRating,
+    volume: receiver.quoterVolume,
+    isContractor: receiver.quoterIsContractor,
+    jobReferenceId: receiver.jobId,
+
+    date: Date.now()
+   }
+
+   await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "messaging", doc: receiver.quoterUid}]
+      },
+      message
+    );
+
+
+    dispatch({
+      type: OPEN_MESSAGE,
+      payload: { message }
+    });
+
+
+    console.log({message})
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+  }
+}
+
 
 export const addDirectMessage = (receiverId, values) => async (
   dispatch,
