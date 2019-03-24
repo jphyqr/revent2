@@ -51,7 +51,7 @@ class MessagesMenuItem extends Component {
     const { loading, messaging, auth } = this.props;
     return (
     
-      <Menu.Item position="right">
+      <Menu.Item>
         <div ref={this.handleContextRef}>
         <Dropdown icon="mail" pointing="top left">
           <Dropdown.Menu>

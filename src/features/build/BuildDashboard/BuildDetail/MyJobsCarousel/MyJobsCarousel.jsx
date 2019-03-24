@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import MyJobsSlider from "./MyJobsSlider/MyJobsSlider";
 import MyJobsExpanded from "./MyJobsExpanded/MyJobsExpanded";
+import ContractSlider from '../MyContractsCarousel/MyContractsSlider/ContractSlider'
 import { Transition } from "semantic-ui-react";
 class MyJobsCarousel extends Component {
   state = {
@@ -91,51 +92,42 @@ class MyJobsCarousel extends Component {
           My Contracts
         </p>
 
-        <MyJobsSlider
-          //    onMouseEnterHandler={this.onMouseEnterHandler}
-          //    onMouseLeaveHandler={this.onMouseLeaveHandler}
-          //    childIsExpanding={this.state.childIsExpanding}
-          //    showExpanded={this.state.showExpanded}
-          //    carouselHovered={this.state.carouselHovered}
-          //    items={this.state.tasks}
-          //    category={category}
 
-          scrollToMyRef={scrollToMyRef}
-          handleShowExpanded={this.handleShowExpanded}
-          toggleLockInHover={this.toggleLockInHover}
-          //    handleChildExpanding={this.handleChildExpanding}
-          //    handleChildCompressing={this.handleChildCompressing}
-          //    lockInHover={this.state.lockInHover}
-          //    auth={this.props.auth}
-          //    subscribeButtonLoading={this.state.subscribeButtonLoading}
-          //    handleSubscribe={this.handleSubscribe}
-          //    handleUnsubscribe={this.handleUnsubscribe}
-          //    loading={this.props.loading}
-          //    selectedJobId={this.state.selectedJob.key}
-          //    expandedLoading={this.state.expandedLoading}
-          myJobs={myJobs}
-          selectDraftToEdit={selectDraftToEdit}
-        />
+   {projectsSelected ?       <div> <MyJobsSlider
 
-        <Transition.Group animation="scale" duration={400}>
-          {(this.state.showExpanded || this.state.expandedLoading) && (
-            <MyJobsExpanded
-              // subscribeButtonLoading={this.state.subscribeButtonLoading}
-              // handleSubscribe={this.handleSubscribe}
-              selectedJob={this.state.selectedJob.value}
-              selectedJobId={this.state.selectedJob.key}
-              handleViewQuote={this.props.handleViewQuote}
-              handleNewChat={this.props.handleNewChat}
-              handleClose={this.handleClose}
-              handleEditDraft={this.props.handleEditDraft}
-              handlePostJob={this.props.handlePostJob}
-              loading={this.props.loading}
-              // handleUnsubscribe={this.handleUnsubscribe}
-              expandedLoading={this.state.expandedLoading}
-              pauseButtonLoading={this.props.pauseButtonLoading}
-            />
-          )}
-        </Transition.Group>
+
+scrollToMyRef={scrollToMyRef}
+handleShowExpanded={this.handleShowExpanded}
+toggleLockInHover={this.toggleLockInHover}
+
+myJobs={myJobs}
+selectDraftToEdit={selectDraftToEdit}
+/>
+
+<Transition.Group animation="scale" duration={400}>
+{(this.state.showExpanded || this.state.expandedLoading) && (
+  <MyJobsExpanded
+
+    selectedJob={this.state.selectedJob.value}
+    selectedJobId={this.state.selectedJob.key}
+    handleViewQuote={this.props.handleViewQuote}
+    handleNewChat={this.props.handleNewChat}
+    handleClose={this.handleClose}
+    handleEditDraft={this.props.handleEditDraft}
+    handlePostJob={this.props.handlePostJob}
+    loading={this.props.loading}
+
+    expandedLoading={this.state.expandedLoading}
+    pauseButtonLoading={this.props.pauseButtonLoading}
+  />
+)}
+</Transition.Group>
+</div> : 
+
+
+<ContractSlider myContracts={this.props.myContracts}/>
+}
+
       </div>
     );
   }

@@ -13,7 +13,7 @@ import MapMarker from './MapMarker'
     const center = [lat, lng];
     const zoom = 11;
     return (
-      <Segment attached="bottom" style={{padding: 0}}>
+    //  <Segment attached="bottom" style={{padding:0, marginTop: 0}}>
       <div style={{ height: '500px', width: '100%' }}>
         <GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyBeJlBUVhFnJrXS5flaYydbj5AmbuGCNBQ' }}
@@ -53,7 +53,7 @@ import MapMarker from './MapMarker'
 
         </GoogleMapReact>
       </div>
-    </Segment>
+ //   </Segment>
     )
   }
 }

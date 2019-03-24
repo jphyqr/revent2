@@ -40,7 +40,17 @@ export const registerUser = user => async (
     //create a new profile in firestore
     let newUser = {
       displayName: user.displayName,
-      createdAt: firestore.FieldValue.serverTimestamp()
+      createdAt: firestore.FieldValue.serverTimestamp(),
+      hasValidCreditCard: false,
+      hasValidConnectedAccount: false,
+
+      
+      profileHasBeenClosed: false,
+  
+      builderProfile:{ isABuilder: false, jobsCompleted: 0, jobsStarted:0, volumeTotal:0, rating:{professionalism:0, punctuality:0, feedback:0, communication:0}},
+      contractorProfile:{ isAContractor: false, jobsStarted:0, jobsCompleted:0, quotesSubmitted:0, quotesAccepted:0, volumeTotal:0, rating:{clean:0,craftsmanship:0,professionalism:0, punctuality:0}},
+      labourProfile:{isALabourer: false, hasTransportation: false, hasTools: false, jobsStarted:0, jobsCompleted:0, volumeTotal:0, rating:{clean:0,craftsmanship:0,professionalism:0, punctuality:0, communication:0}},
+      
     };
     await firestore.set(`users/${createdUser.uid}`, { ...newUser });
     dispatch(closeModal());

@@ -86,7 +86,7 @@ class MessagesListItem extends Component {
         {/* <Popup context={node} content='Hello' position='top center' open={open} /> */}
           </Feed.Meta>
    
-          />
+          
         </Feed.Content>
       </Feed.Event>
        

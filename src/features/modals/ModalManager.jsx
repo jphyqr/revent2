@@ -12,6 +12,8 @@ import ConnectBankAccountModal from './ConnectBankAccountModal/ConnectBankAccoun
 import CategoryModal from './CategoryModal/CategoryModal'
 import QuoteJobModal from './QuoteJobModal/QuoteJobModal'
 import ViewQuoteModal from './ViewQuoteModal/ViewQuoteModal'
+import ProfileModal from './ProfileModal/ProfileModal'
+import LabourProfileModal from './LabourProfileModal/LabourProfileModal'
 const modalLookup = {
   TestModal,
   LoginModal,
@@ -24,7 +26,9 @@ const modalLookup = {
   TaskModal,
   NewFieldModal,
   QuoteJobModal,
-  ViewQuoteModal
+  ViewQuoteModal,
+  ProfileModal,
+  LabourProfileModal
 }
 
 const mapState = (state) => ({

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { firebaseConnect } from "react-redux-firebase";
-import { Menu, Container, Button } from "semantic-ui-react";
+import { Menu, Container, Search, Button } from "semantic-ui-react";
 import { NavLink, Link, withRouter } from "react-router-dom";
 import SignedOutMenu from "../Menus/SignedOutMenu";
 import SignedInMenu from "../Menus/SignedInMenu";
@@ -94,14 +94,25 @@ this.props.clearAccount()
             yAYbour
           </Menu.Item>
    
+          <Menu.Item style={{width:"70%"}}position="right">
           
-
-
-
-
-            {authenticated? <BankAccountMenuItem
+          <Search
+          fluid
+          style={{marginTop:"auto", width:"100%", marginBottom:"auto"}}
+          //  loading={isLoading}
+          //  onResultSelect={this.handleResultSelect}
+         //   onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
+         //   results={results}
+        //    value={value}
+          //  {...this.props}
+          />
+         </Menu.Item>
+         <Menu.Item as={Link} to="/" header>
+           JOIN BETA
+          </Menu.Item>
+            {/* {authenticated? <BankAccountMenuItem
               bankConnect={this.handleBankConnect}
-            />: null}  
+            />: null}   */}
                         {authenticated? <NotifcationsMenuItem
              
             />: null}  

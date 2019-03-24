@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Menu, Image, Dropdown } from 'semantic-ui-react';
+import { Menu, Image, Segment, Dropdown } from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
 import {initializePush} from '../../../app/common/util/helpers'
 import {storeDeviceToken} from '../../../features/user/userActions'
@@ -8,6 +8,7 @@ import { openModal } from "../../modals/modalActions";
 import {connect} from 'react-redux'
 import {toastr} from 'react-redux-toastr'
 import {clearTask} from '../../../features/modals/TaskModal/taskActions'
+
 const actions = {
   storeDeviceToken, openModal, clearTask
 }
@@ -61,11 +62,10 @@ componentDidMount(){
         <Dropdown.Item onClick={this.handleCreateCategory} text="New Category" icon="plus" />
         <Dropdown.Item onClick={this.handleNewTask} text="New Task" icon="plus" />
         <Dropdown.Item onClick={this.handleNewField} text="New Field" icon="plus" />
-        <Dropdown.Item text="My Events" icon="calendar" />
-        <Dropdown.Item text="My Network" icon="users" />
-        <Dropdown.Item as ={Link} to={`/profile/${auth.uid}`}text="My Profile" icon="user" />
+
         <Dropdown.Item as={Link} to='/settings' text="Settings" icon="settings" />
         <Dropdown.Item onClick={signOut} text="Sign Out" icon="power" />
+
       </Dropdown.Menu>
     </Dropdown>
   </Menu.Item>

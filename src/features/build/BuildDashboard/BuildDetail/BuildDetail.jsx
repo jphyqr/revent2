@@ -20,7 +20,15 @@ const query = ({ auth }) => {
 
         orderBy: ["date", "desc"],
         storeAs: "jobs_attended"
+      },
+      {
+        collection: "job_contracts",
+        where: [["quoterUid", "==", `${auth.uid}`]],
+
+        orderBy: ["created", "desc"],
+        storeAs: "job_contracts"
       }
+
     ];
   }
 };
@@ -38,6 +46,7 @@ const mapState = state => {
     categories: state.firestore.ordered.categories,
     loading: state.async.loading,
     myJobs: state.firestore.ordered.jobs_attended,
+    myContracts: state.firestore.ordered.job_contracts,
     draft: state.draft
   };
 };
@@ -119,6 +128,7 @@ class BuildDetail extends Component {
             draft={this.state.draft}
             scrollToMyRef={this.scrollToMyRef}
             myJobs={this.props.myJobs}
+            myContracts={this.props.myContracts}
             selectDraftToEdit={selectDraftToEdit}
           />
         )}

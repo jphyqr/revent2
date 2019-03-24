@@ -16,6 +16,7 @@ import {firestoreReducer} from 'redux-firestore'
 import {reducer as toastrRedcer} from 'react-redux-toastr';
 import draftReducer from '../../features/build/draftReducer'
 import quoteReducer from '../../features/modals/QuoteJobModal/quoteReducer'
+import labourReducer from '../../features/job/JobDashboard/LeftSidebar/LabourList/labourReducer'
  
 const rootReducer = combineReducers({
   test: testReducer,
@@ -34,7 +35,8 @@ const rootReducer = combineReducers({
   category: categoryReducer,
   task: taskReducer,
   field: fieldReducer,
-  quote: quoteReducer
+  quote: quoteReducer,
+  labour: labourReducer
 })
 
 export default rootReducer

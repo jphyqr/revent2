@@ -2,6 +2,7 @@ import moment from "moment";
 import { toastr } from "react-redux-toastr";
 import { FETCH_JOBS } from "../job/jobConstants";
 import { FETCH_TASK} from "../modals/TaskModal/taskConstants"
+import {FETCH_LABOUR} from '../job/JobDashboard/LeftSidebar/LabourList/labourConstants'
 import cuid from "cuid";
 import firebase from "../../app/config/firebase";
 import {
@@ -765,6 +766,69 @@ export const selectLastMessage = lastRecipient => async (
 };
 
 
+
+export const newChatLabourer = (labourer) => async(dispatch, getState, {getFirestore})=>{
+  console.log("userActions/newChat,", labourer);
+  const firestore = getFirestore();
+  const user = firebase.auth().currentUser;
+  try {
+    dispatch(asyncActionStart());
+    await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "last_message", doc: user.uid }]
+      },
+      {
+        id: labourer.id
+      }
+    );
+
+   let message = {
+    newMessage: false,
+    id: labourer.id,
+    displayName: labourer.displayName,
+    photoURL: labourer.photoURL,
+    rating: labourer.rating,
+    jobsCompleted: labourer.jobsCompleted,
+    jobsStarted: labourer.jobsStarted,
+     updatedSkills: labourer.updatedSkills,
+
+    date: Date.now()
+   }
+
+   await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "messaging", doc: labourer.id}]
+      },
+      message
+    );
+
+
+    dispatch({
+      type: OPEN_MESSAGE,
+      payload: { message }
+    });
+
+
+    console.log({message})
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+  }
+}
+
+
+
+
+
+
+
+
+
 export const newChat = (receiver) => async(dispatch, getState, {getFirestore})=>{
   console.log("userActions/newChat,", receiver);
   const firestore = getFirestore();
@@ -934,6 +998,317 @@ export const chargeCard = token => async (
 };
 
 
+
+
+export const updateSkills = skills => async (
+  dispatch,
+  getState,
+  { getFirebase }
+) => {
+  const firebase = getFirebase();
+  const { isLoaded, isEmpty, ...updatedSkills } = skills;
+  console.log({updatedSkills})
+  
+   let labourSkills = {updatedSkills}
+   labourSkills.skillsHaveBeenUpdated = true
+   
+  try {
+    await firebase.updateProfile(labourSkills); //react redux firebase method
+    toastr.success("Success", "Profile updated");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const createLabourProfile = (profile, profileListed) => async (
+  dispatch,
+  getState,
+  { getFirebase , getFirestore}
+) => {
+  const firebase = getFirebase();
+  //const { isLoaded, isEmpty, ...updatedSkills } = skills;
+  console.log({profile})
+  const {labourProfile, updatedSkills} = profile
+ const {jobsCompleted, jobsStarted, rating} = labourProfile
+
+  //const firebase = getFirebase();
+  const userProfile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+
+
+
+  let updatedProfile = {
+    profileListed: profileListed,
+    displayName: userProfile.displayName,
+    photoURL: userProfile.photoURL || "/assets/user.png",
+    uid: user.uid,
+    jobsCompleted: jobsCompleted,
+    jobsStarted: jobsStarted,
+    rating: rating || {},
+    updatedSkills: updatedSkills || {}
+    
+  }
+  
+  console.log({updatedProfile})
+  const firestore = getFirestore();
+
+  try {
+      await firestore.set(`labour_profiles/${user.uid}`, updatedProfile)
+
+      const firestoreDirect = firebase.firestore();
+      const labourRef = firestoreDirect.collection("labour_profiles");
+      let query = labourRef.where("profileListed", "==", true)
+      let querySnap = await query.get();
+      console.log('GET LABOUR FOR LIST', querySnap)
+      if (querySnap.docs.length === 0) {
+        dispatch(asyncActionFinish());
+        return querySnap;
+      }
+  
+      let labour = [];
+      for (let i = 0; i < querySnap.docs.length; i++) {
+        let evt = { ...querySnap.docs[i].data(), id: querySnap.docs[i].id };
+        labour.push(evt);
+      }
+  
+      dispatch({
+        type: FETCH_LABOUR,
+        payload: { labour }
+      });
+      await firebase.updateProfile({profileListed:profileListed, skillsHaveBeenUpdated:false})
+    toastr.success("Success", "Profile Created and Listed");
+  } catch (error) {
+    toastr.error("Ooops", "Profile was not Created");
+    console.log(error);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+export const uploadLabourPhoto = (labourProfile, file) => async (
+  dispatch,
+  getState,
+  { getFirebase , getFirestore}
+) => {
+  const firebase = getFirebase();
+  //const { isLoaded, isEmpty, ...updatedSkills } = skills;
+
+  const {labourPhotos} = labourProfile || []
+  let updatedLabourPhotos = labourPhotos || []
+  let updatedLaboutProfile = labourProfile
+  //const firebase = getFirebase();
+  const userProfile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+
+  const imageName = cuid();
+
+  const firestore = getFirestore();
+
+  const path = `${user.uid}/user_images`;
+  const options = {
+    name: imageName
+  };
+
+
+
+
+
+  try {
+
+
+    dispatch(asyncActionStart());
+    //upload the file to firebase storage
+    console.log({file})
+    let uploadedFile = await firebase.uploadFile(path, file, null, options);
+    //get url of image
+    let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
+    //get userdoc from firestore
+    let userDoc = await firestore.get(`users/${user.uid}`);
+    //check if user has photo , if not update profile w new image
+    if (!userDoc.data().photoURL) {
+      await firebase.updateProfile({
+        photoURL: downloadURL
+      });
+      await user.updateProfile({
+        photoURL: downloadURL
+      });
+    }
+   
+
+    updatedLabourPhotos.unshift(downloadURL)
+    updatedLaboutProfile.labourPhotos = updatedLabourPhotos
+      await firestore.set(`labour_profiles/${user.uid}`, updatedLaboutProfile)
+
+      const firestoreDirect = firebase.firestore();
+      const labourRef = firestoreDirect.collection("labour_profiles");
+      let query = labourRef.where("profileListed", "==", true)
+      let querySnap = await query.get();
+      console.log('GET LABOUR FOR LIST', querySnap)
+      if (querySnap.docs.length === 0) {
+        dispatch(asyncActionFinish());
+        return querySnap;
+      }
+  
+      let labour = [];
+      for (let i = 0; i < querySnap.docs.length; i++) {
+        let evt = { ...querySnap.docs[i].data(), id: querySnap.docs[i].id };
+        labour.push(evt);
+      }
+  
+      dispatch({
+        type: FETCH_LABOUR,
+        payload: { labour }
+      });
+      await firebase.updateProfile({labourProfile:updatedLaboutProfile})
+    toastr.success("Success", "Labour profile updated");
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    toastr.error("Ooops", "Profile was not Created");
+    console.log(error);
+    dispatch(asyncActionError());
+  }
+};
+
+
+
+
+
+
+export const uploadContractorPhoto = (contractorProfile, file) => async (
+  dispatch,
+  getState,
+  { getFirebase , getFirestore}
+) => {
+  const firebase = getFirebase();
+  //const { isLoaded, isEmpty, ...updatedSkills } = skills;
+
+  const {contractorPhotos} = contractorProfile || []
+  let updatedContractorPhotos = contractorPhotos || []
+  let updatedContractorProfile = contractorProfile
+  //const firebase = getFirebase();
+  const userProfile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+
+  const imageName = cuid();
+
+  const firestore = getFirestore();
+
+  const path = `${user.uid}/user_images`;
+  const options = {
+    name: imageName
+  };
+
+
+
+
+
+  try {
+
+
+    dispatch(asyncActionStart());
+    //upload the file to firebase storage
+    console.log({file})
+    let uploadedFile = await firebase.uploadFile(path, file, null, options);
+    //get url of image
+    let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
+    //get userdoc from firestore
+    let userDoc = await firestore.get(`users/${user.uid}`);
+    //check if user has photo , if not update profile w new image
+    if (!userDoc.data().photoURL) {
+      await firebase.updateProfile({
+        photoURL: downloadURL
+      });
+      await user.updateProfile({
+        photoURL: downloadURL
+      });
+    }
+   
+
+    updatedContractorPhotos.unshift(downloadURL)
+    updatedContractorProfile.contractorPhotos = updatedContractorPhotos
+   
+      await firebase.updateProfile({contractorProfile:updatedContractorProfile})
+    toastr.success("Success", "Contractor profile updated");
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    toastr.error("Ooops", "Profile was not Created");
+    console.log(error);
+    dispatch(asyncActionError());
+  }
+};
+
+
+
+
+export const uploadBuilderPhoto = (builderProfile, file) => async (
+  dispatch,
+  getState,
+  { getFirebase , getFirestore}
+) => {
+  const firebase = getFirebase();
+  //const { isLoaded, isEmpty, ...updatedSkills } = skills;
+
+  const {builderPhotos} = builderProfile || []
+  let updatedBuilderPhotos = builderPhotos || []
+  let updatedBuilderProfile = builderProfile
+  //const firebase = getFirebase();
+  const userProfile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+
+  const imageName = cuid();
+
+  const firestore = getFirestore();
+
+  const path = `${user.uid}/user_images`;
+  const options = {
+    name: imageName
+  };
+
+
+
+
+
+  try {
+
+
+    dispatch(asyncActionStart());
+    //upload the file to firebase storage
+    console.log({file})
+    let uploadedFile = await firebase.uploadFile(path, file, null, options);
+    //get url of image
+    let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
+    //get userdoc from firestore
+    let userDoc = await firestore.get(`users/${user.uid}`);
+    //check if user has photo , if not update profile w new image
+    if (!userDoc.data().photoURL) {
+      await firebase.updateProfile({
+        photoURL: downloadURL
+      });
+      await user.updateProfile({
+        photoURL: downloadURL
+      });
+    }
+   
+
+    updatedBuilderPhotos.unshift(downloadURL)
+    updatedBuilderProfile.builderPhotos = updatedBuilderPhotos
+   
+      await firebase.updateProfile({builderProfile:updatedBuilderProfile})
+    toastr.success("Success", "Builder profile updated");
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    toastr.error("Ooops", "Profile was not Created");
+    console.log(error);
+    dispatch(asyncActionError());
+  }
+};
 
 
 

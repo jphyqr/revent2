@@ -1,8 +1,10 @@
 import React, { Component } from "react";
-import { Grid, Sticky, Segment, Container } from "semantic-ui-react";
+import { Grid, Sticky, Segment, Container , Loader,Popup, Transition} from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
+import LeftSidebar from './LeftSidebar/LeftSidebar'
+import RightSidebar from './RightSidebar/RightSidebar'
 import JobList from "../JobList/JobList";
 import { getJobsForDashboard, getAllJobsForDashboard } from "../jobActions";
 import { deleteJobDraft } from "../../user/userActions";
@@ -12,6 +14,8 @@ import { firestoreConnect, isLoaded } from "react-redux-firebase"; //even though
 import { openModal } from "../../modals/modalActions";
 import OpenJobsSlider from "./OpenJobsSlider/OpenJobsSlider";
 import OpenJobExpanded from "./OpenJobExpanded";
+import Profile from './RightSidebar/Profile'
+import NavBar from '../NavBar'
 const query = ({ auth }) => {
   const authenticated = auth.isLoaded && !auth.isEmpty;
   if (authenticated) {
@@ -45,7 +49,8 @@ const mapState = state => ({
   auth: state.firebase.auth,
   myJobs: state.firestore.ordered.jobs_attended || {},
   selectedJob: state.draft && state.draft.value,
-  myQuotes: state.firestore.ordered.my_quotes ||{}
+  myQuotes: state.firestore.ordered.my_quotes ||{},
+   authenticated:  (state.firebase.auth.isLoaded && !state.firebase.auth.isEmpty)
 });
 
 const actions = {
@@ -69,8 +74,14 @@ class JobDashboard extends Component {
     selectedJob: {},
     selectedJobId: "",
     myQuotes: [],
-    quotesLoading: false
+    quotesLoading: false,
+    navShow: "map"
   };
+
+  handleSelectTab = tab =>{
+
+    this.setState({navShow:tab})
+  }
 
   handleHideMap = () => {
     this.setState({ showExpanded: false, selectedJob: {} });
@@ -155,7 +166,7 @@ class JobDashboard extends Component {
     });
 
   render() {
-    const { loading, selectQuoteToEdit, auth, jobs } = this.props;
+    const { loading, selectQuoteToEdit, auth, jobs, authenticated } = this.props;
     const { moreJobs, loadedJobs, myQuotes } = this.state;
 
  
@@ -171,26 +182,17 @@ class JobDashboard extends Component {
         />
         <div style={{ minHeight: "500px" }}>
           <Grid>
-            <Grid.Row>
+            <Grid.Row >
               <Grid.Column width={3}>
-                =
-                {/* <Segment
-              style={{
-                padding: 0,
-                borderRadius: "0px",
-                backgroundColor: "darkgrey"
-              }}
-            >
-              <MyJobs
-                myJobs={this.props.myJobs}
-                handleDelete={this.handleDelete}
-                handleClickShowLogs={this.props.handleClickShowLogs}
-              />
-            </Segment> */}
+                {/* <LeftSidebar/> */}
+               
               </Grid.Column>
 
               <Grid.Column width={10}>
-                {this.state.showExpanded ? (
+              
+              <NavBar handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
+           {this.state.loading ?  <Loader active inline='centered' /> :
+                this.state.showExpanded ? (
                   <OpenJobExpanded
                     ownerProfileLoading={this.state.ownerProfileLoading}
                     quotesLoading={this.state.quotesLoading}
@@ -201,7 +203,17 @@ class JobDashboard extends Component {
                     handleHideMap={this.handleHideMap}
                     selectedJob={this.state.selectedJob}
                   />
-                ) : (
+                ) : (this.state.navShow==="profile") ? 
+
+                <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="profile")}>
+                 <Profile/>
+              </Transition.Group>
+
+
+               
+                :
+                (
+                  <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="map")}>
                   <JobMap
                     hoveredJobId={this.state.hoveredJobId}
                     jobs={jobs}
@@ -209,19 +221,13 @@ class JobDashboard extends Component {
                     lng={-104.61}
                     handleMapItemClick={this.handleMapItemClick}
                   />
+                      </Transition.Group>
                 )}
+   
               </Grid.Column>
               <Grid.Column width={3}>
-                {/* <div ref={this.handleContextRef}>
-              <JobList
-                offset={100}
-                jobs={loadedJobs}
-                loading={loading}
-                moreJobs={moreJobs}
-                getNextJobs={this.getNextJobs}
-                scrollToId={this.state.scrollToId}
-              />
-            </div> */}
+             {/* <RightSidebar authenticated={authenticated}/> */}
+              
               </Grid.Column>
             </Grid.Row>
             {/* <Grid.Row>

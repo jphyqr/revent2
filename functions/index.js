@@ -263,7 +263,7 @@ exports.newUser = functions.firestore
 
     try {
       const message =
-        "Welcome to Skidsteer. I am the admin for this Region,  You can contact me directly here.";
+        "Welcome to Yaybour. I am the admin for this Region,  You can contact me directly here.";
 
       let welcomeMessage = {
         displayName: "Admin",
