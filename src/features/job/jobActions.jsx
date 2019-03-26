@@ -449,7 +449,7 @@ export const updateJobSchedule = (draft, values, timesSelected) => {
     draftValues.timesSelected = timesSelected;
     try {
       let jobDocRef = firestore.collection("jobs").doc(jobId);
-      let dateEqual = compareAsc(draftValues.date.toDate(), draftValues.date);
+      //let dateEqual = compareAsc(draftValues.date.toDate(), draftValues.date);
       //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {
         let batch = firestore.batch();

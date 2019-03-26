@@ -70,11 +70,11 @@ toggleContract=()=> this.setState({checkedContract: !this.state.checkedContract}
   render() {
     const { draft } = this.props;
     const { value: draftValues } = draft;
-    const { phases } = draftValues;
+    const { phases } = draftValues || [];
     console.log({ phases });
     const rootPanels = [];
 
-    for (var i = 0; i < phases.length; i++) {
+    for (var i = 0; i < phases&&phases.length; i++) {
       const phase = phases[i];
       console.log({ phase });
       rootPanels.push({
