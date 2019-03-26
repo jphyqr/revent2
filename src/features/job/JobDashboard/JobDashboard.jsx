@@ -3,7 +3,7 @@ import { Grid, Sticky, Segment, Container , Loader,Popup, Transition} from "sema
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
-import LeftSidebar from './LeftSidebar/LeftSidebar'
+
 import RightSidebar from './RightSidebar/RightSidebar'
 import JobList from "../JobList/JobList";
 import { getJobsForDashboard, getAllJobsForDashboard } from "../jobActions";
@@ -13,7 +13,8 @@ import { selectQuoteToEdit } from "../../modals/QuoteJobModal/quoteActions";
 import { firestoreConnect, isLoaded } from "react-redux-firebase"; //even though we using firestore this gives our binding
 import { openModal } from "../../modals/modalActions";
 import OpenJobsSlider from "./OpenJobsSlider/OpenJobsSlider";
-import OpenJobExpanded from "./OpenJobExpanded";
+import OpenJobExpanded from "./OpenJobExpanded"
+import LabourList from './Labour/LabourList/LabourList'
 import Profile from './RightSidebar/Profile'
 import NavBar from '../NavBar'
 const query = ({ auth }) => {
@@ -211,7 +212,12 @@ class JobDashboard extends Component {
 
 
                
+                : (this.state.navShow==="labour") ?
+                <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="profile")}>
+                <LabourList/>
+             </Transition.Group>
                 :
+
                 (
                   <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="map")}>
                   <JobMap

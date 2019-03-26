@@ -222,7 +222,14 @@ state={
                 component={Checkbox}
               />
         </Form.Group>
+        <Field
+        style={{paddingBottom:5}}
+                name="exclusive"
+                type="checkbox"
 
+                label="Exclusive Task"
+                component={Checkbox}
+              />
             <Button
               disabled={invalid || submitting}
               positive

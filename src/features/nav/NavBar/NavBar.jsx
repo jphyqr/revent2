@@ -10,7 +10,7 @@ import NotifcationsMenuItem from './Notifications/NotificationsMenuItem'
 import { openModal } from "../../modals/modalActions";
 import {getAccount, clearAccount} from '../../modals/ConnectBankAccountModal/BankAccountManager/accountActions'
 import MessagesMenuItem from './Messages/MessagesMenuItem'
-
+import JoinBetaMenu from '../Menus/JoinBetaMenu'
 const actions = {
   openModal, clearAccount, getAccount
 };
@@ -31,7 +31,21 @@ return{
 
 class NavBar extends Component {
 
+state={
+  join:false
+}
+
   async componentWillReceiveProps(newProps) {
+    //if you are authenticated assume we want to go to 
+    //the app.  But from the app should be able to click on 
+    //join beta just for now for demo.
+    //on the join page itd oesnt matter if you are logged in or not
+    //so lets just have a button in the nav bar at all time
+    //too go to the join beta.  In future we should add logic to remove
+    //the join beta if authenticated.
+    
+
+
 
     if(newProps.accountToken&&newProps.accountToken!==this.props.accountToken)
     {let connectedAccount = this.props.getAccount(newProps.accountToken.value).then(account=>{
@@ -53,6 +67,10 @@ class NavBar extends Component {
     this.props.openModal("RegisterModal");
   };
 
+
+  backToApp = () => {
+    this.setState({join:false})
+  };
 
   handleCreateJob = () =>{
     this.props.openModal("CreateJobModal")
@@ -85,7 +103,7 @@ this.props.clearAccount()
   render() {
     const { auth, profile } = this.props;
     const authenticated = auth.isLoaded && !auth.isEmpty;
-
+    const {join} = this.state
     return (
       <Menu inverted fixed="top">
         <Container>
@@ -94,11 +112,11 @@ this.props.clearAccount()
             yAYbour
           </Menu.Item>
    
-          <Menu.Item style={{width:"70%"}}position="right">
+          <Menu.Item style={{width:"30%"}}position="right"> 
           
-          <Search
+      <Search
           fluid
-          style={{marginTop:"auto", width:"100%", marginBottom:"auto"}}
+          style={{marginTop:"auto", width:"auto", marginBottom:"auto"}}
           //  loading={isLoading}
           //  onResultSelect={this.handleResultSelect}
          //   onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
@@ -107,19 +125,26 @@ this.props.clearAccount()
           //  {...this.props}
           />
          </Menu.Item>
-         <Menu.Item as={Link} to="/" header>
-           JOIN BETA
+        <Menu.Item as={Link} to="/about" header  >
+           ABOUT
           </Menu.Item>
+        <Menu.Item as={Link} to="/pricing" header  >
+           PRICING
+          </Menu.Item>
+        <Menu.Item    onClick={()=>this.props.openModal("JoinBetaModal")}>
+        <Button  basic inverted content="JOIN BETA" />
+          </Menu.Item>
+       
             {/* {authenticated? <BankAccountMenuItem
               bankConnect={this.handleBankConnect}
             />: null}   */}
-                        {authenticated? <NotifcationsMenuItem
+                        {authenticated&&(!join)? <NotifcationsMenuItem
              
             />: null}  
-                           {authenticated? <MessagesMenuItem
+                           {authenticated&&(!join)? <MessagesMenuItem
              
              />: null}          
-          {authenticated ? (
+          {join? <JoinBetaMenu backToApp={this.backToApp}/> : authenticated ? (
             
             <SignedInMenu
               auth={auth}

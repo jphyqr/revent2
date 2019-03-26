@@ -7,6 +7,7 @@ import { firestoreConnect } from "react-redux-firebase"; //even though we using 
 import { connect } from "react-redux";
 import LoadingComponent from "../../../../app/layout/LoadingComponent";
 import MyJobsCarousel from "./MyJobsCarousel/MyJobsCarousel";
+import ExclusiveJobsCarousel from "./ExclusiveJobsCarousel/ExclusiveJobsCarousel";
 import { selectDraftToEdit, postToggle } from "../../draftActions";
 import { selectQuoteToEdit } from "../../../modals/QuoteJobModal/quoteActions";
 import { newChat } from "../../../user/userActions";
@@ -14,6 +15,13 @@ import { openModal } from "../../../modals/modalActions";
 const query = ({ auth }) => {
   if (auth !== null) {
     return [
+      {
+        collection: "tasks",
+        where: [["exclusive", "==", true]],
+
+       
+        storeAs: "exclusive_jobs"
+      },
       {
         collection: "job_attendee",
         where: [["userUid", "==", `${auth.uid}`]],
@@ -28,7 +36,6 @@ const query = ({ auth }) => {
         orderBy: ["created", "desc"],
         storeAs: "job_contracts"
       }
-
     ];
   }
 };
@@ -47,6 +54,7 @@ const mapState = state => {
     loading: state.async.loading,
     myJobs: state.firestore.ordered.jobs_attended,
     myContracts: state.firestore.ordered.job_contracts,
+    exclusiveJobs: state.firestore.ordered.exclusive_jobs,
     draft: state.draft
   };
 };
@@ -73,8 +81,7 @@ class BuildDetail extends Component {
     contextRef: {},
     selectedJob: "",
     draft: {},
-    pauseButtonLoading: false,
-
+    pauseButtonLoading: false
   };
 
   handleEditDraft = async jobId => {
@@ -110,10 +117,8 @@ class BuildDetail extends Component {
     });
   };
 
-
-
   render() {
-    const { categories, selectDraftToEdit, auth, loading } = this.props;
+    const { categories, selectDraftToEdit, auth, loading , exclusiveJobs} = this.props;
     const authenticated = auth.isLoaded && !auth.isEmpty;
     return (
       <div style={{ marginTop: 10 }}>
@@ -132,10 +137,11 @@ class BuildDetail extends Component {
             selectDraftToEdit={selectDraftToEdit}
           />
         )}
-
+        <ExclusiveJobsCarousel  selectDraftToEdit={selectDraftToEdit} scrollToMyRef={this.scrollToMyRef} exclusiveJobs={exclusiveJobs}/>
         {!isLoaded(categories) ? (
           <LoadingComponent />
         ) : (
+          
           categories &&
           categories.map(category => (
             <BuildCarousel

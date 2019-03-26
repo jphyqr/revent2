@@ -250,6 +250,11 @@ handleUpdatePhotoTitle = (index, title) => {
     this.setState({ radioItems: items, radioValue: "" });
   };
 
+
+  handleUnitsChanged = e =>{
+    this.setState({units: !this.state.units})
+  }
+
   handleExampleChange = e => {
     this.setState({ example: !this.state.example });
   };
@@ -274,6 +279,7 @@ handleUpdatePhotoTitle = (index, title) => {
       value: "",
       currentField: {},
       example: false,
+      units: false,
       selectKey: "",
       selectText: "",
       selectValue: "",
@@ -533,7 +539,24 @@ const {fieldChanged} = this.state
               label="Include Example"
               component={Checkbox}
             />
+
+<Field
+              name="includeUnits"
+              type="checkbox"
+              //   checked={this.state.example}
+              //    value={this.state.example}
+              onClick={this.handleUnitsChanged}
+              label="Include Units"
+              component={Checkbox}
+            />
           </Form.Group>
+
+                {this.state.units &&                <Field
+                  name="units"
+                  type="text"
+                  component={TextInput}
+                  placeholder="Units"
+                /> }
 
           {this.state.example && (
             <PhotoUpload

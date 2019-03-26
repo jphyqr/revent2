@@ -2,7 +2,7 @@ import moment from "moment";
 import { toastr } from "react-redux-toastr";
 import { FETCH_JOBS } from "../job/jobConstants";
 import { FETCH_TASK} from "../modals/TaskModal/taskConstants"
-import {FETCH_LABOUR} from '../job/JobDashboard/LeftSidebar/LabourList/labourConstants'
+import {FETCH_LABOUR} from '../job/JobDashboard/Labour/LabourList/labourConstants'
 import cuid from "cuid";
 import firebase from "../../app/config/firebase";
 import {
@@ -1028,8 +1028,8 @@ export const createLabourProfile = (profile, profileListed) => async (
   const firebase = getFirebase();
   //const { isLoaded, isEmpty, ...updatedSkills } = skills;
   console.log({profile})
-  const {labourProfile, updatedSkills} = profile
- const {jobsCompleted, jobsStarted, rating} = labourProfile
+  const {labourProfile, updatedSkills} = profile || {}
+ const {jobsCompleted, jobsStarted, rating} = labourProfile || {}
 
   //const firebase = getFirebase();
   const userProfile = getState().firebase.profile;
@@ -1042,8 +1042,8 @@ export const createLabourProfile = (profile, profileListed) => async (
     displayName: userProfile.displayName,
     photoURL: userProfile.photoURL || "/assets/user.png",
     uid: user.uid,
-    jobsCompleted: jobsCompleted,
-    jobsStarted: jobsStarted,
+    jobsCompleted: jobsCompleted || 0,
+    jobsStarted: jobsStarted|| 0,
     rating: rating || {},
     updatedSkills: updatedSkills || {}
     
@@ -1102,7 +1102,7 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
 
   const {labourPhotos} = labourProfile || []
   let updatedLabourPhotos = labourPhotos || []
-  let updatedLaboutProfile = labourProfile
+  let updatedLabourProfile = labourProfile || {}
   //const firebase = getFirebase();
   const userProfile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
@@ -1143,8 +1143,9 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
    
 
     updatedLabourPhotos.unshift(downloadURL)
-    updatedLaboutProfile.labourPhotos = updatedLabourPhotos
-      await firestore.set(`labour_profiles/${user.uid}`, updatedLaboutProfile)
+    updatedLabourProfile.labourPhotos = updatedLabourPhotos
+    console.log({updatedLabourProfile})
+      await firestore.update(`labour_profiles/${user.uid}`, {labourPhotos:updatedLabourPhotos})
 
       const firestoreDirect = firebase.firestore();
       const labourRef = firestoreDirect.collection("labour_profiles");
@@ -1166,7 +1167,7 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
         type: FETCH_LABOUR,
         payload: { labour }
       });
-      await firebase.updateProfile({labourProfile:updatedLaboutProfile})
+      await firebase.updateProfile({labourProfile:updatedLabourProfile})
     toastr.success("Success", "Labour profile updated");
     dispatch(asyncActionFinish());
   } catch (error) {
@@ -1313,3 +1314,37 @@ export const uploadBuilderPhoto = (builderProfile, file) => async (
 
 
 
+
+
+export const joinBeta = ( values) => async (
+  dispatch,
+  getState,
+  { getFirebase }
+) => {
+
+  const firebase = getFirebase();
+
+  let newPost = {
+    name: values.name || "No Name",
+    company: values.company|| "No Company",
+    interest: values.interest || "No Interest",
+    role: values.role || "No Role",
+    industry: values.industry || "No Industry",
+    notes: values.notes || "No Notes",
+    email: values.email || "No Email",
+    phone: values.phone || "No Phone"
+  };
+
+
+
+  try {
+    dispatch(asyncActionStart());
+    await firebase.push(`join_beta`, newPost);
+    toastr.success("Success", "Joined Beta");
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    toastr.error("Oops", "Problem adding direct message");
+    dispatch(asyncActionError());
+  }
+};

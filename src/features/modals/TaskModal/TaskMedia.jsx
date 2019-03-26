@@ -98,7 +98,7 @@ class TaskMedia extends Component {
 
         <Card.Group itemsPerRow={5}>
           <Card>
-            <Image src={task.displayURL || "https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/pVBFKV5Sp2giwswxvj7mpsJa4Bj1%2Fuser_images%2Fcjqeg4nnu000d3g5u6giajkoa?alt=media&token=e5adabbe-fb7c-4bf2-ac3d-e43d18da14bf"} />
+            <Image src={task.displayURL || "/assets/white on orange logo.png"} />
             <Button positive>Thumbnail Photo</Button>
           </Card>
 

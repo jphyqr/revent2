@@ -14,6 +14,7 @@ import QuoteJobModal from './QuoteJobModal/QuoteJobModal'
 import ViewQuoteModal from './ViewQuoteModal/ViewQuoteModal'
 import ProfileModal from './ProfileModal/ProfileModal'
 import LabourProfileModal from './LabourProfileModal/LabourProfileModal'
+import JoinBetaModal from './JoinBetaModal/JoinBetaModal'
 const modalLookup = {
   TestModal,
   LoginModal,
@@ -28,7 +29,8 @@ const modalLookup = {
   QuoteJobModal,
   ViewQuoteModal,
   ProfileModal,
-  LabourProfileModal
+  LabourProfileModal,
+  JoinBetaModal
 }
 
 const mapState = (state) => ({
