@@ -37,7 +37,7 @@ class MyJobItem extends Component {
     this.setState({ hovered: false });
     this.props.handleShowExpanded(myJob);
     if (!this.props.showExpanded) {
-      this.props.scrollToMyRef(e);
+      this.props.scrollToMyRef(e, 0);
     }
   };
 

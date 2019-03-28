@@ -98,7 +98,7 @@ class TaskMedia extends Component {
 
         <Card.Group itemsPerRow={5}>
           <Card>
-            <Image src={task.displayURL || "/assets/white on orange logo.png"} />
+            <Image src={task&&task.displayURL} />
             <Button positive>Thumbnail Photo</Button>
           </Card>
 

@@ -1,5 +1,5 @@
 import React, { Component, createRef } from 'react'
-import {Header, Grid, Sticky,Ref, Divider,Message,Label,Statistic, Step, Icon} from 'semantic-ui-react'
+import {Header, Popup, Grid, Sticky,Ref, Divider,Message, Image, Label,Statistic, Step, Icon} from 'semantic-ui-react'
 class PricingDashboard extends Component {
   
   render() {
@@ -7,7 +7,7 @@ class PricingDashboard extends Component {
         <div >
 
 
-<Step.Group ordered widths={3}>
+<Step.Group style={{paddingTop:30}} ordered widths={3}>
     <Step active>
       <Step.Content>
         <Step.Title>ALPHA</Step.Title>
@@ -70,7 +70,7 @@ class PricingDashboard extends Component {
                   <Message.List style={{height: 100}}>
                     <Message.Item>For Builders and Labourers</Message.Item>
                     <Message.Item>In-App Payments for Materials, Transportation, Financing</Message.Item>
-                    <Message.Item>8% fee on in-app payments</Message.Item>
+                  <Popup trigger={ <Message.Item>8% fee on in-app payments</Message.Item>} content={<Image src="/assets/pricebreakdown.png" size="massive" />} inverted />
                     </Message.List>
                     <Divider></Divider>
                     <Message.Content style={{textAlign:"left"}}> <Icon size="large" name='check circle outline'></Icon> Post General Jobs </Message.Content> 
@@ -100,8 +100,14 @@ class PricingDashboard extends Component {
                   <Message.List style={{height: 100}}>
                   <Message.Item>For Contractors</Message.Item>
                     <Message.Item>One Month Free Trial</Message.Item>
-                    <Message.Item>$125 / month</Message.Item>
-                    <Message.Item>8% fee on in-app payments</Message.Item>
+                    <Popup trigger={ <Message.Item>125$/month</Message.Item>} content={  <div style={{ backgroundColor:"orange", height:100, width: 500}}><Statistic>
+    <Statistic.Value>2 HOURS/MONTH</Statistic.Value>
+    <Statistic.Label>of time saved will recover cost.</Statistic.Label>
+    
+  </Statistic>
+
+  </div>}  />
+                    <Popup trigger={ <Message.Item>8% fee on in-app payments</Message.Item>} content={<Image src="/assets/pricebreakdown.png" size="massive" />} inverted />
                     </Message.List>
                     <Divider></Divider>
                     <Message.Content style={{textAlign:"left"}}> <Icon size="large" name='check circle outline'></Icon> Post General Jobs </Message.Content> 
@@ -128,7 +134,7 @@ class PricingDashboard extends Component {
                   <Message.List style={{height: 100}}>
                   <Message.Item>For Specialists</Message.Item>
                     <Message.Item>$250 / month</Message.Item>
-                    <Message.Item>8% fee on in-app payments</Message.Item>
+                    <Popup trigger={ <Message.Item>8% fee on in-app payments</Message.Item>} content={<Image src="/assets/pricebreakdown.png" size="massive" />} inverted />
                   
                     </Message.List>
                     <Divider></Divider>

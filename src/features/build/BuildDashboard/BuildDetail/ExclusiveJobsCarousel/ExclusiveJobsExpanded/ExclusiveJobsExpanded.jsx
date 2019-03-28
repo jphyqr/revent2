@@ -6,7 +6,7 @@ import { objectToArray } from "../../../../../../app/common/util/helpers";
 import LoadingComponent from "../../../../../../app/layout/LoadingComponent";
 import { selectDraftToEdit } from "../../../../draftActions";
 import { selectTaskToEdit } from "../../../../../modals/TaskModal/taskActions";
-
+import NavBar from './NavBar'
 import { openModal } from "../../../../../modals/modalActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -16,10 +16,10 @@ class ExclusiveJobsExpanded extends Component {
     currentJob: {},
     selectedTab: "overview",
     loading: false,
-    isLoading: false
+    isLoading: false,
+    isManager: false
   };
 
-  
   handleBookClick = async () => {
     this.setState({ loading: true });
     let createdJob = await this.props.createJobDraft(
@@ -32,17 +32,20 @@ class ExclusiveJobsExpanded extends Component {
     this.props.openModal("CreateJobModal");
   };
 
-
+  handleEdit = async () => {
+    this.props.openModal("TaskModal");
+  };
   handleSelectTab = tab => {
     this.setState({ selectedTab: tab });
   };
   componentDidMount() {
-    const { selectedJob, auth } = this.props;
+    const { selectedJob, auth } = this.props || {};
+    const isManager = selectedJob && selectedJob.managerUid === auth.uid;
 
     this.setState({
       isLoading: false,
       currentJob: selectedJob,
-
+      isManager: isManager,
       selectedTab: "quotes"
     });
   }
@@ -55,12 +58,13 @@ class ExclusiveJobsExpanded extends Component {
   componentWillReceiveProps = nextProps => {
     if (!nextProps.expandedLoading) {
       if (nextProps.selectedJob !== this.state.currentJob) {
-        const { selectedJob, auth } = nextProps;
+        const { selectedJob, auth } = nextProps || {};
+        const isManager = selectedJob.managerUid === auth.uid;
 
         this.setState({
           isLoading: false,
           currentJob: selectedJob,
-
+          isManager: isManager,
           selectedTab: "overview"
         });
         this.forceUpdate();
@@ -69,107 +73,138 @@ class ExclusiveJobsExpanded extends Component {
   };
 
   render() {
-    const { selectedTab, currentJob } = this.state;
-    const {isManager, isSubscribed} = currentJob || {}
+    const { selectedTab, currentJob, isManager } = this.state;
+
+    const { displayURL, description } = currentJob || {};
     return (
       <div
         container
         style={{
-          height: 475,
-          // width: "100%",
+          height: 600,
+           width: "100%",
           backgroundColor: "black",
-          position: "relative"
+          position: "relative",
+          
         }}
       >
-    
-    {this.props.expandedLoading ?        <Dimmer active>
-      <Loader />
-    </Dimmer> :
-(
-
-<div>
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            minWidth: "85%",
-            maxWidth: "85%",
-            minHeight: 475,
-            maxHeight: 475,
-            background: `url('/assets/categoryImages/${
-              this.props.selectedJob.value
-            }.jpg') center center no-repeat `,
-            backgroundSize: "cover"
-          }}
-        />
-
-        <div
-          style={{
-            height: 475,
-            position: "absolute",
-            minWidth: "85%",
-            right: 0,
-            maxWidth: "85%",
-            backgroundImage:
-              "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)"
-            //  zIndex: "5"
-          }}
-        />
-        <div style={{ zIndex: "5" }}>
-          <p
-            style={{
-              cursor: "pointer",
-              color: "white",
-              zIndex: "5",
-              position: "absolute",
-              right: "0",
-
-              fontSize: 40,
-              marginRight: "25px",
-              marginTop: "15px",
-              textAlign: "right"
-            }}
-            onClick={() => {
-              this.props.handleClose();
-            }}
-          >
-            X
-          </p>
-
-          {selectedTab === "overview" && (
-            <div
-              className="description"
+        {this.props.expandedLoading ? (
+          <Dimmer active>
+            <Loader />
+          </Dimmer>
+        ) : (
+          <div>
+            {/* <div
               style={{
                 position: "absolute",
-                fontSize: 30,
-                top: "50%",
-                color: "white",
-                height: 100,
-                width: "auto",
-                left: "50px",
-                zIndex: "5"
+                right: 0,
+                minWidth: "85%",
+                maxWidth: "85%",
+                minHeight: 600,
+                maxHeight: 600,
+                background: `url(${displayURL}) center center no-repeat `,
+                backgroundSize: "cover"
               }}
-            >
-              {" "}
-              <p>Desription Content</p>
-            </div>
-          )}
+            /> */}
 
-          <div
-            className="actionButton"
-            style={{
-              position: "absolute",
-              fontSize: 30,
-              top: "75%",
-              color: "white",
-              height: 100,
-              width: "auto",
-              left: "50px",
-              zIndex: "5"
-            }}
-          >
-            {" "}
-            {/* <button
+            {/* <div
+              style={{
+                height: 600,
+                position: "absolute",
+                minWidth: "85%",
+                right: 0,
+                maxWidth: "85%",
+                backgroundImage:
+                  "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)",
+                zIndex: 2
+              }}
+            /> */}
+
+
+    <div              style={{
+                 width: "100%",
+                 height: 600,
+                position: "absolute",
+                minWidth: "25%",
+                left: 825,
+
+                bottom:0,
+                maxWidth: "25%",
+                backgroundImage:
+                  "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)",
+                zIndex: 2
+              }}>
+    
+    </div>
+  <video
+              style={{ position: "absolute", right:"0", bottom:0, minHeight:"100%" }}
+              height="600"
+              autoPlay
+              muted
+              loop
+              id="myVideo"
+             
+              
+            >
+              <source src="/assets/Loop_Final_Version.mp4" type="video/mp4" />
+            </video>
+  
+
+
+            <div style={{ zIndex: "5" }}>
+              <p
+                style={{
+                  cursor: "pointer",
+                  color: "white",
+                  zIndex: "5",
+                  position: "absolute",
+                  right: "0",
+
+                  fontSize: 40,
+                  marginRight: "25px",
+                  marginTop: "15px",
+                  textAlign: "right"
+                }}
+                onClick={() => {
+                  this.props.handleClose();
+                }}
+              >
+                X
+              </p>
+
+              {selectedTab === "overview" && (
+                <div
+                  className="description"
+                  style={{
+                    position: "absolute",
+                    fontSize: 30,
+                    top: "50%",
+                    color: "white",
+                    height: 100,
+                    width: "auto",
+                    left: "50px",
+                    zIndex: "5"
+                  }}
+                >
+                  {" "}
+                  <p>{description}</p>
+                </div>
+              )}
+
+              <div
+                className="actionButton"
+                style={{
+                  position: "absolute",
+                  fontSize: 30,
+                  top: "75%",
+                  color: "white",
+                  height: 100,
+                  width: "auto",
+                  left: "50px",
+                  zIndex: "5"
+                }}
+              >
+                {" "}
+                {/* <button
               onClick={this.handleBookClick}
               style={{
                 width: 200,
@@ -181,37 +216,36 @@ class ExclusiveJobsExpanded extends Component {
             >
               Book
             </button> */}
-            <Button
-              icon
-              size="huge"
-              labelPosition="left"
-              onClick={this.handleBookClick}
-              color="white"
-              loading={this.state.isLoading}
-            >
-              <Icon name="add" />
-              Book Job
-            </Button>
-            {isManager ? (
-              <button
-                onClick={this.handleEdit}
-                style={{
-                  width: 200,
-                  marginLeft: "30px",
-                  cursor: "pointer",
-                  color: "white",
-                  background: "transparent"
-                }}
-              >
-                Edit Task
-              </button>
-            ) : null
-            }
-          </div>
+                <Button
+                  icon
+                  size="huge"
+                  labelPosition="left"
+                  onClick={this.handleBookClick}
+                  color="white"
+                  loading={this.state.isLoading}
+                >
+                  <Icon name="add" />
+                  Book Job
+                </Button>
+                {isManager ? (
+                  <button
+                    onClick={this.handleEdit}
+                    style={{
+                      width: 200,
+                      marginLeft: "30px",
+                      cursor: "pointer",
+                      color: "white",
+                      background: "transparent"
+                    }}
+                  >
+                    Edit Task
+                  </button>
+                ) : null}
+              </div>
 
-          {selectedTab === "contractors" && (
-            <div>
-              {/* <div
+              {selectedTab === "contractors" && (
+                <div>
+                  {/* <div
               className="contractors"
               style={{
                 position: "absolute",
@@ -228,105 +262,104 @@ class ExclusiveJobsExpanded extends Component {
               {" "}
               <p>Contractors Content</p>
             </div> */}
+                  <div
+                    className="contractors"
+                    style={{
+                      position: "absolute",
+                      fontSize: 30,
+                      top: "33%",
+                      color: "white",
+                      //     backgroundColor: "grey",
+
+                      //   height: 100,
+                      //  width: "auto",
+                      left: "0",
+                      zIndex: "5"
+                    }}
+                  >
+                    {" "}
+                    {/* <ContractorSlider items={this.state.currentJob.subscribers} /> */}
+                  </div>
+                </div>
+              )}
+
+              {selectedTab === "supplies" && (
+                <div
+                  className="contractors"
+                  style={{
+                    position: "absolute",
+                    fontSize: 30,
+                    top: "50%",
+                    color: "white",
+                    height: 100,
+                    width: "auto",
+                    left: "50px",
+                    zIndex: "5"
+                  }}
+                >
+                  {" "}
+                  <p>Supplies Content</p>
+                </div>
+              )}
+
+              {selectedTab === "tips" && (
+                <div
+                  className="contractors"
+                  style={{
+                    position: "absolute",
+                    fontSize: 30,
+                    top: "50%",
+                    color: "white",
+                    height: 100,
+                    width: "auto",
+                    left: "50px",
+                    zIndex: "5"
+                  }}
+                >
+                  {" "}
+                  <p>Tips Content</p>
+                </div>
+              )}
+
               <div
-                className="contractors"
+                className="title"
                 style={{
                   position: "absolute",
-                  fontSize: 30,
-                  top: "33%",
+                  fontSize: 50,
+                  top: "20px",
                   color: "white",
-                  //     backgroundColor: "grey",
-
-                  //   height: 100,
-                  //  width: "auto",
-                  left: "0",
+                  height: 100,
+                  width: "auto",
+                  left: "10px",
                   zIndex: "5"
                 }}
               >
                 {" "}
-                {/* <ContractorSlider items={this.state.currentJob.subscribers} /> */}
+                <p>{this.state.currentJob.string}</p>
               </div>
-            </div>
-          )}
 
-          {selectedTab === "supplies" && (
-            <div
-              className="contractors"
-              style={{
-                position: "absolute",
-                fontSize: 30,
-                top: "50%",
-                color: "white",
-                height: 100,
-                width: "auto",
-                left: "50px",
-                zIndex: "5"
-              }}
-            >
-              {" "}
-              <p>Supplies Content</p>
-            </div>
-          )}
+              <div
+                style={{
+                  position: "absolute",
+                  fontSize: 20,
+                  minWidth: 100,
+                  bottom: 0,
+                  left: "50%",
+                  marginLeft: "-170px",
 
-          {selectedTab === "tips" && (
-            <div
-              className="contractors"
-              style={{
-                position: "absolute",
-                fontSize: 30,
-                top: "50%",
-                color: "white",
-                height: 100,
-                width: "auto",
-                left: "50px",
-                zIndex: "5"
-              }}
-            >
-              {" "}
-              <p>Tips Content</p>
-            </div>
-          )}
-
-          <div
-            className="title"
-            style={{
-              position: "absolute",
-              fontSize: 50,
-              top: "20px",
-              color: "white",
-              height: 100,
-              width: "auto",
-              left: "10px",
-              zIndex: "5"
-            }}
-          >
-            {" "}
-            <p>{this.state.currentJob.string}</p>
-          </div>
-
-          <div
-            style={{
-              position: "absolute",
-              fontSize: 20,
-              minWidth: 100,
-              bottom: 0,
-              left: "50%",
-              marginLeft: "-170px",
-
-              zIndex: "5"
-            }}
-          >
-            {/* <BuildExpandedNavBar
+                  zIndex: "5"
+                }}
+              >
+              <NavBar  selectedTab={this.state.selectedTab}
+              handleSelectTab={this.handleSelectTab}/>
+                {/* <BuildExpandedNavBar
               selectedTab={this.state.selectedTab}
               handleSelectTab={this.handleSelectTab}
             /> */}
+              </div>
+            </div>
           </div>
-        </div>
-</div>
-)
-
-}  
-        
+        )}
       </div>
     );
   }

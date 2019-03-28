@@ -74,7 +74,7 @@ toggleContract=()=> this.setState({checkedContract: !this.state.checkedContract}
     console.log({ phases });
     const rootPanels = [];
 
-    for (var i = 0; i < phases&&phases.length; i++) {
+    for (var i = 0; i < (phases&&phases.length); i++) {
       const phase = phases[i];
       console.log({ phase });
       rootPanels.push({

@@ -136,6 +136,7 @@ selectedJobId={this.state.selectedJob.key}
     handleEditDraft={this.props.handleEditDraft}
     handlePostJob={this.props.handlePostJob}
     loading={this.props.loading}
+    auth={this.props.auth}
     exclusiveJobs={exclusiveJobs}
     expandedLoading={this.state.expandedLoading}
     pauseButtonLoading={this.props.pauseButtonLoading}

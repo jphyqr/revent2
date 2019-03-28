@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Grid, Sticky, Segment, Container , Loader,Popup, Transition} from "semantic-ui-react";
+import { Grid, Sticky, Segment, Container , Image, Loader,Popup, Transition} from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
@@ -15,6 +15,7 @@ import { openModal } from "../../modals/modalActions";
 import OpenJobsSlider from "./OpenJobsSlider/OpenJobsSlider";
 import OpenJobExpanded from "./OpenJobExpanded"
 import LabourList from './Labour/LabourList/LabourList'
+import MarketDashboard from './Market/MarketDashboard/MarketDashboard'
 import Profile from './RightSidebar/Profile'
 import NavBar from '../NavBar'
 const query = ({ auth }) => {
@@ -185,10 +186,13 @@ class JobDashboard extends Component {
           <Grid>
             <Grid.Row >
               <Grid.Column width={3}>
-                {/* <LeftSidebar/> */}
-               
-              </Grid.Column>
+              <div style={{width:"100%"}}>
 
+               <Image  style={{maxHeight:"475px",marginLeft:"auto",  marginTop:"60px", marginRight:"auto", display:"block"}}src="/assets/ad5.png"/>
+            
+               </div>
+              </Grid.Column>
+             
               <Grid.Column width={10}>
               
               <NavBar handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
@@ -210,7 +214,10 @@ class JobDashboard extends Component {
                  <Profile/>
               </Transition.Group>
 
-
+:(this.state.navShow==="market") ?
+<Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="profile")}>
+<MarketDashboard/>
+</Transition.Group>
                
                 : (this.state.navShow==="labour") ?
                 <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="profile")}>
@@ -232,8 +239,11 @@ class JobDashboard extends Component {
    
               </Grid.Column>
               <Grid.Column width={3}>
-             {/* <RightSidebar authenticated={authenticated}/> */}
-              
+              <div style={{width:"100%"}}>
+
+               <Image  style={{maxHeight:"475px",marginLeft:"auto",  marginTop:"60px", marginRight:"auto", display:"block"}}src="/assets/ad5.png"/>
+            
+               </div>
               </Grid.Column>
             </Grid.Row>
             {/* <Grid.Row>

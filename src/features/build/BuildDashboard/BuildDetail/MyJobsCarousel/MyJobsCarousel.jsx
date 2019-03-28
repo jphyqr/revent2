@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import MyJobsSlider from "./MyJobsSlider/MyJobsSlider";
 import MyJobsExpanded from "./MyJobsExpanded/MyJobsExpanded";
 import ContractSlider from '../MyContractsCarousel/MyContractsSlider/ContractSlider'
+import MyContractsCarousel from '../MyContractsCarousel/MyContractsCarousel'
 import { Transition } from "semantic-ui-react";
 class MyJobsCarousel extends Component {
   state = {
@@ -125,7 +126,8 @@ selectDraftToEdit={selectDraftToEdit}
 </div> : 
 
 
-<ContractSlider myContracts={this.props.myContracts}/>
+<MyContractsCarousel  scrollToMyRef={this.props.scrollToMyRef} myContracts={this.props.myContracts}/>
+
 }
 
       </div>

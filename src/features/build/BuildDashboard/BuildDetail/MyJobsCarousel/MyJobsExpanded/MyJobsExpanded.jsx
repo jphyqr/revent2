@@ -151,7 +151,7 @@ class MyJobsExpanded extends Component {
  
   render() {
     const { selectedTab, currentJob } = this.state;
- 
+ const {displayURL} = currentJob || {}
 
   
     return (
@@ -179,9 +179,8 @@ class MyJobsExpanded extends Component {
             maxWidth: "85%",
             minHeight: 475,
             maxHeight: 475,
-            background: `url('/assets/categoryImages/${
-              currentJob.jobPhotoURL
-            }.jpg') center center no-repeat `,
+            background: `url(${
+            displayURL}) center center no-repeat `,
             backgroundSize: "cover"
           }}
         />

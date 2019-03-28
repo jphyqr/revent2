@@ -127,9 +127,9 @@ class BuildExpanded extends Component {
     this.props.openModal("TaskModal");
   };
   render() {
-    const { selectedTab, isManager, isSubscribed } = this.state;
+    const { selectedTab, isManager, isSubscribed, currentJob } = this.state;
  
-
+const {displayURL} = currentJob || ""
   
     return (
       <div
@@ -156,9 +156,7 @@ class BuildExpanded extends Component {
             maxWidth: "85%",
             minHeight: 475,
             maxHeight: 475,
-            background: `url('/assets/categoryImages/${
-              this.props.selectedJob.value
-            }.jpg') center center no-repeat `,
+            background: `url(${displayURL}) center center no-repeat `,
             backgroundSize: "cover"
           }}
         />
@@ -171,8 +169,8 @@ class BuildExpanded extends Component {
             right: 0,
             maxWidth: "85%",
             backgroundImage:
-              "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)"
-            //  zIndex: "5"
+              "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)",
+              zIndex: 5
           }}
         />
         <div style={{ zIndex: "5" }}>

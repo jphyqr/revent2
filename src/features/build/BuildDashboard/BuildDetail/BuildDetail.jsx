@@ -55,7 +55,8 @@ const mapState = state => {
     myJobs: state.firestore.ordered.jobs_attended,
     myContracts: state.firestore.ordered.job_contracts,
     exclusiveJobs: state.firestore.ordered.exclusive_jobs,
-    draft: state.draft
+    draft: state.draft,
+    contract: state.contract
   };
 };
 
@@ -109,9 +110,9 @@ class BuildDetail extends Component {
       contextRef
     });
 
-  scrollToMyRef = (eChild, category) => {
+  scrollToMyRef = (eChild, offset) => {
     scrollToComponent(eChild.currentTarget, {
-      offset: -110,
+      offset: -110+offset,
       align: "top",
       duration: 600
     });
@@ -121,7 +122,7 @@ class BuildDetail extends Component {
     const { categories, selectDraftToEdit, auth, loading , exclusiveJobs} = this.props;
     const authenticated = auth.isLoaded && !auth.isEmpty;
     return (
-      <div style={{ marginTop: 10 }}>
+      <div style={{ marginTop: 10, paddingBottom: "900px" }}>
         {authenticated && (
           <MyJobsCarousel
             loading={loading}

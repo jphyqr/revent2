@@ -9,20 +9,25 @@ class ContractItem extends Component {
 
 
 
-  handleClick = async (e, myJob) => {
+  handleClick = async (e, myContract) => {
+  
     this.setState({ clicked: true });
-    //   this.setState({isSelected:true})
+
     this.props.toggleLockInHover();
     this.setState({ expanded: true });
     this.setState({ hovered: false });
-    this.props.handleShowExpanded(myJob);
+    this.props.handleShowExpanded(myContract);
     if (!this.props.showExpanded) {
-      this.props.scrollToMyRef(e);
+      this.props.scrollToMyRef(e, 0);
     }
   };
 
   render() {
     const { myContract , index } = this.props;
+    const {jobData, ownerData} = myContract ||{}
+    const {ownerPhotoURL} = ownerData || {}
+    const {jobPhotoURL} = jobData||{}
+  const {quotedByPhotoURL} = myContract || ""
     return (
       <div
         ref={index}
@@ -65,7 +70,22 @@ class ContractItem extends Component {
               //    transformOrigin: "50% 50%",
               transition: "0.15s all ease"
             }}
-            src={myContract.jobPhotoURL}
+            src={jobPhotoURL}
+          />
+                    <img
+            style={{
+              height: 75, //this.state.hovered ? 200 : 150,
+              width: 75, //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
+              position: "absolute",
+              top: 10,
+              left: 10,
+              transition: "0.15s all ease",
+              zIndex:10,
+              borderRadius: "50%",
+              boxShadow:
+              "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+            }}
+            src={ownerPhotoURL}
           />
         </div>
         <div

@@ -130,7 +130,7 @@ class TaskModal extends Component {
     }
     return (
       <Modal
-        size="fullscreen"
+        size= {!showContract?"" :"fullscreen"}
         style={{ minHeight: 600, overflow: "auto" }}
         closeIcon="close"
         open={true}

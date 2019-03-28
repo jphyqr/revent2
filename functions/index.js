@@ -341,6 +341,8 @@ exports.dispatchTask = functions.firestore
     const jobID = context.params.jobID;
     const after = info.after.data();
     const before = info.before.data();
+
+
     console.log("dispatchTask job id", jobID);
     console.log("dispatch job info", info.after.data());
     console.log("beforeInDraft", before.inDraft);
@@ -348,7 +350,7 @@ exports.dispatchTask = functions.firestore
     if (before.inDraft === true && after.inDraft === false) {
       const payload = {
         notification: {
-          title: `New ${after.taskValue} job`,
+          title: `New ${after.title} job`,
           body: after.title
         }
       };
@@ -388,7 +390,7 @@ exports.dispatchTask = functions.firestore
 
              batch.set(subscriberUserDocRef, {
               type: "newJob",
-              title: after.taskValue,
+              title: after.title,
               description: after.title,
               photoURL: data.photoURL,
               created: data.created,

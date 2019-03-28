@@ -408,11 +408,11 @@ import {
 
             let taskDoc = await firestore.get(`tasks/${key}`);
 
-            if (!taskDoc.data().displayURL) {
-              await firestore.update({
-                displayURL: displayURL
-              });
-            }
+            // if (!taskDoc.data().displayURL) {
+            //   await firestore.update({
+            //     displayURL: displayURL
+            //   });
+            // }
 
             await firestore.add(
               {
@@ -425,6 +425,8 @@ import {
               }
             );
 
+            await firestore.update(`tasks/${key}`, { displayURL: displayURL });
+      
 
             dispatch(asyncActionFinish());
             toastr.success("Success", "Task photo has been uploaded");
@@ -459,3 +461,51 @@ import {
         }
       };
       
+
+
+      export const getContractorById = (contractorId, task) => {
+        return async (dispatch, getState, {getFirebase, getFirestore} )=> {
+          dispatch(asyncActionStart());
+        
+          const firestore = getFirestore();
+          
+          try {   
+
+
+            let contractorDoc = await firestore.get(`users/${contractorId}`);
+              console.log('data', contractorDoc.data())
+           
+            if( contractorDoc.data()==undefined)
+            {
+              dispatch(asyncActionFinish());
+              toastr.error("Oops", "Contractor does not exist");
+              return contractorDoc.data()
+            }
+else{
+  await firestore.update(`tasks/${task.key}`, { contractor: contractorDoc.data() });
+  dispatch(asyncActionFinish());
+  toastr.success("Success", "Found a contractor");
+
+let newTask = task
+newTask.value.contractor=contractorDoc.data()
+
+  const payload = {key: task.key, value:newTask.value}
+        
+  dispatch({
+      type: FETCH_TASK,
+      payload: {payload}
+  })
+
+
+
+  return contractorDoc.data()
+}
+
+           
+          } catch (error) {
+            dispatch(asyncActionError());
+            toastr.error("Oops", "Something went wrong");
+            console.log(error)
+          }
+        };
+      };

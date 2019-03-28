@@ -28,8 +28,8 @@ class NavBar extends Component {
               width={2}
               style={{ textAlign: "center", cursor: "pointer" }}
             >
-              <Header as="h3"style={{color: (navShow==="stats") ? "orange": "grey"}} onClick={() => handleSelectTab("stats")}>
-                Stats
+              <Header as="h3" style={{color: (navShow==="labour") ? "orange": "grey"}} onClick={() => handleSelectTab("labour")}>
+                Labour
               </Header>
             </Grid.Column>
             <Grid.Column
@@ -40,20 +40,21 @@ class NavBar extends Component {
                 Market
               </Header>
             </Grid.Column>
-            <Grid.Column
-              width={2}
-              style={{ textAlign: "center", cursor: "pointer" }}
-            >
-              <Header as="h3" style={{color: (navShow==="labour") ? "orange": "grey"}} onClick={() => handleSelectTab("labour")}>
-                Labour
-              </Header>
-            </Grid.Column>
+
             <Grid.Column
               width={2}
               style={{ textAlign: "center", cursor: "pointer" }}
             >
               <Header as="h3" style={{color: (navShow==="deals") ? "orange": "grey"}} onClick={() => handleSelectTab("deals")}>
                 Deals
+              </Header>
+            </Grid.Column>
+            <Grid.Column
+              width={2}
+              style={{ textAlign: "center", cursor: "pointer" }}
+            >
+              <Header as="h3"style={{color: (navShow==="stats") ? "orange": "grey"}} onClick={() => handleSelectTab("stats")}>
+                Stats
               </Header>
             </Grid.Column>
             <Grid.Column width={2} />

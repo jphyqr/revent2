@@ -17,7 +17,8 @@ import {reducer as toastrRedcer} from 'react-redux-toastr';
 import draftReducer from '../../features/build/draftReducer'
 import quoteReducer from '../../features/modals/QuoteJobModal/quoteReducer'
 import labourReducer from '../../features/job/JobDashboard/Labour/LabourList/labourReducer'
- 
+import contractsReducer from '../../features/build/BuildDashboard/BuildDetail/MyContractsCarousel/contractReducer'
+import contractReducer from '../../features/build/BuildDashboard/BuildDetail/MyContractsCarousel/contractReducer';
 const rootReducer = combineReducers({
   test: testReducer,
   events: eventReducer,
@@ -36,7 +37,8 @@ const rootReducer = combineReducers({
   task: taskReducer,
   field: fieldReducer,
   quote: quoteReducer,
-  labour: labourReducer
+  labour: labourReducer,
+  contract: contractReducer
 })
 
 export default rootReducer

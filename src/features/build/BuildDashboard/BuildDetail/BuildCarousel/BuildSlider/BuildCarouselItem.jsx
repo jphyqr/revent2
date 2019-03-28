@@ -125,7 +125,7 @@ editTask = item =>{
     this.setState({ hovered: false });
     this.props.handleShowExpanded(job);
     if (!this.props.showExpanded) {
-      this.props.scrollToMyRef(e, category);
+      this.props.scrollToMyRef(e, 0);
     }
   };
   render() {
