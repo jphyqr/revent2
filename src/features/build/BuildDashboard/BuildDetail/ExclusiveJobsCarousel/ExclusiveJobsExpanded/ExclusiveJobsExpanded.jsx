@@ -17,7 +17,8 @@ class ExclusiveJobsExpanded extends Component {
     selectedTab: "overview",
     loading: false,
     isLoading: false,
-    isManager: false
+    isManager: false,
+    play: false
   };
 
   handleBookClick = async () => {
@@ -48,11 +49,18 @@ class ExclusiveJobsExpanded extends Component {
       isManager: isManager,
       selectedTab: "quotes"
     });
+
+    this.timer = setInterval(
+      () => this.setState(prevState => ({ play: !prevState.test })),
+      5000,
+  );
+
   }
 
   componentWillUnmount = () => {
     console.log("unmounting");
     this.setState({ currentJob: {} });
+    clearInterval(this.timer);
   };
 
   componentWillReceiveProps = nextProps => {
@@ -177,6 +185,18 @@ class ExclusiveJobsExpanded extends Component {
               }}>
     
     </div>
+
+    {this.state.play&&<video controls
+              style={{  position: "absolute", left:"400px", top:"0%", minHeight:"300px", maxHeight:"300px",minWidth:"300px", maxWidth:"300px"  }}
+              
+              autoPlay
+              preload={photoURL}
+              id="myVideo"
+             
+              
+            >
+              <source src="/assets/intro3.mov" type="video/mp4" />
+            </video>}
   <video
               style={{ position: "absolute", right:"0", bottom:0, minHeight:"100%" }}
               height="600"
