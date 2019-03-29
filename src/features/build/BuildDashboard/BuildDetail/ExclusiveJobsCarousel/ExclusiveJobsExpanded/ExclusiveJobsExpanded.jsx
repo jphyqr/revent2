@@ -166,11 +166,11 @@ class ExclusiveJobsExpanded extends Component {
                  width: "100%",
                  height: 600,
                 position: "absolute",
-                minWidth: "25%",
+                minWidth: "475px",
                 right: 600,
 
                 bottom:0,
-                maxWidth: "25%",
+                maxWidth: "475px",
                 backgroundImage:
                   "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)",
                 zIndex: 2
