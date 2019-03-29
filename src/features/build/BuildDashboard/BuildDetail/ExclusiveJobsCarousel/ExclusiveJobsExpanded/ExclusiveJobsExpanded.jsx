@@ -167,7 +167,7 @@ class ExclusiveJobsExpanded extends Component {
                  height: 600,
                 position: "absolute",
                 minWidth: "25%",
-                left: 825,
+                right: 600,
 
                 bottom:0,
                 maxWidth: "25%",
