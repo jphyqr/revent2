@@ -75,7 +75,34 @@ class ExclusiveJobsExpanded extends Component {
   render() {
     const { selectedTab, currentJob, isManager } = this.state;
 
-    const { displayURL, description } = currentJob || {};
+    const { displayURL, description, contractor } = currentJob || {};
+    const {companyUrl, contractorProfile, photoURL, } = contractor || {}
+     const {rating, volumeTotal, jobsCompleted} = contractorProfile ||{}
+     const {clean, craftsmanship, professionalism, punctuality}= rating || {}
+
+
+     const averageRating =
+    
+       (clean +
+         craftsmanship +
+         professionalism +
+         punctuality) /4
+    
+
+   const totalVolume =
+   
+       volumeTotal
+   const numberOfJobs =jobsCompleted
+   let totalVolumeString = "";
+
+   if (totalVolume < 1000) {
+     totalVolumeString = `$${totalVolume}`;
+   } else if (totalVolume < 10000) {
+     totalVolumeString = `$${parseFloat(totalVolume / 1000).toFixed(1)}K`;
+   } else if (totalVolume < 1000000) {
+     totalVolumeString = `$${parseFloat(totalVolume / 1000).toFixed(0)}K`;
+   }
+
     return (
       <div
         container
@@ -119,6 +146,23 @@ class ExclusiveJobsExpanded extends Component {
               }}
             /> */}
 
+<img
+            style={{
+              height: 300, //this.state.hovered ? 200 : 150,
+              width: 300, //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
+              //    left:this.state.hovered ? 50 : 0,
+              //       opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              //    transition: "opacity 1500ms , height 1500ms , width 1500ms ",
+              //      transform: this.state.hovered?"scale(1.5)":"scale(1)",
+              //    transformOrigin: "50% 50%",
+              transition: "0.15s all ease",
+              zIndex:"20",
+              padding:"20px"
+            }}
+            src={photoURL}
+          />
+
+<label style={{fontColor:"orange", fontSize:18 ,zIndex:30, width:"auto"}}>TEST</label>
 
     <div              style={{
                  width: "100%",
