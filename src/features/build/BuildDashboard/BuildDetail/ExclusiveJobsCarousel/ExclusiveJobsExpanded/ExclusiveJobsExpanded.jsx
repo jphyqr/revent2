@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { Tab, Grid, Button, Icon, Dimmer, Loader } from "semantic-ui-react";
+import { Tab, Grid, Popup, Header, Button, Icon, Dimmer, Loader } from "semantic-ui-react";
 
 import { objectToArray } from "../../../../../../app/common/util/helpers";
 import LoadingComponent from "../../../../../../app/layout/LoadingComponent";
@@ -77,7 +77,7 @@ class ExclusiveJobsExpanded extends Component {
 
     const { displayURL, description, contractor } = currentJob || {};
     const {companyUrl, contractorProfile, photoURL, } = contractor || {}
-     const {rating, volumeTotal, jobsCompleted} = contractorProfile ||{}
+     const {rating, volumeTotal, jobsCompleted, jobsStarted} = contractorProfile ||{}
      const {clean, craftsmanship, professionalism, punctuality}= rating || {}
 
 
@@ -162,8 +162,6 @@ class ExclusiveJobsExpanded extends Component {
             src={photoURL}
           />
 
-<label style={{fontColor:"orange", fontSize:18 ,zIndex:30, width:"auto"}}>TEST</label>
-
     <div              style={{
                  width: "100%",
                  height: 600,
@@ -202,7 +200,7 @@ class ExclusiveJobsExpanded extends Component {
                   zIndex: "5",
                   position: "absolute",
                   right: "0",
-
+top:20,
                   fontSize: 40,
                   marginRight: "25px",
                   marginTop: "15px",
@@ -216,6 +214,75 @@ class ExclusiveJobsExpanded extends Component {
               </p>
 
               {selectedTab === "overview" && (
+
+<div>
+<div
+className="description"
+style={{
+  position: "absolute",
+  fontSize: 30,
+  top: "25%",
+  color: "orange",
+  height: 100,
+  width: "auto",
+  left: "300px",
+  zIndex: "5"
+}}
+>
+{" "}
+
+<Popup trigger={<div style={{color:"orange",  padding:"3px", borderRadius:"10px", border: '2px solid orange'}}><div style={{padding:5}}><div style={{width:"100%", textAlign:"center",}}>{averageRating.toFixed(1)}</div><div style={{width:"100%", textAlign:"center", fontSize:12, color:"white"}}>More</div></div></div>} flowing hoverable>
+    <Grid centered divided columns={3}>
+      <Grid.Column textAlign='center'>
+        <Header color="orange"as='h4'>Rating</Header>
+        <p>
+          Craftsmanship: {craftsmanship}
+        </p>
+        <p>
+          Cleanliness: {clean}
+        </p>
+        <p>
+          Professionalism: {professionalism}
+        </p>
+        <p>
+          Punctuality: {punctuality}
+        </p>
+        
+      </Grid.Column>
+      <Grid.Column textAlign='center'>
+      <Header color="green"as='h4'>Volume</Header>
+        <p>
+          Jobs Completed: {jobsCompleted}
+        </p>
+        <p>
+          Open Jobs: {jobsStarted - jobsCompleted}
+        </p>
+        <p>
+          Total Volume: {totalVolumeString}
+        </p>
+ </Grid.Column>
+        
+ <Grid.Column textAlign='center'>
+      <Header color="green"as='h4'>Reviews</Header>
+        <p>
+          Reviews: 32
+        </p>
+        <p>
+          Recomendations: 17
+        </p>
+
+ </Grid.Column>
+    </Grid>
+  </Popup>
+
+
+
+
+</div>
+
+
+
+
                 <div
                   className="description"
                   style={{
@@ -232,6 +299,25 @@ class ExclusiveJobsExpanded extends Component {
                   {" "}
                   <p>{description}</p>
                 </div>
+
+
+
+                <div
+                  className="description"
+                  style={{
+                    position: "absolute",
+                    fontSize: 30,
+                    top: "50%",
+                    color: "white",
+                    height: 100,
+                    width: "auto",
+                    left: "50px",
+                    zIndex: "5"
+                  }}
+                >
+                  {" "}
+                  <p>{description}</p>
+                </div>  </div>
               )}
 
               <div

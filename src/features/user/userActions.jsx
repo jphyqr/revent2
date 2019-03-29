@@ -1319,8 +1319,61 @@ export const uploadBuilderPhoto = (builderProfile, file) => async (
 export const joinBeta = ( values) => async (
   dispatch,
   getState,
-  { getFirebase }
+  { getFirebase, getFirestore }
 ) => {
+
+
+console.log({values})
+
+    const firestore = getFirestore();
+  
+
+  
+
+      
+      let userDoc = await firestore.get(`sales_team/${values.salesperson}`);
+      const userDocData = userDoc.data()
+      console.log({userDocData})
+      let email_list = userDocData.email_list
+      email_list.push(values.email)
+      let count = userDocData.count
+      let newcount = count+1
+      console.log({newcount})
+      userDocData.email_list = email_list
+      userDocData.count=newcount
+
+
+      await firestore.set(
+        {
+          collection: "sales_team",
+          doc: values.salesperson,
+          
+        },
+        userDocData
+      );
+
+
+      // if (userDoc.data()) {
+      //   await firestore.add(
+      //     {
+      //       collection: "sales_team",
+      //       doc: values.salesperson,
+      //     },
+      //     {
+      //       count: 1,
+      //       email_list: [values.email]
+      //     }
+      //   );
+      //   } else {
+      //     console.log('sales exists')
+      //   }
+
+
+
+
+
+
+
 
   const firebase = getFirebase();
 

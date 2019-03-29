@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Modal, Form, Button } from "semantic-ui-react";
+import { Modal, Form, Button, Divider } from "semantic-ui-react";
 import { closeModal } from "../modalActions";
 import { joinBeta } from "../../user/userActions";
 import { connect } from "react-redux";
@@ -23,6 +23,17 @@ const levelsOfInterest = [
     { key: "launch", text: "Launch Notification", value: "launch" },
     { key: "followUp", text: "Follow Up", value: "followUp" }
   ];
+
+
+const salesPeople = [
+  { key: "joshdonelly", text: "Josh Donelly", value: "Josh Donelly" },
+  { key: "frasierparry", text: "Frasier Parry", value: "Fraisier Parry" },
+  { key: "roeborgman", text: "Roe Borgman", value: "Roe Borgman" },
+  { key: "ericwijicowski", text: "Eric Wijicowski", value: "Eric Wijicowski" },
+  { key: "dallenkeen", text: "Dallen Keen", value: "Dallen Keen" },
+  { key: "samvarao", text: "Sam Varao", value: "Sam Varao" },
+  { key: "other", text: "other", value: "other" },
+]
 class JoinBetaModal extends Component {
   render() {
     const { closeModal, loading, joinBeta } = this.props;
@@ -32,6 +43,21 @@ class JoinBetaModal extends Component {
         <Modal.Content style={{width:400}}>
           <Modal.Description>
             <Form onSubmit={this.props.handleSubmit(joinBeta)}>
+            <Field
+                name="salesperson"
+                type="text"
+                component={SelectInput}
+                options={salesPeople}
+                placeholder="Sales Person"
+              />
+                            <Field
+              
+              name="email"
+              type="text"
+              component={TextInput}
+              placeholder="Email"
+            />
+            <Divider></Divider>
               <Field
               
                 name="name"
@@ -68,13 +94,7 @@ class JoinBetaModal extends Component {
                 placeholder="Level of Interest"
               />
 
-              <Field
-              
-                name="email"
-                type="text"
-                component={TextInput}
-                placeholder="Email"
-              />
+
               <Field
               
                 name="phone"
@@ -89,6 +109,8 @@ class JoinBetaModal extends Component {
                 component={TextInput}
                 placeholder="Notes"
               />
+
+              
 
               <Button
                 loading={loading}

@@ -15,6 +15,7 @@ import { openModal } from "../../modals/modalActions";
 import OpenJobsSlider from "./OpenJobsSlider/OpenJobsSlider";
 import OpenJobExpanded from "./OpenJobExpanded"
 import LabourList from './Labour/LabourList/LabourList'
+import StatsDashboard from './Stats/StatsDashboard'
 import MarketDashboard from './Market/MarketDashboard/MarketDashboard'
 import Profile from './RightSidebar/Profile'
 import NavBar from '../NavBar'
@@ -219,7 +220,16 @@ class JobDashboard extends Component {
 <MarketDashboard/>
 </Transition.Group>
                
-                : (this.state.navShow==="labour") ?
+                : 
+                (this.state.navShow==="stats") ?
+                <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="profile")}>
+                <StatsDashboard/>
+             </Transition.Group>
+                :
+                
+                
+                
+                (this.state.navShow==="labour") ?
                 <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="profile")}>
                 <LabourList/>
              </Transition.Group>

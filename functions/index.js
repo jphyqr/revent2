@@ -9,6 +9,7 @@ const stripeEvent = require("./stripe_event.js");
 const SENDGRID_API_KEY = functions.config().sendgrid.key;
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(SENDGRID_API_KEY);
+sgMail.setSubstitutionWrappers('-', '-');
 const testFCM = require("./test_fcm.js");
 const createExternalBankAccount = require("./create_external_bank_account.js");
 const createConnectedAccount = require("./create_connected_account.js");
@@ -53,12 +54,15 @@ const createMessage = (type, message) => {
   };
 };
 
+
+
+
 exports.testFCM = functions.https.onRequest(testFCM);
 
 exports.uploadID = functions.https.onRequest(uploadID);
 
 exports.createExternalBankAccount = functions.https.onRequest(
-  createExternalBankAccount
+  createExternalBankAccount 
 );
 
 exports.createBankAccount = functions.https.onRequest(createBankAccount);
@@ -71,6 +75,10 @@ exports.createConnectedAccount = functions.https.onRequest(
 );
 
 exports.stripeEvent = functions.https.onRequest(stripeEvent);
+
+
+
+
 
 // When a user is created, register them with Stripe
 exports.createStripeCustomer = functions.auth.user().onCreate(user => {
@@ -618,4 +626,41 @@ exports.cancelActivity = functions.firestore
       .catch(err => {
         return console.log("Error adding activity", err);
       });
+  });
+
+
+
+  exports.homeShowJoin = functions.database
+  .ref("/join_beta/{joinId}")
+  .onCreate(event => {
+    console.log('Home Show join v1')
+    let newEvent = event.val();
+    console.log(newEvent);
+    //const activity = newActivity("newEvent", newEvent, event.id);
+
+    //console.log(activity);
+
+     const msg = {
+       to:newEvent.email,
+       from: 'admin@yaybour.com',
+       subject: 'Welcome to YaYbour!',
+        templateId: 'd-34b370f795424cf99b2e35044a14916c',
+        reply_to: "admin@yaybour.com",
+      //  content: [{"type":"text/html","value":"0"}],
+      //  html: ' ',
+        substitutionWrappers: ['{{', '}}'],
+        substitutions: {
+          name: 'New Yaybour',
+          city: 'Regina',
+        }
+
+     }
+
+
+    return sgMail.send(msg).then(()=>console.log('email sent')).catch(err=>{
+      
+      const {message, code, response} = error
+  const {headers, body} = response
+  console.log({body})      
+      console.log(err.toString())})
   });
