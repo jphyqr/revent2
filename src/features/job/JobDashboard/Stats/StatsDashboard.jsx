@@ -45,18 +45,19 @@ const query = ({ auth }) => {
 
       <Grid centered columns={3}>
         <Grid.Column>
-        <Header color="orange" as="h1">TEAM GOAL FRIDAY: 500</Header>
+        {/* <Header color="orange" as="h1">TEAM GOAL SUNDAY: 150</Header> */}
         </Grid.Column>
         <Grid.Column>
         <Header color="green" as="h1">TEAM TOTAL: {teamTotal}</Header>
             </Grid.Column>
             <Grid.Column>
-            <Header color="red" as="h1">REMAINING: {500-teamTotal}</Header>  
+           {/* <Header color="red" as="h1">REMAINING: {168+150+150-teamTotal}</Header>   */}
             </Grid.Column>
         
       </Grid>
       <Divider></Divider>
-      <Header  style={{width:"100%", textAlign:"center"}}color="green" as="h1">$50 BONUS EACH</Header>
+      <Header  style={{width:"100%", textAlign:"center"}}color="green" as="h1">$50
+      0 BONUS EACH</Header>
       <Divider></Divider>
         <Grid centered columns={salesTeamArray&&salesTeamArray.length}> 
 

@@ -95,6 +95,14 @@ class BuildExpanded extends Component {
   };
 
   handleBookClick = async () => {
+    const {auth} = this.props
+    const authenticated = auth.isLoaded && !auth.isEmpty;
+   if(!authenticated){
+     this.props.openModal("RegisterModal")
+   }else{
+
+   
+
     this.setState({ loading: true });
     let createdJob = await this.props.createJobDraft(
       this.props.selectedJob,
@@ -103,17 +111,24 @@ class BuildExpanded extends Component {
     console.log({ createdJob });
     await this.props.selectDraftToEdit(createdJob.id);
     this.setState({ loading: false });
-    this.props.openModal("CreateJobModal");
+    this.props.openModal("CreateJobModal");}
   };
 
   handleSubscribe = async () => {
+
+    const {auth} = this.props
+    const authenticated = auth.isLoaded && !auth.isEmpty;
+   if(!authenticated){
+     this.props.openModal("RegisterModal")
+   }else{
+
     const { currentJob } = this.state;
     this.setState({ isLoading: true });
     this.props.handleSubscribe();
     // await this.props.subscribeToTask(currentJob);
     // await this.props.selectTaskToEdit(currentJob.id);
     this.setState({ isSubscribed: true, isLoading: false });
-  };
+  }};
 
   handleUnsubscribe = async () => {
     console.log("handleUnsubscribe");

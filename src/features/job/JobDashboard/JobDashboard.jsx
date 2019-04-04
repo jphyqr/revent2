@@ -19,6 +19,8 @@ import StatsDashboard from './Stats/StatsDashboard'
 import MarketDashboard from './Market/MarketDashboard/MarketDashboard'
 import Profile from './RightSidebar/Profile'
 import NavBar from '../NavBar'
+
+import SupportersContainer from "./Supporters/SupportersContainer";
 const query = ({ auth }) => {
   const authenticated = auth.isLoaded && !auth.isEmpty;
   if (authenticated) {
@@ -82,8 +84,15 @@ class JobDashboard extends Component {
   };
 
   handleSelectTab = tab =>{
-
-    this.setState({navShow:tab})
+    const {auth} = this.props
+    const authenticated = auth.isLoaded && !auth.isEmpty;
+    if((tab==="stats"||tab==="profile" ||tab==="supporters")&&!authenticated)
+     {
+      this.props.openModal("RegisterModal")
+    }else{
+      this.setState({navShow:tab})
+    }
+   
   }
 
   handleHideMap = () => {
@@ -176,6 +185,9 @@ class JobDashboard extends Component {
 
     return (
       <div>
+
+
+       {(!process.env.NODE_ENV || process.env.NODE_ENV === 'development') ? <p>IN DEV</p>: <p>IN PROD</p> } 
           <p style={{ color: "white", fontSize: 26, margin:5 }}>Open Jobs</p>
         <OpenJobsSlider
            myQuotes={myQuotes}
@@ -234,7 +246,11 @@ class JobDashboard extends Component {
                 <LabourList/>
              </Transition.Group>
                 :
-
+                (this.state.navShow==="supporters") ? 
+                <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="supporters")}>
+                <SupportersContainer/>
+             </Transition.Group>
+                :
                 (
                   <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="map")}>
                   <JobMap

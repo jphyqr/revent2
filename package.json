@@ -8,6 +8,7 @@
     "cuid": "^2.1.1",
     "date-fns": "^1.29.0",
     "firebase": "^4.12.1",
+    "firebase-react-paginated": "^1.0.3",
     "google-map-react": "^0.34.0",
     "history": "^4.7.2",
     "import-scripts": "^1.0.0",
@@ -52,7 +53,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "analyze": "source-map-explorer build/static/js/main.*",
+    "deploy": "npm run build && firebase deploy"
   },
   "devDependencies": {
     "redux-devtools-extension": "^2.13.2",

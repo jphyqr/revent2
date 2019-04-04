@@ -57,7 +57,14 @@ class NavBar extends Component {
                 Stats
               </Header>
             </Grid.Column>
-            <Grid.Column width={2} />
+            <Grid.Column
+              width={2}
+              style={{ textAlign: "center", cursor: "pointer" }}
+            >
+              <Header as="h3"style={{color: (navShow==="supporters") ? "orange": "grey"}} onClick={() => handleSelectTab("supporters")}>
+                Supporters
+              </Header>
+            </Grid.Column>
           </Grid.Row>
         </Grid>
       </div>

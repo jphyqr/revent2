@@ -14,8 +14,8 @@ import TestScroll from "../../features/testarea/TestScroll";
 import TestAnimations from "../../features/testarea/TestAnimations";
 
 import HomePage from "../../features/home/HomePage";
-import AboutDashboard from '../../features/nav/AboutDashboard/AboutDashboard'
-import PricingDashboard from '../../features/nav/PricingDashboard/PricingDashboard'
+import AboutDashboard from "../../features/nav/AboutDashboard/AboutDashboard";
+import PricingDashboard from "../../features/nav/PricingDashboard/PricingDashboard";
 import TestComponent from "../../features/testarea/TestComponent";
 import ModalManager from "../../features/modals/ModalManager";
 import { connect } from "react-redux";
@@ -78,7 +78,11 @@ class App extends Component {
       <div>
         <ModalManager />
         <Switch>
-          <Route exact path="/" component={HomePage} />
+      
+            <Route exact path="/" component={HomePage} />
+       
+          
+    
         </Switch>
 
         <Route
@@ -88,7 +92,7 @@ class App extends Component {
               <NavBar />
 
               <Container
-                style={{ width: "auto", marginTop:64, background: "DimGrey" }}
+                style={{ width: "auto", marginTop: 64, background: "DimGrey" }}
                 className="main"
               >
                 <Switch>
@@ -99,8 +103,6 @@ class App extends Component {
                   <Route path="/build" component={BuildDashboard} />
                   <Route path="/about" component={AboutDashboard} />
                   <Route path="/pricing" component={PricingDashboard} />
-
-
 
                   <Route path="/profile/:id" component={UserDetailedPage} />
                   <Route

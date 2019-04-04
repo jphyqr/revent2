@@ -3919,6 +3919,11 @@
         "xmlhttprequest": "1.8.0"
       }
     },
+    "firebase-react-paginated": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/firebase-react-paginated/-/firebase-react-paginated-1.0.3.tgz",
+      "integrity": "sha1-XvL/lNaG4jOKad0dT/H/AZO3J0A="
+    },
     "flat-cache": {
       "version": "1.3.0",
       "resolved": "https://registry.npmjs.org/flat-cache/-/flat-cache-1.3.0.tgz",

@@ -22,6 +22,12 @@ class ExclusiveJobsExpanded extends Component {
   };
 
   handleBookClick = async () => {
+    const {auth} = this.props
+    const authenticated = auth.isLoaded && !auth.isEmpty;
+   if(!authenticated){
+     this.props.openModal("RegisterModal")
+   }else{
+
     this.setState({ loading: true });
     let createdJob = await this.props.createJobDraft(
       this.props.selectedJob,
@@ -30,7 +36,7 @@ class ExclusiveJobsExpanded extends Component {
     console.log({ createdJob });
     await this.props.selectDraftToEdit(createdJob.id);
     this.setState({ loading: false });
-    this.props.openModal("CreateJobModal");
+    this.props.openModal("CreateJobModal");}
   };
 
   handleEdit = async () => {
@@ -375,7 +381,7 @@ style={{
                   loading={this.state.isLoading}
                 >
                   <Icon name="add" />
-                  Book Job
+                  Get Price
                 </Button>
                 {isManager ? (
                   <button

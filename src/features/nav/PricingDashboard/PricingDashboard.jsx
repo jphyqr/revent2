@@ -7,30 +7,6 @@ class PricingDashboard extends Component {
         <div >
 
 
-<Step.Group style={{paddingTop:30}} ordered widths={3}>
-    <Step active>
-      <Step.Content>
-        <Step.Title>ALPHA</Step.Title>
-        <Step.Description><label style={{color:"red"}}>FULL</label>  Feb 1 - April 30</Step.Description>
-      </Step.Content>
-    </Step>
-
-    <Step >
-      <Step.Content>
-        <Step.Title>BETA</Step.Title>
-        <Step.Description>May 1 - June 30</Step.Description>
-      </Step.Content>
-    </Step>
-
-    <Step >
-      <Step.Content>
-        <Step.Title>LAUNCH</Step.Title>
-        <Step.Description>July 1st</Step.Description>
-      </Step.Content>
-    </Step>
-  </Step.Group>
-
-
         <Header
           as="h1"
           textAlign="center"
@@ -45,11 +21,11 @@ class PricingDashboard extends Component {
           <label style={{ paddingLeft: "10px", color: "orange" }}>JOIN</label> 
           <label style={{ padding: "10px", color: "orange" }}>BETA</label> 
           BY APRIL 15TH AND RECEIVE
-          <label style={{ paddingLeft: "10px", color: "orange" }}>15% OFF</label> 
+          <label style={{ paddingLeft: "10px", color: "orange" }}>15% OFF MONTHLY FEE</label> 
           <label style={{ padding: "10px", color: "orange" }}>FOR ONE YEAR</label> 
         
         </Header>
-
+        {(!process.env.NODE_ENV || process.env.NODE_ENV === 'development') ? 
         <Grid centered columns={5}>
 
         <Grid.Column textAlign="centered">
@@ -153,7 +129,9 @@ class PricingDashboard extends Component {
 
         </Grid>
 
-
+  :
+  <Message info header='Working on it!' content="We are working with industry leaders to develop a value based pricing model.  E-mail admin@yaybour.com any ideas you may have." />
+            }
 
           <Header
           as="h1"
