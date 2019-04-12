@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Grid, Sticky, Segment, Container , Image, Loader,Popup, Transition} from "semantic-ui-react";
+import { Grid, Responsive, Sticky, Segment, Container , Image, Loader,Popup, Transition} from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
@@ -195,10 +195,14 @@ class JobDashboard extends Component {
           handleHoverJob={this.handleHoverJob}
           jobs={jobs}
         />
-        <div style={{ minHeight: "500px" }}>
+
+
+<Responsive   minWidth={500}>
+          
+<div style={{ minHeight: "500px" }}>
           <Grid>
             <Grid.Row >
-              <Grid.Column width={3}>
+              <Grid.Column width={3} only='computer'>
               <div style={{width:"100%"}}>
 
                <Image  style={{maxHeight:"475px",marginLeft:"auto",  marginTop:"60px", marginRight:"auto", display:"block"}}src="/assets/ad5.png"/>
@@ -206,7 +210,7 @@ class JobDashboard extends Component {
                </div>
               </Grid.Column>
              
-              <Grid.Column width={10}>
+              <Grid.Column mobile={16} tablet={16} computer={10} >
               
               <NavBar handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
            {this.state.loading ?  <Loader active inline='centered' /> :
@@ -264,7 +268,7 @@ class JobDashboard extends Component {
                 )}
    
               </Grid.Column>
-              <Grid.Column width={3}>
+              <Grid.Column width={3} only='computer'>
               <div style={{width:"100%"}}>
 
                <Image  style={{maxHeight:"475px",marginLeft:"auto",  marginTop:"60px", marginRight:"auto", display:"block"}}src="/assets/ad5.png"/>
@@ -272,30 +276,14 @@ class JobDashboard extends Component {
                </div>
               </Grid.Column>
             </Grid.Row>
-            {/* <Grid.Row>
-          <Grid.Column width={16}>
-            <Segment>
-              <Header dividing content="Jobs I am following" />
-              <Card.Group itemsPerRow={8} stackable>
-                {category &&
-                  category.map(job => (
-                    <JobCard key={job.key} job={job} follow={true} />
-                  ))}
-              </Card.Group>
-            </Segment>
-            <Segment>
-              <Header dividing content="More Jobs" />
-              <Card.Group itemsPerRow={8} stackable>
-                {category &&
-                  category.map(job => (
-                    <JobCard key={job.key} job={job} follow={false} />
-                  ))}
-              </Card.Group>
-            </Segment>
-          </Grid.Column>
-        </Grid.Row> */}
+
           </Grid>
         </div>
+          </Responsive> 
+
+
+
+
       </div>
     );
   }

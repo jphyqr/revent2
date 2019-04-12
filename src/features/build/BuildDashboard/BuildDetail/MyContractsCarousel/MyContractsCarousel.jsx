@@ -104,7 +104,7 @@ async componentDidMount(){
 
 
     return (
-      <div style={{marginTop:30}}>
+      <div >
  
 
 

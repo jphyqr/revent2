@@ -10,6 +10,7 @@ import {
   Search,
   Label
 } from "semantic-ui-react";
+import axios from 'axios'
 import { objectToArray } from "../../../../app/common/util/helpers";
 import {
   deleteSupporter,
@@ -107,6 +108,40 @@ class SupportersDashboard extends Component {
     this.forceUpdate;
   };
 
+
+createList = async () =>{
+const {showChampions, showContractors, showSuppliers, supporter, industry} = this.props ||{}
+let listName = ""
+
+if(showChampions)
+listName="Champions"
+else if (showContractors)
+listName="Contractors"
+else if (showSuppliers)
+listName = "Suppliers"
+else{
+  listName=(industry&&industry.text) || "No Industry"
+}
+let response = await axios.post(
+  `https://api.sendgrid.com/v3/contactdb/lists HTTP/1.1`,
+  { name:listName },
+  {
+    headers: {
+      "content-type": "application/json;charset=utf-8",
+      "Access-Control-Allow-Origin": "*"
+    }
+  }
+);
+console.log(response)
+}
+
+  exportEmails = () => {
+    const { supporters } = this.props || {};
+    let emailList = "";
+    supporters &&
+      supporters.map(item => (emailList += `${item.value.email}\n`));
+    console.log({ emailList });
+  };
   render() {
     const {
       supporters,
@@ -162,7 +197,11 @@ class SupportersDashboard extends Component {
       >
         <Grid>
           <Grid.Column width={4}>
-            <Header as="h3">Email</Header>
+            <Button.Group>
+              {" "}
+              <Button onClick={() => this.exportEmails()}>Export</Button>
+              <Button onClick={() => this.createList()}>Create List</Button>
+            </Button.Group>
           </Grid.Column>
 
           <Grid.Column width={1}> </Grid.Column>
@@ -173,12 +212,18 @@ class SupportersDashboard extends Component {
               Cont
             </Header>
           </Grid.Column>
-          <Grid.Column width={1}>             <Header onClick={() => this.props.handleShowSuppliers()} as="h5">
+          <Grid.Column width={1}>
+            {" "}
+            <Header onClick={() => this.props.handleShowSuppliers()} as="h5">
               Supl
-            </Header></Grid.Column>
-          <Grid.Column width={1}>            <Header onClick={() => this.props.handleShowChampions()} as="h5">
+            </Header>
+          </Grid.Column>
+          <Grid.Column width={1}>
+            {" "}
+            <Header onClick={() => this.props.handleShowChampions()} as="h5">
               Champs
-            </Header></Grid.Column>
+            </Header>
+          </Grid.Column>
           <Grid.Column width={1}> Intr</Grid.Column>
           <Grid.Column width={3}> notes</Grid.Column>
         </Grid>
@@ -225,7 +270,11 @@ class SupportersDashboard extends Component {
           {industries &&
             industries.map(industry => (
               <Label
-                style={{ width: "auto" , backgroundColor: industry===this.props.industry ? "green" : "lightgrey" }}
+                style={{
+                  width: "auto",
+                  backgroundColor:
+                    industry === this.props.industry ? "green" : "lightgrey"
+                }}
                 onClick={() => this.props.filterByIndustry(industry)}
               >
                 {industry.text}
@@ -236,7 +285,13 @@ class SupportersDashboard extends Component {
         <Button.Group style={{ paddingTop: 10 }}>
           {letterArray &&
             letterArray.map(letter => (
-              <Label style={{backgroundColor: letter===this.props.startLetter ? "green" : "lightgrey"}}  onClick={() => this.props.showLetter(letter)}>
+              <Label
+                style={{
+                  backgroundColor:
+                    letter === this.props.startLetter ? "green" : "lightgrey"
+                }}
+                onClick={() => this.props.showLetter(letter)}
+              >
                 {letter}
               </Label>
             ))}
@@ -255,15 +310,11 @@ export default connect(
   firebaseConnect(props => [
     {
       path: "/join_beta",
-      queryParams: 
-      props.showChampions ?
-      [`orderByChild=isAChampion`, `equalTo=true`]
-      :
-      props.showSuppliers ?
-      [`orderByChild=isASupplier`, `equalTo=true`]
-      :
-      
-      props.showContractors
+      queryParams: props.showChampions
+        ? [`orderByChild=isAChampion`, `equalTo=true`]
+        : props.showSuppliers
+        ? [`orderByChild=isASupplier`, `equalTo=true`]
+        : props.showContractors
         ? [`orderByChild=isAContractor`, `equalTo=true`]
         : props.industry
         ? [`orderByChild=industry`, `equalTo=${props.industry.value}`]

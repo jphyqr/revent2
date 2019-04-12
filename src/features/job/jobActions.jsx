@@ -521,7 +521,7 @@ export const getAllJobsForDashboard = ()=>   {
   try {
     dispatch(asyncActionStart());
     let query = jobsRef.where("inDraft", "==", false)
-    .orderBy("created", "desc");
+    .orderBy("date", "desc");
 
     let querySnap = await query.get();
 

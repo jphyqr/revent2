@@ -31,12 +31,12 @@ export const clearContract = () => {
 export const selectContract = contract => {
   return async (dispatch, getState, { getFirestore }) => {
     dispatch(asyncActionStart());
-    const {jobId, quoteId} = contract ||{}
+    const {id: contractId} = contract ||{}
      console.log("select Contract quote Id", contract);
     const firestore = getFirestore();
 
     try {
-      let contractDoc = await firestore.get(`job_contracts/${jobId}_${quoteId}`);
+      let contractDoc = await firestore.get(`job_contracts/${contractId}`);
       console.log({ contractDoc });
       let contract = contractDoc.data();
      

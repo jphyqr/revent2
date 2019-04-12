@@ -21,12 +21,12 @@ class JobDetailedInfo extends Component {
   }
 
   render() {
-    const { job } = this.props;
-    let jobDate;
-    if(job.date){
-      jobDate = job.date.toDate()
-    }
+    const { job } = this.props ||{};
+    console.log('JobDetailedInfo job', job)
+    const {startDate} = job ||{}
+  
     return (
+
       <Segment.Group>
         <Segment attached="top">
           <Grid>
@@ -44,7 +44,7 @@ class JobDetailedInfo extends Component {
               <Icon name="calendar" size="large" color="teal" />
             </Grid.Column>
             <Grid.Column width={15}>
-              <span>{format(jobDate, 'dddd Do MMM')} at {format(jobDate, 'h:mm A')}</span>
+              <span>{format(startDate.toDate(), 'dddd Do MMM')} at {format(startDate.toDate(), 'h:mm A')}</span>
             </Grid.Column>
           </Grid>
         </Segment>

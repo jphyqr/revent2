@@ -53,10 +53,12 @@ export default class OpenJobItem extends Component {
 
     render() {
         const {job, index} = this.props
-        const { date, created, startDate, contract} = job ||{}
+        const { date,  startDate, contract} = job ||{}
 
         const contractorHired = !(job.contract==undefined)
-        let postedDistance = distanceInWords(created , Date.now())
+
+
+        let postedDistance = distanceInWords(date , Date.now())
         let startDistance = distanceInWords(startDate.seconds*1000 , Date.now())
 
         const postedString = `Posted ${postedDistance} ago`

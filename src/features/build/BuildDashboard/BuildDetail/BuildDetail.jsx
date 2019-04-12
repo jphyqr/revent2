@@ -12,8 +12,12 @@ import { selectDraftToEdit, postToggle } from "../../draftActions";
 import { selectQuoteToEdit } from "../../../modals/QuoteJobModal/quoteActions";
 import { newChat } from "../../../user/userActions";
 import { openModal } from "../../../modals/modalActions";
+
+
+
 const query = ({ auth }) => {
-  if (auth !== null) {
+  const authenticated = auth.isLoaded && !auth.isEmpty;
+  if (authenticated) {
     return [
       {
         collection: "tasks",
@@ -29,16 +33,43 @@ const query = ({ auth }) => {
         orderBy: ["date", "desc"],
         storeAs: "jobs_attended"
       },
-      {
-        collection: "job_contracts",
-        where: [["quoterUid", "==", `${auth.uid}`]],
+     { collection: "users",
+      doc: auth.uid,
+      subcollections: [{ collection: "contracts" }],
+      storeAs: "contracts"},
 
-        orderBy: ["created", "desc"],
-        storeAs: "job_contracts"
-      }
+    ];
+  } else {
+    return [
+      {
+        collection: "tasks",
+        where: [["exclusive", "==", true]],
+
+       
+        storeAs: "exclusive_jobs"
+      },
+      {
+        collection: "job_attendee",
+        where: [["userUid", "==", `${auth.uid}`]],
+
+        orderBy: ["date", "desc"],
+        storeAs: "jobs_attended"
+      },
+
     ];
   }
 };
+
+
+
+
+
+
+
+
+
+
+
 const actions = {
   selectDraftToEdit,
   postToggle,
@@ -53,7 +84,7 @@ const mapState = state => {
     categories: state.firestore.ordered.categories,
     loading: state.async.loading,
     myJobs: state.firestore.ordered.jobs_attended,
-    myContracts: state.firestore.ordered.job_contracts,
+    myContracts: state.firestore.ordered.contracts,
     exclusiveJobs: state.firestore.ordered.exclusive_jobs,
     draft: state.draft,
     contract: state.contract

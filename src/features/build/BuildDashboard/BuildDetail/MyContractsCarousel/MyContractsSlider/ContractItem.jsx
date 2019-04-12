@@ -81,12 +81,63 @@ class ContractItem extends Component {
               left: 10,
               transition: "0.15s all ease",
               zIndex:10,
+              borderStyle: "solid",
               borderRadius: "50%",
+              borderWidth: "thick",
+              borderColor: "green",
+              boxShadow:
+              "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+            }}
+            src={quotedByPhotoURL}
+          />
+                              <label
+            style={{
+               position: "absolute",
+              top: 80,
+              left: 26,
+              transition: "0.15s all ease",
+              zIndex:10,
+              backgroundColor:"green",
+              color:"lightgrey",
+              boxShadow:
+              "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+            }}
+          
+          >Owner</label>
+
+<img
+            style={{
+              height: 75, //this.state.hovered ? 200 : 150,
+              width: 75, //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
+              position: "absolute",
+              top: 10,
+              right: 10,
+              transition: "0.15s all ease",
+              zIndex:10,
+              borderStyle: "solid",
+              borderRadius: "50%",
+              borderWidth: "thick",
+              borderColor: "lightgrey",
               boxShadow:
               "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
             }}
             src={ownerPhotoURL}
           />
+
+<label
+            style={{
+               position: "absolute",
+              top: 80,
+              right: 14,
+              transition: "0.15s all ease",
+              zIndex:10,
+              backgroundColor:"lightgrey",
+              color:"green",
+              boxShadow:
+              "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+            }}
+          
+          >Contractor</label>
         </div>
         <div
           style={{

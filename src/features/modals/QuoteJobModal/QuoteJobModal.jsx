@@ -24,7 +24,8 @@ import {toastr} from 'react-redux-toastr'
 import ActiveStep from "./ActiveSteps/ActiveStep";
 import { createQuote, updateSubmitQuote,updateNotes, clearQuote, updateQuoteBid, updatePaymentType, updateSchedule, goBackToStep, updateLineItem, updateLineItemNext} from "./quoteActions";
 import { isEmpty, isLoaded } from "react-redux-firebase";
-
+import MobileSteps from './Mobile/MobileSteps'
+import MobileActiveStep from './Mobile/MobileActiveStep'
 const actions = {
   closeModal,
   createQuote, clearQuote, updateSubmitQuote, updatePaymentType, updateNotes, updateQuoteBid, goBackToStep,updateLineItem, updateLineItemNext,updateSchedule
@@ -44,8 +45,25 @@ class QuoteJobModal extends Component {
     quote: {},
     total: 0,
     sum:0,
-    tax:0
+    tax:0,
+    width: window.innerWidth
   };
+
+  componentWillMount() {
+    window.addEventListener('resize', this.handleWindowSizeChange);
+  }
+  
+  // make sure to remove the listener
+  // when the component is not mounted anymore
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleWindowSizeChange);
+  }
+  
+
+  handleWindowSizeChange = () => {
+    this.setState({ width: window.innerWidth });
+  };
+
 
   async componentDidMount() {
     const { quote, createQuote, job } = this.props;
@@ -124,7 +142,9 @@ handleSelectPaymentType = (paymentType) => {
 
 
   render() {
-    const {quote} = this.state
+    const {quote, width} = this.state
+
+    const isMobile = width <= 500;
     const {showState} = quote
     const { closeModal, job, loading } = this.props ||{};
     const {value : jobValues, key: jobId} = job 
@@ -136,6 +156,12 @@ handleSelectPaymentType = (paymentType) => {
       <Modal closeIcon="close" open={true} onClose={this.handleClose}>
         <Modal.Header>Quote {title}</Modal.Header>
         <Modal.Content>
+          {isMobile ?<div>
+
+            <MobileSteps handleGoBackToStep={this.handleGoBackToStep} loading={loading} quote={quote}/>
+            <MobileActiveStep handleSubmitQuote={this.handleSubmitQuote} handleSelectPaymentType={this.handleSelectPaymentType} handleUpdateNotes={this.handleUpdateNotes} handleUpdateSchedule={this.handleUpdateSchedule} handleLineItemNext={this.handleLineItemNext} handleUpdateLineItem={this.handleUpdateLineItem} loading={loading} handleSelectBidType={this.handleSelectBidType} quote={quote} jobValues={jobValues}/>
+           
+          </div>  :
           <div style={{ height: "450px" }}>
             <Grid>
               <Grid.Column width={6}>
@@ -145,7 +171,7 @@ handleSelectPaymentType = (paymentType) => {
                 <ActiveStep handleSubmitQuote={this.handleSubmitQuote} handleSelectPaymentType={this.handleSelectPaymentType} handleUpdateNotes={this.handleUpdateNotes} handleUpdateSchedule={this.handleUpdateSchedule} handleLineItemNext={this.handleLineItemNext} handleUpdateLineItem={this.handleUpdateLineItem} loading={loading} handleSelectBidType={this.handleSelectBidType} quote={quote} jobValues={jobValues}/>
               </Grid.Column>
             </Grid>
-          </div>
+          </div>}
         </Modal.Content>
       </Modal>
     );

@@ -9,11 +9,13 @@ const stripeEvent = require("./stripe_event.js");
 const SENDGRID_API_KEY = functions.config().sendgrid.key;
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(SENDGRID_API_KEY);
-sgMail.setSubstitutionWrappers('-', '-');
+sgMail.setSubstitutionWrappers("-", "-");
 const testFCM = require("./test_fcm.js");
 const createExternalBankAccount = require("./create_external_bank_account.js");
 const createConnectedAccount = require("./create_connected_account.js");
 const createBankAccount = require("./create_bank_account.js");
+const sendgridWebhook = require("./sendgrid_webhook.js");
+
 const uploadID = require("./upload_id.js");
 const updateAccount = require("./update_account.js");
 const os = require("os");
@@ -29,6 +31,8 @@ const newFollow = (type, event, id) => {
     displayName: event.displayName
   };
 };
+
+
 
 const newActivity = (type, event, id) => {
   return {
@@ -54,15 +58,14 @@ const createMessage = (type, message) => {
   };
 };
 
-
-
+exports.sendgridWebhook = functions.https.onRequest(sendgridWebhook);
 
 exports.testFCM = functions.https.onRequest(testFCM);
 
 exports.uploadID = functions.https.onRequest(uploadID);
 
 exports.createExternalBankAccount = functions.https.onRequest(
-  createExternalBankAccount 
+  createExternalBankAccount
 );
 
 exports.createBankAccount = functions.https.onRequest(createBankAccount);
@@ -75,10 +78,6 @@ exports.createConnectedAccount = functions.https.onRequest(
 );
 
 exports.stripeEvent = functions.https.onRequest(stripeEvent);
-
-
-
-
 
 // When a user is created, register them with Stripe
 exports.createStripeCustomer = functions.auth.user().onCreate(user => {
@@ -350,7 +349,6 @@ exports.dispatchTask = functions.firestore
     const after = info.after.data();
     const before = info.before.data();
 
-
     console.log("dispatchTask job id", jobID);
     console.log("dispatch job info", info.after.data());
     console.log("beforeInDraft", before.inDraft);
@@ -382,13 +380,14 @@ exports.dispatchTask = functions.firestore
           console.log({ taskSubscribedQuery });
           return taskSubscribedQuery.get();
         })
+
         .then(taskSubscirbedQuerySnap => {
           let batch = admin.firestore().batch();
-          console.log('snap length',taskSubscirbedQuerySnap.docs.length)
+          console.log("snap length", taskSubscirbedQuerySnap.docs.length);
           for (let i = 0; i < taskSubscirbedQuerySnap.docs.length; i++) {
             //change this for user ref??
-            let data = taskSubscirbedQuerySnap.docs[i].data()
-            console.log('taskSibQierySnapd.docs[i].data()', data)
+            let data = taskSubscirbedQuerySnap.docs[i].data();
+            console.log("taskSibQierySnapd.docs[i].data()", data);
             let subscriberUserDocRef = admin
               .firestore()
               .collection("users")
@@ -396,8 +395,9 @@ exports.dispatchTask = functions.firestore
               .collection("notifications")
               .doc();
 
-             batch.set(subscriberUserDocRef, {
+            batch.set(subscriberUserDocRef, {
               type: "newJob",
+              jobId: jobID,
               title: after.title,
               description: after.title,
               photoURL: data.photoURL,
@@ -407,7 +407,7 @@ exports.dispatchTask = functions.firestore
           }
           return batch;
         })
-        .then((batch) => {
+        .then(batch => {
           return batch.commit();
         })
 
@@ -419,42 +419,41 @@ exports.dispatchTask = functions.firestore
     return info.after.data();
   });
 
-
 exports.unsubscribeFromTask = functions.firestore
-.document("task_subscribed/{taskSubscriptionId}")
-.onDelete((info, context)=>{
-  const unsubscribedTaskId = context.params.taskSubscriptionId;
-  console.log('unsubscribedFromTask', unsubscribedTaskId)
-  const split = unsubscribedTaskId.split("_");
-  const userUID = split[1];
-  const taskUID = split[0];
-  console.log({ userUID });
-  console.log({ taskUID });
-  let webTokens = [];
-  return admin
-  .firestore()
-  .collection("users")
-  .doc(userUID)
-  .collection("web_push_token")
-  .get()
-  .then(webTokenSnapShot => {
-    const snapShot = webTokenSnapShot;
-    snapShot.forEach(webToken => {
-      webTokens.push(webToken.data().tokenUID);
-      console.log({ webTokens });
-    });
-    console.log({ webTokens });
-    return webTokens;
-  })
-  .then(webTokens => {
-    return admin.messaging().unsubscribeFromTopic(webTokens, taskUID);
-  })
-  .then(response => {
-    console.log("successfuly unsubscribed from topic", response);
-    return response;
-  })
-  .catch(error => console.log(error));
-})
+  .document("task_subscribed/{taskSubscriptionId}")
+  .onDelete((info, context) => {
+    const unsubscribedTaskId = context.params.taskSubscriptionId;
+    console.log("unsubscribedFromTask", unsubscribedTaskId);
+    const split = unsubscribedTaskId.split("_");
+    const userUID = split[1];
+    const taskUID = split[0];
+    console.log({ userUID });
+    console.log({ taskUID });
+    let webTokens = [];
+    return admin
+      .firestore()
+      .collection("users")
+      .doc(userUID)
+      .collection("web_push_token")
+      .get()
+      .then(webTokenSnapShot => {
+        const snapShot = webTokenSnapShot;
+        snapShot.forEach(webToken => {
+          webTokens.push(webToken.data().tokenUID);
+          console.log({ webTokens });
+        });
+        console.log({ webTokens });
+        return webTokens;
+      })
+      .then(webTokens => {
+        return admin.messaging().unsubscribeFromTopic(webTokens, taskUID);
+      })
+      .then(response => {
+        console.log("successfuly unsubscribed from topic", response);
+        return response;
+      })
+      .catch(error => console.log(error));
+  });
 
 exports.subscribeToTask = functions.firestore
   .document("task_subscribed/{taskSubscriptionId}")
@@ -628,39 +627,154 @@ exports.cancelActivity = functions.firestore
       });
   });
 
-
-
-  exports.homeShowJoin = functions.database
+exports.homeShowJoin = functions.database
   .ref("/join_beta/{joinId}")
   .onCreate(event => {
-    console.log('Home Show join v1')
+    console.log("Home Show join v1");
     let newEvent = event.val();
     console.log(newEvent);
     //const activity = newActivity("newEvent", newEvent, event.id);
 
     //console.log(activity);
 
-     const msg = {
-       to:newEvent.email,
-       from: 'admin@yaybour.com',
-       subject: 'Welcome to YaYbour!',
-        templateId: 'd-34b370f795424cf99b2e35044a14916c',
-        reply_to: "admin@yaybour.com",
+    const msg = {
+      to: newEvent.email,
+      from: "admin@yaybour.com",
+      subject: "Welcome to YaYbour!",
+      templateId: "d-34b370f795424cf99b2e35044a14916c",
+      reply_to: "admin@yaybour.com",
       //  content: [{"type":"text/html","value":"0"}],
       //  html: ' ',
-        substitutionWrappers: ['{{', '}}'],
-        substitutions: {
-          name: 'New Yaybour',
-          city: 'Regina',
-        }
+      substitutionWrappers: ["{{", "}}"],
+      substitutions: {
+        name: "New Yaybour",
+        city: "Regina"
+      }
+    };
 
-     }
+    return sgMail
+      .send(msg)
+      .then(() => console.log("email sent"))
+      .catch(err => {
+        const { message, code, response } = error;
+        const { headers, body } = response;
+        console.log({ body });
+        console.log(err.toString());
+      });
+  });
 
 
-    return sgMail.send(msg).then(()=>console.log('email sent')).catch(err=>{
-      
-      const {message, code, response} = error
-  const {headers, body} = response
-  console.log({body})      
-      console.log(err.toString())})
+   const objectToArray = (object) => {
+
+
+
+
+
+    if(object){
+
+      return Object.keys(object).map(function(key) {
+      return  Object.assign({key: key}, {value:object[key]} )
+    //    return [, ];
+      });
+    }
+}
+
+ const renderJobDescription = (job, jobId) =>{
+
+   let photos = job.jobPhotos || []
+    let photoList = ""
+   for(var j=0; j<photos.length; j++){
+    let photoUrl = photos[j].url
+    photoList += `<br><img src=${photoUrl} alt="Smiley face" height="200" width="200">`
+
+   }
+
+
+   let list = ""
+
+   const customFields = objectToArray(job.customFields)
+   console.log({customFields})
+   for(var i = 0; i<customFields.length; i++){
+ list += `<br><p> ${customFields[i].key}: ${customFields[i].value}</p>`
+   }
+   return [
+     `<div style="width:200px;background:#F9EECF;border:1px dotted black;text-align:center">
+     <p>Generic content...</p>
+     </div><p>Description: ${job.description}</p><br/><h2>Job Details</h2>${list}<h2>Job Photos</h2>${photoList}
+     <br/>
+     
+     <a href="https://yaybour.com/job/${jobId}">More Info</a>
+     `
+   ]
+ }
+  
+exports.notificationToEmail = functions.firestore
+  .document("users/{userUid}/notifications/{notificationID}")
+  .onCreate((info, context) => {
+    const userUID = context.params.userUid;
+    console.log("info.data()", info.data());
+    let job;
+    let email;
+    return admin
+      .auth()
+      .getUser(userUID)
+      .then(userRecord => {
+        console.log(userRecord);
+
+        return userRecord;
+      })
+      .then(userRecord => {
+        email = userRecord.email;
+        return admin
+          .firestore()
+          .collection("jobs")
+          .doc(info.data().jobId)
+          .get()
+
+          .then(job => {
+            return job.data();
+          })
+          .then(job => {
+            console.log("job", job);
+
+            
+            const msg = {
+              to: email,
+              from: "admin@yaybour.com",
+              subject: "New Job!",
+              //templateId: "d-77320f6599ed4c57acf755099d7c6c6e", //NewJob
+              reply_to: "admin@yaybour.com",
+              content: [
+                {
+                  type: "text/html",
+                  value: `<html><body> ${renderJobDescription(job, info.data().jobId)}
+                  
+                     
+                  
+                  </body></html>`
+                }
+              ],
+              // html: ' ',
+
+              //   dynamic_template_data: {"body":"<html><body> -name- </body></html>", "title": info.data().description, "name": userRecord.displayName},
+
+              substitutionWrappers: ["{{", "}}"],
+              substitutions: {
+                title: "Test Title", //info.data().description,
+                photoURL: info.data().photoURL,
+                name: "Test Name" //userRecord.displayName
+              }
+            };
+
+            return sgMail
+              .send(msg)
+              .then(() => console.log("email sent"))
+              .catch(err => {
+                const { message, code, response } = error;
+                const { headers, body } = response;
+                console.log({ body });
+                console.log(err.toString());
+              });
+          });
+      });
   });

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { firebaseConnect } from "react-redux-firebase";
-import { Menu, Container, Search, Button } from "semantic-ui-react";
+import { Menu,  Responsive, Container, Search, Button } from "semantic-ui-react";
 import { NavLink, Link, withRouter } from "react-router-dom";
 import SignedOutMenu from "../Menus/SignedOutMenu";
 import SignedInMenu from "../Menus/SignedInMenu";
@@ -105,35 +105,64 @@ this.props.clearAccount()
     const authenticated = auth.isLoaded && !auth.isEmpty;
     const {join} = this.state
     return (
-      <Menu inverted fixed="top">
+      <Menu inverted  fixed="top">
         <Container>
-          <Menu.Item as={Link} to="/" header>
+
+        <Responsive  as={Menu.Item} minWidth={600}>
+          
+        <Menu.Item  sas={Link} to="/" header>
             <img src="/assets/white on orange logo.png" alt="logo" />
             yAYbour
           </Menu.Item>
-   
-          <Menu.Item style={{width:"30%"}}position="right"> 
+                    </Responsive> 
           
-      <Search
-          fluid
-          style={{marginTop:"auto", width:"auto", marginBottom:"auto"}}
-          //  loading={isLoading}
-          //  onResultSelect={this.handleResultSelect}
-         //   onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
-         //   results={results}
-        //    value={value}
-          //  {...this.props}
-          />
-         </Menu.Item>
-        <Menu.Item as={Link} to="/about" header  >
+
+          <Responsive as={Menu.Item} style={{width:"30%", }}position="right" minWidth={1100}>
+          
+
+<Search
+    fluid
+    style={{marginTop:"auto", width:"auto", marginBottom:"auto"}}
+    //  loading={isLoading}
+    //  onResultSelect={this.handleResultSelect}
+   //   onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
+   //   results={results}
+  //    value={value}
+    //  {...this.props}
+    />
+   
+    </Responsive> 
+
+    <Responsive  as={Menu.Item} minWidth={1000}>
+          
+
+    <Menu.Item as={Link} to="/about" header  >
            ABOUT
           </Menu.Item>
-        <Menu.Item as={Link} to="/pricing" header  >
-           PRICING
-          </Menu.Item>
-        <Menu.Item    onClick={()=>this.props.openModal("JoinBetaModal")}>
+              </Responsive> 
+
+
+              <Responsive  as={Menu.Item} minWidth={750}>
+          
+
+          <Menu.Item as={Link} to="/pricing" header  >
+                 PRICING
+                </Menu.Item>
+                    </Responsive> 
+
+
+ 
+                    <Responsive  as={Menu.Item} style={{padding:"5px" ,borderStyle:"none"}} minWidth={380}>
+          
+
+                    <Menu.Item   style={{padding:"0px", margin:"0px", borderStyle:"none"}} onClick={()=>this.props.openModal("JoinBetaModal")}>
         <Button  basic inverted content="JOIN BETA" />
           </Menu.Item>
+                    </Responsive> 
+
+
+
+
        
             {/* {authenticated? <BankAccountMenuItem
               bankConnect={this.handleBankConnect}

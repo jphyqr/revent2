@@ -1,5 +1,5 @@
 import { toastr } from "react-redux-toastr";
-
+import cuid from 'cuid'
 import { FETCH_QUOTE, CLEAR_QUOTE } from "./quoteConstants";
 import {
   asyncActionStart,
@@ -158,7 +158,7 @@ export const goBackToStep = (quote, step) => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      // toastr.success("Success", "Job has been updated");
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);
@@ -207,7 +207,7 @@ export const updateQuoteBid = (quote, bidType) => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      // toastr.success("Success", "Job has been updated");
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);
@@ -265,17 +265,42 @@ export const updateLineItem = (quote, isNew, values, phase) => {
     
   
     
-    console.log('updateLineItem', quote)
-    console.log('updateLineItem', isNew)
-    console.log('updateLineItem', values)
-    console.log('updateLineItem', phase)
-    console.log('updateLineItem', values[dueMatch])
+
   
 
-    const due = Number(values[dueMatch])
-    const deposit = Number(values[depositMatch])
+    let due=0
+    let deposit =0
+    let tax="noTax"
+
+
+
+
+    if(!values[`${phase.phaseName}_due`]){
+        due=0
+        console.log("DUE IS EMPTY")
+     }else{
+        due = Number(values[dueMatch])
+     }
+
+    if(!values[`${phase.phaseName}_deposit`]){
+        deposit=0
+        console.log("DEPOSIT IS EMPTY")
+     }else{
+        deposit = Number(values[depositMatch])
+     }
+    if(!values[`${phase.phaseName}_tax`]){
+       tax="noTax"
+       console.log("TAX IS EMPTY")
+    }else{
+        tax =  values[taxMatch] 
+       
+    }
+
+
+    //const due = Number(values[dueMatch])
+   // const deposit = Number(values[depositMatch])
     const subtotal =  due+deposit
-    const tax =   values[taxMatch] 
+   //const tax =   values[taxMatch] 
     let taxRate = 0
     switch(tax){
       case 'gst5pst5':
@@ -330,7 +355,7 @@ export const updateLineItem = (quote, isNew, values, phase) => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      // toastr.success("Success", "Job has been updated");
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);
@@ -503,7 +528,7 @@ export const updatePaymentType = (quote, paymentType) => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      // toastr.success("Success", "Job has been updated");
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);
@@ -579,31 +604,47 @@ export const hireContractor = (quote) => {
   return async (dispatch, getState, {getFirestore}) => {
     dispatch(asyncActionStart());
    const {jobId, quoteId, quoterUid} = quote
-
-
-
-    let firestore = getFirestore();
-    let contract = {hiredContractorUid: quoterUid, acceptedDate: Date.now()}
+   let firestore = getFirestore();
+     const user = firestore.auth().currentUser;
+     const contractUID = cuid();
+  console.log({contractUID})
+    let contract = {hiredContractorUid: quoterUid, jobOwnerUid: user.uid, acceptedDate: Date.now()}
 
     quote.contract = contract
+    quote.jobOwnerUid = user.uid
+
+
+
+
+    let contractPathString = "";
+
+    if (user.uid < quoterUid) {
+      contractPathString = `${user.uid}_${quoterUid}_${quote.quoteId}`;
+    } else {
+      contractPathString = `${quoterUid}_${user.uid}_${quote.quoteId}`;
+    }
+  
+   
+
 
     try {
 
     let userSnap = await firestore.get(`users/${quoterUid}`)
 
-        let user = userSnap.data();
+    //    let user = userSnap.data();
     
     firestore=firebase.firestore()  
       console.log ('hireContractor', user)
       let quoteRef = firestore.collection("quotes").doc(quote.quoteId);
       let contractRef = firestore.collection("job_contracts")
-      .doc(`${jobId}_${quoteId}`)
+      .doc(contractUID)
 
       let jobRef = firestore.collection("jobs").doc(quote.jobId)
       let jobQuotesRef = firestore.collection("job_quotes").doc(`${quote.jobId}_${quote.quoteId}`)
 
       let userQuotesRef = firestore.collection("users").doc(quoterUid).collection("quotes").doc(quote.quoteId)
-
+      let quoterContractsRef = firestore.collection("users").doc(quoterUid).collection("contracts").doc(contractUID)
+      let ownerContractsRef = firestore.collection("users").doc(user.uid).collection("contracts").doc(contractUID)
 
 
 await firestore.runTransaction(async transaction =>{
@@ -615,6 +656,14 @@ await firestore.runTransaction(async transaction =>{
 ...quote,
 contract
   } )
+  await transaction.set(quoterContractsRef,{
+    ...quote,
+    contract
+      } )
+      await transaction.set(ownerContractsRef,{
+        ...quote,
+        contract
+          } )
 })
 
 

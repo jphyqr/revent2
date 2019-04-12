@@ -14,6 +14,8 @@ import TestScroll from "../../features/testarea/TestScroll";
 import TestAnimations from "../../features/testarea/TestAnimations";
 
 import HomePage from "../../features/home/HomePage";
+import AboutAlpha from "../../features/nav/Alpha/AboutAlpha";
+import JoinedAlpha from "../../features/nav/Alpha/JoinedAlpha";
 import AboutDashboard from "../../features/nav/AboutDashboard/AboutDashboard";
 import PricingDashboard from "../../features/nav/PricingDashboard/PricingDashboard";
 import TestComponent from "../../features/testarea/TestComponent";
@@ -101,6 +103,8 @@ class App extends Component {
                   <Route path="/testAnimations" component={TestScroll} />
                   <Route path="/people" component={PeopleDashboard} />
                   <Route path="/build" component={BuildDashboard} />
+                  <Route path="/alpha/about" component={AboutAlpha} />
+                  <Route path="/alpha/joined" component={JoinedAlpha} />
                   <Route path="/about" component={AboutDashboard} />
                   <Route path="/pricing" component={PricingDashboard} />
 
