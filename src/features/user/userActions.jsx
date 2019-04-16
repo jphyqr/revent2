@@ -1401,3 +1401,56 @@ console.log({values})
     dispatch(asyncActionError());
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+export const joinAlpha = ( values) => async (
+  dispatch,
+  getState,
+  { getFirebase, getFirestore }
+) => {
+
+
+console.log({values})
+
+    const firestore = getFirestore();
+  
+
+  
+
+      
+
+
+
+
+
+
+
+
+
+
+
+  try {
+    dispatch(asyncActionStart());
+    await firestore.add(
+      {
+        collection: "join_alpha",
+      },
+      values
+    );
+    toastr.success("Success", "Joined Alpha");
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    toastr.error("Oops", "Problem joining Alpha");
+    dispatch(asyncActionError());
+  }
+};

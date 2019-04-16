@@ -7,15 +7,18 @@ const currency = functions.config().stripe.currency || "USD";
 const retrieveAccount = require("./retrieve_account.js");
 const stripeEvent = require("./stripe_event.js");
 const SENDGRID_API_KEY = functions.config().sendgrid.key;
+const sgClient = require("@sendgrid/client");
+sgClient.setApiKey(SENDGRID_API_KEY);
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(SENDGRID_API_KEY);
 sgMail.setSubstitutionWrappers("-", "-");
+
 const testFCM = require("./test_fcm.js");
 const createExternalBankAccount = require("./create_external_bank_account.js");
 const createConnectedAccount = require("./create_connected_account.js");
 const createBankAccount = require("./create_bank_account.js");
 const sendgridWebhook = require("./sendgrid_webhook.js");
-
+const axios = require("axios");
 const uploadID = require("./upload_id.js");
 const updateAccount = require("./update_account.js");
 const os = require("os");
@@ -31,8 +34,6 @@ const newFollow = (type, event, id) => {
     displayName: event.displayName
   };
 };
-
-
 
 const newActivity = (type, event, id) => {
   return {
@@ -663,51 +664,43 @@ exports.homeShowJoin = functions.database
       });
   });
 
+const objectToArray = object => {
+  if (object) {
+    return Object.keys(object).map(function(key) {
+      return Object.assign({ key: key }, { value: object[key] });
+      //    return [, ];
+    });
+  }
+};
 
-   const objectToArray = (object) => {
+const renderJobDescription = (job, jobId) => {
+  let photos = job.jobPhotos || [];
+  let photoList = "";
+  for (var j = 0; j < photos.length; j++) {
+    let photoUrl = photos[j].url;
+    photoList += `<br><img src=${photoUrl} alt="Smiley face" height="200" width="200">`;
+  }
 
+  let list = "";
 
-
-
-
-    if(object){
-
-      return Object.keys(object).map(function(key) {
-      return  Object.assign({key: key}, {value:object[key]} )
-    //    return [, ];
-      });
-    }
-}
-
- const renderJobDescription = (job, jobId) =>{
-
-   let photos = job.jobPhotos || []
-    let photoList = ""
-   for(var j=0; j<photos.length; j++){
-    let photoUrl = photos[j].url
-    photoList += `<br><img src=${photoUrl} alt="Smiley face" height="200" width="200">`
-
-   }
-
-
-   let list = ""
-
-   const customFields = objectToArray(job.customFields)
-   console.log({customFields})
-   for(var i = 0; i<customFields.length; i++){
- list += `<br><p> ${customFields[i].key}: ${customFields[i].value}</p>`
-   }
-   return [
-     `<div style="width:200px;background:#F9EECF;border:1px dotted black;text-align:center">
+  const customFields = objectToArray(job.customFields);
+  console.log({ customFields });
+  for (var i = 0; i < customFields.length; i++) {
+    list += `<br><p> ${customFields[i].key}: ${customFields[i].value}</p>`;
+  }
+  return [
+    `<div style="width:200px;background:#F9EECF;border:1px dotted black;text-align:center">
      <p>Generic content...</p>
-     </div><p>Description: ${job.description}</p><br/><h2>Job Details</h2>${list}<h2>Job Photos</h2>${photoList}
+     </div><p>Description: ${
+       job.description
+     }</p><br/><h2>Job Details</h2>${list}<h2>Job Photos</h2>${photoList}
      <br/>
      
      <a href="https://yaybour.com/job/${jobId}">More Info</a>
      `
-   ]
- }
-  
+  ];
+};
+
 exports.notificationToEmail = functions.firestore
   .document("users/{userUid}/notifications/{notificationID}")
   .onCreate((info, context) => {
@@ -737,7 +730,6 @@ exports.notificationToEmail = functions.firestore
           .then(job => {
             console.log("job", job);
 
-            
             const msg = {
               to: email,
               from: "admin@yaybour.com",
@@ -747,7 +739,10 @@ exports.notificationToEmail = functions.firestore
               content: [
                 {
                   type: "text/html",
-                  value: `<html><body> ${renderJobDescription(job, info.data().jobId)}
+                  value: `<html><body> ${renderJobDescription(
+                    job,
+                    info.data().jobId
+                  )}
                   
                      
                   
@@ -776,5 +771,88 @@ exports.notificationToEmail = functions.firestore
                 console.log(err.toString());
               });
           });
+      });
+  });
+
+exports.alphaJoin = functions.firestore
+  .document("join_alpha/{alphaId}")
+  .onCreate((info, context) => {
+    console.log("Alpha Join v1");
+    let newAlphaUser = info.data();
+    console.log(newAlphaUser);
+    //const activity = newActivity("newEvent", newEvent, event.id);
+
+    //console.log(activity);
+
+    const msg = {
+      to: newAlphaUser.email,
+      from: "admin@yaybour.com",
+      subject: "Thanks for joining our alpha!",
+      //  templateId: "d-34b370f795424cf99b2e35044a14916c",
+      reply_to: "admin@yaybour.com",
+      content: [
+        {
+          type: "text/html",
+          value: `<html><body> Thanks for joining alpha!  
+          </body></html>`
+        }
+      ],
+      substitutionWrappers: ["{{", "}}"],
+      substitutions: {
+        name: "New Yaybour",
+        city: "Regina"
+      }
+    };
+
+
+
+    const data = [
+      {
+        first_name: newAlphaUser.first_name,
+        last_name: newAlphaUser.last_name,
+        email: newAlphaUser.email,
+        kitchenAndBath: newAlphaUser.kitchenAndBath.toString(),
+        renovations: newAlphaUser.renovations.toString(),
+       
+        paint: newAlphaUser.paint.toString(),
+        electrical: newAlphaUser.electrical.toString(),
+        plumbing: newAlphaUser.plumbing.toString(),
+        landscaping: newAlphaUser.landscaping.toString(),
+        exterior: newAlphaUser.exterior.toString(),
+        design: newAlphaUser.design.toString(),
+        other: newAlphaUser.other.toString(),
+      }
+    ];
+    let request = {
+      body: data,
+      method: "POST",
+      url: "/v3/contactdb/recipients"
+    };
+
+    return sgClient
+      .request(request)
+      .then(([response, body]) => {
+        console.log("response", response);
+        return body
+      })
+
+      .then(body => {
+      
+       const newRecipientId = body.persisted_recipients
+
+    
+        let request ={method:'POST', url: `/v3/contactdb/lists/7723731/recipients/${newRecipientId}`}
+       return sgClient.request(request)
+        .then(([response, body]) => {
+          console.log(response.statusCode);
+        return  console.log(response.body);
+        })
+
+      })
+      .then(() => {
+        return sgMail.send(msg).then(() => console.log("email sent"));
+      })
+      .catch(error => {
+        console.log(error);
       });
   });

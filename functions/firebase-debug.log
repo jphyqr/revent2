@@ -1,0 +1,18 @@
+[debug] [2019-04-15T16:10:02.346Z] ----------------------------------------------------------------------
+[debug] [2019-04-15T16:10:02.348Z] Command:       /usr/local/bin/node /usr/local/bin/firebase functions:shell
+[debug] [2019-04-15T16:10:02.348Z] CLI Version:   6.0.1
+[debug] [2019-04-15T16:10:02.348Z] Platform:      darwin
+[debug] [2019-04-15T16:10:02.348Z] Node Version:  v8.11.3
+[debug] [2019-04-15T16:10:02.349Z] Time:          Mon Apr 15 2019 10:10:02 GMT-0600 (CST)
+[debug] [2019-04-15T16:10:02.349Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-04-15T16:10:02.363Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-04-15T16:10:02.363Z] > authorizing via signed-in user
+[debug] [2019-04-15T16:10:02.363Z] [iam] checking project revents-99d5b for permissions ["firebase.projects.get"]
+[debug] [2019-04-15T16:10:02.365Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/revents-99d5b:testIamPermissions  
+
+[debug] [2019-04-15T16:10:02.829Z] <<< HTTP RESPONSE 200
+[info] i  functions: Preparing to emulate functions.
+[debug] [2019-04-15T16:10:04.308Z] Fetching environment
+[debug] [2019-04-15T16:10:04.315Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/revents-99d5b  
+ 

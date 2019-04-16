@@ -12,6 +12,7 @@
   "dependencies": {
     "@google-cloud/logging": "^4.1.0",
     "@google-cloud/storage": "^2.3.1",
+    "@sendgrid/client": "^6.3.0",
     "@sendgrid/mail": "^6.3.1",
     "assign-deep": "^1.0.0",
     "axios": "^0.18.0",

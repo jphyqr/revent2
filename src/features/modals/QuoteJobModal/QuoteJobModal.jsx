@@ -135,6 +135,8 @@ this.props.updateQuoteBid(this.state.quote, bidType)
 handleSelectPaymentType = (paymentType) => {
   this.props.updatePaymentType(this.state.quote, paymentType)
   }
+
+  
   handleClose = async () =>{
   await  this.props.clearQuote()
    this.props.closeModal()

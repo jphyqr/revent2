@@ -13,6 +13,10 @@ module.exports = function(req, res) {
 
   console.log(req.body)
 
+//   if(req.body.event==='click'){
+
+//   }
+
 
 
 
