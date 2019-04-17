@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { firebaseConnect } from "react-redux-firebase";
+import { firebaseConnect,  } from "react-redux-firebase";
 import { Menu,  Responsive, Container, Search, Button } from "semantic-ui-react";
 import { NavLink, Link, withRouter } from "react-router-dom";
 import SignedOutMenu from "../Menus/SignedOutMenu";
@@ -11,6 +11,9 @@ import { openModal } from "../../modals/modalActions";
 import {getAccount, clearAccount} from '../../modals/ConnectBankAccountModal/BankAccountManager/accountActions'
 import MessagesMenuItem from './Messages/MessagesMenuItem'
 import JoinBetaMenu from '../Menus/JoinBetaMenu'
+
+
+
 const actions = {
   openModal, clearAccount, getAccount
 };
@@ -26,7 +29,7 @@ return{
   state.firebase.ordered.stripe_connected_account &&
   state.firebase.ordered.stripe_connected_account[authuid] &&
   state.firebase.ordered.stripe_connected_account[authuid][0],
-  currentAccount: state.account
+  isAdmin: (state.firestore.ordered.admin_user_profile&&state.firestore.ordered.admin_user_profile[0]&&state.firestore.ordered.admin_user_profile[0].isAdmin) || false
 }};
 
 class NavBar extends Component {
@@ -92,6 +95,7 @@ state={
   handleSignOut = async ()  => {
   //  this.props.clearAccount();
 this.props.clearAccount()
+
   //  const { firebase, match } = this.props;
     //await firebase.unsetListener(`stripe_connected_account/${match.params.id}`);
 
@@ -108,13 +112,15 @@ this.props.clearAccount()
       <Menu inverted  fixed="top">
         <Container>
 
-        <Responsive  as={Menu.Item} minWidth={600}>
+       
           
         <Menu.Item  as={Link} to="/" header>
             <img src="/assets/white on orange logo.png" alt="logo" />
-            yAYbour
+           
+            <Responsive   minWidth={600}> yAYbour</Responsive>
+           
           </Menu.Item>
-                    </Responsive> 
+                 
           
 
           <Responsive as={Menu.Item} style={{width:"30%", }}position="right" minWidth={1100}>

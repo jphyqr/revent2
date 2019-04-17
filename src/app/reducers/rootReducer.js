@@ -15,6 +15,7 @@ import {firebaseReducer} from 'react-redux-firebase'
 import {firestoreReducer} from 'redux-firestore'
 import {reducer as toastrRedcer} from 'react-redux-toastr';
 import draftReducer from '../../features/build/draftReducer'
+import roleReducer from '../../features/nav/Menus/roleReducer'
 import quoteReducer from '../../features/modals/QuoteJobModal/quoteReducer'
 import labourReducer from '../../features/job/JobDashboard/Labour/LabourList/labourReducer'
 import contractsReducer from '../../features/build/BuildDashboard/BuildDetail/MyContractsCarousel/contractReducer'
@@ -38,7 +39,8 @@ const rootReducer = combineReducers({
   field: fieldReducer,
   quote: quoteReducer,
   labour: labourReducer,
-  contract: contractReducer
+  contract: contractReducer,
+  role: roleReducer
 })
 
 export default rootReducer

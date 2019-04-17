@@ -1,5 +1,6 @@
 
 import { FETCH_ACCOUNT, CLEAR_ACCOUNT } from "./accountConstants";
+import {CLEAR_ROLE} from '../../../nav/Menus/roleConstants'
 import cuid from "cuid";
 import { toastr } from "react-redux-toastr";
 
@@ -106,6 +107,11 @@ export const clearAccount = () => async (dispatch) =>{
   console.log("trying to clear account")
   dispatch({
     type: CLEAR_ACCOUNT,
+    payload: {}
+  })
+
+  dispatch({
+    type: CLEAR_ROLE,
     payload: {}
   })
 }

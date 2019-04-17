@@ -95,10 +95,7 @@ class OpenJobExpanded extends Component {
                 <OpenJobSummary selectedJob={selectedJob} />{" "}
               </Grid.Column>
               <Grid.Column width={2}>
-                {" "}
-                <Button onClick={() => this.props.handleHideMap()}>
-                  Show Map
-                </Button>{" "}
+
               </Grid.Column>
             </Grid>
           )}

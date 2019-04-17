@@ -52,6 +52,7 @@ const mapState = state => ({
   jobs: state.jobs,
   loading: state.async.loading,
   auth: state.firebase.auth,
+  role: state.role,
   myJobs: state.firestore.ordered.jobs_attended || {},
   selectedJob: state.draft && state.draft.value,
   myQuotes: state.firestore.ordered.my_quotes ||{},
@@ -90,14 +91,12 @@ class JobDashboard extends Component {
      {
       this.props.openModal("RegisterModal")
     }else{
-      this.setState({navShow:tab})
+      this.setState({navShow:tab, showExpanded:false})
     }
    
   }
 
-  handleHideMap = () => {
-    this.setState({ showExpanded: false, selectedJob: {} });
-  };
+
 
   handleSelectOpenJob = async job => {
     const {auth} = this.props
@@ -112,7 +111,8 @@ class JobDashboard extends Component {
     await this.setState({
       showExpanded: true,
       selectedJob: this.props.selectedJob,
-      selectedJobId: job.id
+      selectedJobId: job.id,
+      navShow: ''
     });
     this.setState({ quotesLoading: false });
   }
@@ -178,7 +178,7 @@ class JobDashboard extends Component {
     });
 
   render() {
-    const { loading, selectQuoteToEdit, auth, jobs, authenticated } = this.props;
+    const { role, loading, selectQuoteToEdit, auth, jobs, authenticated } = this.props;
     const { moreJobs, loadedJobs, myQuotes } = this.state;
 
  
@@ -212,7 +212,7 @@ class JobDashboard extends Component {
              
               <Grid.Column mobile={16} tablet={16} computer={10} >
               
-              <NavBar handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
+              <NavBar role={role} handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
            {this.state.loading ?  <Loader active inline='centered' /> :
                 this.state.showExpanded ? (
                   <OpenJobExpanded
@@ -222,7 +222,7 @@ class JobDashboard extends Component {
                     selectedJobId={this.state.selectedJobId}
                     myQuotes={myQuotes}
                     openModal={this.props.openModal}
-                    handleHideMap={this.handleHideMap}
+                
                     selectedJob={this.state.selectedJob}
                   />
                 ) : (this.state.navShow==="profile") ? 

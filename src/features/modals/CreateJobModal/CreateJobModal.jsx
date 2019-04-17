@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Modal } from "semantic-ui-react";
+import { Modal , Responsive} from "semantic-ui-react";
 import { closeModal } from "../modalActions";
 import { connect } from "react-redux";
 import { Loader, Dimmer } from "semantic-ui-react";
@@ -49,7 +49,7 @@ class CreateJobModal extends Component {
   await this.setState({jobSuccess:true})
  }
 
- 
+ handleOnUpdate = (e, { width }) => this.setState({ width })
 
   handlePhotoUploaded = async url => {
     console.log("Create JobModal photo uploaded url", url);
@@ -69,16 +69,17 @@ class CreateJobModal extends Component {
       loading,
       draft,updateJobCustom, dispatchJob, postToggle, postJob, updateJobPhotosPage, updateJobSchedule,updateJobBasic,updateJobContract
     } = this.props;
-
+   const {width} = this.state
     const { value: draftValue } = draft;
 
     const { showState } = draftValue;
+
+    const modalSize = width >= Responsive.onlyComputer.minWidth ? 'small' : width >= Responsive.onlyTablet.minWidth ? 'large' : 'fullscreen'
     return (
-      <Modal
-        style={{ maxWidth: 800, maxHeight: 800, overflow: "auto" }}
-        closeIcon="close"
-        open={this.state.showModal}
-      >
+      <Responsive as={Modal} size={modalSize} style={{ maxHeight: 800, overflowY: "auto", overflowX:"hidden" }}
+      closeIcon="close"
+      open={this.state.showModal}  fireOnMount onUpdate={this.handleOnUpdate}>
+   
         <Modal.Header>
           {draft.value.name}
           <Button onClick={closeModal}>x</Button>
@@ -89,7 +90,7 @@ class CreateJobModal extends Component {
         <JobProgress showState={showState} />
         <Modal.Content>
           <Modal.Description>
-            <div style={{ minHeight: 500, minWidth: 700 }}>
+            <div style={{ minHeight: 500}}>
               {loading ? (
                 <Dimmer active inverted>
                   <Loader content="Updating Job" />
@@ -127,7 +128,8 @@ class CreateJobModal extends Component {
         </Modal.Content>
         </div>
         }
-      </Modal>
+    
+      </Responsive>
     );
   }
 }
