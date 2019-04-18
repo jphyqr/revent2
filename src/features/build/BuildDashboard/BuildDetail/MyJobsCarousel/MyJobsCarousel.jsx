@@ -57,10 +57,19 @@ class MyJobsCarousel extends Component {
 
 
   render() {
-    const { myJobs, selectDraftToEdit, scrollToMyRef } = this.props;
+    const { myJobs, selectDraftToEdit, scrollToMyRef,
+    
+
+      compactDisplayMode,
+      COMPACT_ITEM_HEIGHT,
+      COMPACT_ITEM_WIDTH,
+      REGULAR_ITEM_HEIGHT,
+      REGULAR_ITEM_WIDTH
+    
+    } = this.props;
     const {projectsHovered, projectsSelected, contractsHovered, contractsSelected} = this.state
     return (
-      <div style={{ marginTop: 30 }}>
+      <div style={{  marginTop: compactDisplayMode ? 0: 30 }}>
         <p
         onMouseEnter={()=>this.setState({projectsHovered:true})}
         onMouseLeave={()=>this.setState({projectsHovered:false})}
@@ -68,10 +77,10 @@ class MyJobsCarousel extends Component {
           style={{
             display: "inline-block",
             color: projectsSelected? "orange" : "white",
-            fontSize: 26,
+            fontSize: compactDisplayMode ? 14 : 26,
             opacity: (projectsHovered ||projectsSelected)? 
             1:0.4,
-            margin: 5,
+           margin: 5,
             marginRight: 20
           }}
         >
@@ -86,7 +95,7 @@ class MyJobsCarousel extends Component {
             color: contractsSelected? "orange" : "white",
             opacity: (contractsHovered||contractsSelected) ? 
             1:0.4,
-            fontSize: 26,
+            fontSize: compactDisplayMode ? 14 : 26,
             margin: 5
           }}
         >
@@ -103,6 +112,11 @@ toggleLockInHover={this.toggleLockInHover}
 
 myJobs={myJobs}
 selectDraftToEdit={selectDraftToEdit}
+compactDisplayMode={compactDisplayMode}
+REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
+REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
 />
 
 <Transition.Group animation="scale" duration={400}>

@@ -1,15 +1,23 @@
-import React, { Component } from 'react'
-import ExclusiveJobItem from './ExclusiveJobItem'
- class ExclusiveJobsSlider extends Component {
+import React, { Component } from "react";
+import ExclusiveJobItem from "./ExclusiveJobItem";
+class ExclusiveJobsSlider extends Component {
   render() {
-      const {exclusiveJobs, selectDraftToEdit} = this.props
+    const {
+      exclusiveJobs,
+      selectDraftToEdit,
+      REGULAR_EXCLUSIVE_HEIGHT,
+      REGULAR_EXCLUSIVE_WIDTH,
+      COMPACT_EXCLUSIVE_HEIGHT,
+      COMPACT_EXCLUSIVE_WIDTH,
+      compactDisplayMode
+    } = this.props;
     return (
-        <div
+      <div
         class="list"
-      //  onMouseEnter={this.props.onMouseEnterHandler}
-      //  onMouseLeave={this.props.onMouseLeaveHandler}
+        //  onMouseEnter={this.props.onMouseEnterHandler}
+        //  onMouseLeave={this.props.onMouseLeaveHandler}
         style={{
-          height: 410,
+          height: compactDisplayMode? (COMPACT_EXCLUSIVE_HEIGHT+10):(REGULAR_EXCLUSIVE_HEIGHT+10),
           marginBottom: 1,
           width: "100%",
           // backgroundColor: "blue",
@@ -28,17 +36,21 @@ import ExclusiveJobItem from './ExclusiveJobItem'
           exclusiveJobs.map((exclusiveJob, i) => (
             <ExclusiveJobItem
               index={i}
-          
+              REGULAR_EXCLUSIVE_HEIGHT={REGULAR_EXCLUSIVE_HEIGHT}
+              REGULAR_EXCLUSIVE_WIDTH={REGULAR_EXCLUSIVE_WIDTH}
+              COMPACT_EXCLUSIVE_HEIGHT={COMPACT_EXCLUSIVE_HEIGHT}
+              COMPACT_EXCLUSIVE_WIDTH={COMPACT_EXCLUSIVE_WIDTH}
+              compactDisplayMode={compactDisplayMode}
               exclusiveJob={exclusiveJob}
               selectDraftToEdit={selectDraftToEdit}
-            scrollToMyRef={this.props.scrollToMyRef}
-           handleShowExpanded={this.props.handleShowExpanded}
-               toggleLockInHover={this.props.toggleLockInHover}
-         />
+              scrollToMyRef={this.props.scrollToMyRef}
+              handleShowExpanded={this.props.handleShowExpanded}
+              toggleLockInHover={this.props.toggleLockInHover}
+            />
           ))}
       </div>
-    )
+    );
   }
 }
 
-export default ExclusiveJobsSlider
+export default ExclusiveJobsSlider;

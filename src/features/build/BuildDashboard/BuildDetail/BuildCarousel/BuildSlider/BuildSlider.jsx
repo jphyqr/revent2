@@ -16,13 +16,18 @@ class BuildSlider extends Component {
   };
 
   render() {
+    const {compactDisplayMode,
+      COMPACT_ITEM_HEIGHT,
+      COMPACT_ITEM_WIDTH,
+      REGULAR_ITEM_HEIGHT,
+      REGULAR_ITEM_WIDTH} = this.props
     return (
       <div
         class="list"
         onMouseEnter={this.props.onMouseEnterHandler}
         onMouseLeave={this.props.onMouseLeaveHandler}
         style={{
-          height: 160,
+          height: compactDisplayMode? (COMPACT_ITEM_HEIGHT+10):(REGULAR_ITEM_HEIGHT+10),
           marginBottom: 1,
           width: "100%",
           // backgroundColor: "blue",
@@ -58,6 +63,11 @@ class BuildSlider extends Component {
               selectedJobId={this.props.selectedJobId}
               subscribeButtonLoading={this.props.subscribeButtonLoading}
               expandedLoading={this.props.expandedLoading}
+              compactDisplayMode={compactDisplayMode}
+              REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
+              REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+              COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+              COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
             />
           ))}
       </div>

@@ -42,7 +42,11 @@ class MyJobItem extends Component {
   };
 
   render() {
-    const { myJob, index, selectDraftToEdit } = this.props;
+    const { myJob, index, selectDraftToEdit ,        compactDisplayMode,
+      COMPACT_ITEM_HEIGHT,
+      COMPACT_ITEM_WIDTH,
+      REGULAR_ITEM_HEIGHT,
+      REGULAR_ITEM_WIDTH} = this.props;
     return (
       <div
         ref={index}
@@ -54,9 +58,9 @@ class MyJobItem extends Component {
           boxShadow:
             "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
           display: "inline-block",
-          height: 150, // this.state.hovered ? 200 : 150,
-          width: 300, //: 400,
-          marginLeft: 15,
+          height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
+          width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
+          marginLeft: 5,
           //left: this.state.hovered ? -30: 0,
           //    opacity: (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
           // transition: "opacity 1500ms, height 1500ms , width 1500ms ",
@@ -76,9 +80,9 @@ class MyJobItem extends Component {
         >
           <img
             style={{
-              height: 150, //this.state.hovered ? 200 : 150,
-              width: 300, //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
-              //    left:this.state.hovered ? 50 : 0,
+              height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
+              width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
+                         //    left:this.state.hovered ? 50 : 0,
               //       opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               //    transition: "opacity 1500ms , height 1500ms , width 1500ms ",
               //      transform: this.state.hovered?"scale(1.5)":"scale(1)",
@@ -92,15 +96,18 @@ class MyJobItem extends Component {
           style={{
             //    backgroundColor: "black",
             color: "white",
-            fontSize: 22,
+            backgroundColor: "black",
+            
+            fontSize: compactDisplayMode? 12 : 22,
             position: "absolute",
             bottom: "0",
-            marginBottom: 5,
             marginRight: 5,
             //right: "100",
             textAlign: "right",
             width: "100%",
             height: "auto",
+            paddingBottom: compactDisplayMode? 1: 5,
+            paddingTop: compactDisplayMode? 1: 5,
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
             overflow: "hidden"

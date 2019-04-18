@@ -155,7 +155,11 @@ async componentDidMount(){
   };
 
   render() {
-    const { category, scrollToMyRef } = this.props;
+    const { category, scrollToMyRef ,      compactDisplayMode,
+      COMPACT_ITEM_HEIGHT,
+      COMPACT_ITEM_WIDTH,
+      REGULAR_ITEM_HEIGHT,
+      REGULAR_ITEM_WIDTH} = this.props;
     const {nextRef} = this.state
 
     const items = allItems[category.id];
@@ -173,10 +177,10 @@ async componentDidMount(){
       adaptiveHeight: true
     };
     return (
-      <div style={{marginTop:30}}>
+      <div style={{marginTop: compactDisplayMode ? 0 : 30 }}>
  
 
-        <p style={{ color: "white", fontSize: 26, margin:5 }}>{category.string}</p>
+        <p style={{ color: "white", fontSize: compactDisplayMode ? 14 : 26, margin:5 }}>{category.string}</p>
    
          <BuildSlider 
            onMouseEnterHandler={this.onMouseEnterHandler}
@@ -199,6 +203,11 @@ async componentDidMount(){
            loading={this.props.loading}
            selectedJobId={this.state.selectedJob.key}
            expandedLoading={this.state.expandedLoading}
+           compactDisplayMode={compactDisplayMode}
+           REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
+           REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+           COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+           COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
 
          />
 

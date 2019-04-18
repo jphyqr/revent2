@@ -158,7 +158,7 @@ this.props.clearAccount()
 
 
  
-                    <Responsive  as={Menu.Item} style={{padding:"5px" ,borderStyle:"none"}} minWidth={380}>
+                    <Responsive  as={Menu.Item} style={{padding:"5px" ,borderStyle:"none"}} minWidth={420}>
           
 
                     <Menu.Item   style={{padding:"0px", margin:"0px", borderStyle:"none"}} onClick={()=>this.props.openModal("JoinBetaModal")}>

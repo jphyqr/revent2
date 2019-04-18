@@ -9,8 +9,8 @@ import {
   unsubscribeToTask
 } from "../../../../../user/userActions";
 
-import {selectTaskToEdit} from '../../../../../modals/TaskModal/taskActions'
-import {openModal} from '../../../../../modals/modalActions'
+import { selectTaskToEdit } from "../../../../../modals/TaskModal/taskActions";
+import { openModal } from "../../../../../modals/modalActions";
 
 const mapState = state => {
   return {
@@ -50,12 +50,9 @@ class BuildCarouselItem extends Component {
     this.props.handleChildCompressing();
   };
 
-
-
-
   componentDidMount = () => {
-    const { item, auth, loading, selectedJobId} = this.props;
-    let isSelected = item.id===selectedJobId
+    const { item, auth, loading, selectedJobId } = this.props;
+    let isSelected = item.id === selectedJobId;
     const subscribers =
       item && item.subscribers && objectToArray(item.subscribers);
     const isSubscribed =
@@ -70,38 +67,32 @@ class BuildCarouselItem extends Component {
   };
 
   componentWillReceiveProps = nextProps => {
-   // if (nextProps.selectedJob !== this.state.currentJob) {
-      const { item, auth, loading, selectedJobId } = nextProps
+    // if (nextProps.selectedJob !== this.state.currentJob) {
+    const { item, auth, loading, selectedJobId } = nextProps;
 
-      let isSelected = item.id===selectedJobId
-      const subscribers =
+    let isSelected = item.id === selectedJobId;
+    const subscribers =
       item && item.subscribers && objectToArray(item.subscribers);
     const isSubscribed =
       subscribers && auth && subscribers.some(a => a.id === auth.uid);
 
-      this.setState({
-        subscribers: subscribers,
-        isSubscribed: isSubscribed,
-        isLoading: false,
-        isSelected: isSelected
-      });
-       this.forceUpdate();
-   // } 
+    this.setState({
+      subscribers: subscribers,
+      isSubscribed: isSubscribed,
+      isLoading: false,
+      isSelected: isSelected
+    });
+    this.forceUpdate();
+    // }
   };
 
-
-
-editTask = item =>{
-
- 
-    console.log('editTask', item.id)
-    this.setState({loading:true})  
-   this.props.selectTaskToEdit(item.id)
-    this.setState({loading:false})  
-    this.props.openModal("TaskModal")
- 
-  
-}
+  editTask = item => {
+    console.log("editTask", item.id);
+    this.setState({ loading: true });
+    this.props.selectTaskToEdit(item.id);
+    this.setState({ loading: false });
+    this.props.openModal("TaskModal");
+  };
 
   handleSubscribe = async item => {
     this.setState({ isLoading: true });
@@ -119,7 +110,7 @@ editTask = item =>{
 
   handleClick = async (e, job, category) => {
     this.setState({ clicked: true });
- //   this.setState({isSelected:true})
+    //   this.setState({isSelected:true})
     this.props.toggleLockInHover();
     this.setState({ expanded: true });
     this.setState({ hovered: false });
@@ -129,12 +120,21 @@ editTask = item =>{
     }
   };
   render() {
-    const { item, category, index, setNextRef, auth } = this.props;
+    const {
+      item,
+      category,
+      index,
+      setNextRef,
+      auth,
+      compactDisplayMode,
+      COMPACT_ITEM_HEIGHT,
+      COMPACT_ITEM_WIDTH,
+      REGULAR_ITEM_HEIGHT,
+      REGULAR_ITEM_WIDTH
+    } = this.props;
     const { subscribers, isSubscribed, isLoading } = this.state;
 
     return (
-
-
       <div
         ref={index}
         className="ui  image"
@@ -145,17 +145,17 @@ editTask = item =>{
           boxShadow:
             "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
           display: "inline-block",
-          height: 150, // this.state.hovered ? 200 : 150,
-          width: 300, //: 400,
-          marginLeft: 15,
+          height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
+          width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
+          marginLeft: 5,
           //left: this.state.hovered ? -30: 0,
-          opacity: (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
+          opacity: this.state.hovered || this.state.isSelected ? 1 : 0.8,
           // transition: "opacity 1500ms, height 1500ms , width 1500ms ",
           //   transform: this.state.hovered ? "scaleY(1.5)" : this.props.scrollRightClicked ? "translateX(-500%)" : "scaleY(1)" ,
           //transform: this.state.clicked ? "translateX(-100%)" : "translateX(0%)",
           // transformOrigin: "50% 50%",
           boxSizing: "border-box",
-          transition: "0.15s all ease",
+          transition: "0.15s all ease"
           //  transitionDelay: "100ms"
         }}
       >
@@ -167,10 +167,10 @@ editTask = item =>{
         >
           <img
             style={{
-              height: 150, //this.state.hovered ? 200 : 150,
-              width: 300, //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
+              height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
+              width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
               //    left:this.state.hovered ? 50 : 0,
-              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              opacity: this.state.hovered || this.state.isSelected ? 1 : 0.8,
               //    transition: "opacity 1500ms , height 1500ms , width 1500ms ",
               //      transform: this.state.hovered?"scale(1.5)":"scale(1)",
               //    transformOrigin: "50% 50%",
@@ -183,17 +183,18 @@ editTask = item =>{
           style={{
             //    backgroundColor: "black",
             color: "white",
-            fontSize: 22,
+            fontSize: compactDisplayMode? 14: 22,
             position: "absolute",
             bottom: "0",
-            marginBottom: 5,
-            marginRight: 5,
+            paddingTop: compactDisplayMode? 0: 3,
+          //  marginRight: 5,
+            backgroundColor: "black",
             //right: "100",
-            textAlign: "right",
+            textAlign: "center",
             width: "100%",
-            height: "auto",
+            height: compactDisplayMode?"37px":"28px",//  height: "auto",
             textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            whiteSpace: compactDisplayMode? "normal" : "nowrap",
             overflow: "hidden"
           }}
         >
@@ -251,45 +252,46 @@ editTask = item =>{
           }}
         >
           {item.managerUid === auth.uid ? (
-            <Button
-              loading={isLoading}
-              onClick={() => this.editTask(item)}
-            >
+            <Button loading={isLoading} onClick={() => this.editTask(item)}>
               edit task
             </Button>
           ) : isSubscribed ? (
-            <Button icon
-            circular
-            style={{opacity: 0.6,
-            
-              boxShadow:
-              "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
-            }
-          
-          }
-            size="large"
-            color="white"
-              loading={this.props.subscribeButtonLoading&&this.state.isSelected}
+            <Button
+              icon
+              circular
+              style={{
+                opacity: 0.6,
+
+                boxShadow:
+                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
+              }}
+              size="large"
+              color="white"
+              loading={
+                this.props.subscribeButtonLoading && this.state.isSelected
+              }
               onClick={() => this.props.handleUnsubscribe(item)}
             >
-              <Icon size="large" name="deaf"/>
+              <Icon size="large" name="deaf" />
             </Button>
           ) : (
             <Button
-            icon
-            circular
-            size="large"
-              loading={this.props.subscribeButtonLoading&&this.state.isSelected}
+              icon
+              circular
+              size="large"
+              loading={
+                this.props.subscribeButtonLoading && this.state.isSelected
+              }
               onClick={() => this.props.handleSubscribe(item)}
               inverted
-            color="white"
-              style={{opacity: 1,
+              color="white"
+              style={{
+                opacity: 1,
                 boxShadow:
-                "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
-              
+                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
               }}
             >
-            <Icon size="large" name="assistive listening systems"/>
+              <Icon size="large" name="assistive listening systems" />
             </Button>
           )}
         </div>

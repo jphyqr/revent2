@@ -93,8 +93,8 @@ class App extends Component {
             <div>
               <NavBar />
 
-              <Container
-                style={{ width: "auto", marginTop: 64, background: "DimGrey" }}
+              <div
+                style={{ width: "100%", marginTop: 61, marginLeft:0, marginRight:"0px", background: "DimGrey" }}
                 className="main"
               >
                 <Switch>
@@ -117,7 +117,7 @@ class App extends Component {
                   <Route path="/job/:id" component={JobDetailedPage} />
                   <Route path="/messages" component={MessageDashboard} />
                 </Switch>
-              </Container>
+              </div>
               {openMessages &&
                 openMessages.map((openMessage, index) =>
                   this.renderChats(openMessage, index)

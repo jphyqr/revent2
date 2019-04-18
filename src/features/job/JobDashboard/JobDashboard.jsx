@@ -21,6 +21,7 @@ import Profile from './RightSidebar/Profile'
 import NavBar from '../NavBar'
 
 import SupportersContainer from "./Supporters/SupportersContainer";
+
 const query = ({ auth }) => {
   const authenticated = auth.isLoaded && !auth.isEmpty;
   if (authenticated) {
@@ -176,28 +177,37 @@ class JobDashboard extends Component {
     this.setState({
       contextRef
     });
+    
 
   render() {
-    const { role, loading, selectQuoteToEdit, auth, jobs, authenticated } = this.props;
+    const { role,compactDisplayMode, CUSTOM_TABLET_CUTOFF, COMPACT_ITEM_HEIGHT,COMPACT_ITEM_WIDTH,REGULAR_ITEM_HEIGHT,REGULAR_ITEM_WIDTH, loading, selectQuoteToEdit, auth, jobs, authenticated, } = this.props;
     const { moreJobs, loadedJobs, myQuotes } = this.state;
 
- 
+    
+
 
     return (
+  
       <div>
+{/* 
 
-
-       {(!process.env.NODE_ENV || process.env.NODE_ENV === 'development') ? <p>IN DEV</p>: <p>IN PROD</p> } 
-          <p style={{ color: "white", fontSize: 26, margin:5 }}>Open Jobs</p>
+       {(!process.env.NODE_ENV || process.env.NODE_ENV === 'development') ? <p>IN DEV</p>: <p>IN PROD</p> }  */}
+          <p style={{ color: "white", fontSize: compactDisplayMode ? 14 : 26, margin:5 }}>Open Jobs</p>
         <OpenJobsSlider
            myQuotes={myQuotes}
           handleSelectOpenJob={this.handleSelectOpenJob}
           handleHoverJob={this.handleHoverJob}
           jobs={jobs}
+
+          compactDisplayMode={compactDisplayMode}
+          COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
+          COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+          REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+          REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
         />
 
 
-<Responsive   minWidth={500}>
+<Responsive   minWidth={CUSTOM_TABLET_CUTOFF} >
           
 <div style={{ minHeight: "500px" }}>
           <Grid>
@@ -285,6 +295,7 @@ class JobDashboard extends Component {
 
 
       </div>
+   
     );
   }
 }

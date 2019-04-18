@@ -13,8 +13,6 @@ import { selectQuoteToEdit } from "../../../modals/QuoteJobModal/quoteActions";
 import { newChat } from "../../../user/userActions";
 import { openModal } from "../../../modals/modalActions";
 
-
-
 const query = ({ auth }) => {
   const authenticated = auth.isLoaded && !auth.isEmpty;
   if (authenticated) {
@@ -23,7 +21,6 @@ const query = ({ auth }) => {
         collection: "tasks",
         where: [["exclusive", "==", true]],
 
-       
         storeAs: "exclusive_jobs"
       },
       {
@@ -33,11 +30,12 @@ const query = ({ auth }) => {
         orderBy: ["date", "desc"],
         storeAs: "jobs_attended"
       },
-     { collection: "users",
-      doc: auth.uid,
-      subcollections: [{ collection: "contracts" }],
-      storeAs: "contracts"},
-
+      {
+        collection: "users",
+        doc: auth.uid,
+        subcollections: [{ collection: "contracts" }],
+        storeAs: "contracts"
+      }
     ];
   } else {
     return [
@@ -45,7 +43,6 @@ const query = ({ auth }) => {
         collection: "tasks",
         where: [["exclusive", "==", true]],
 
-       
         storeAs: "exclusive_jobs"
       },
       {
@@ -54,21 +51,10 @@ const query = ({ auth }) => {
 
         orderBy: ["date", "desc"],
         storeAs: "jobs_attended"
-      },
-
+      }
     ];
   }
 };
-
-
-
-
-
-
-
-
-
-
 
 const actions = {
   selectDraftToEdit,
@@ -143,17 +129,32 @@ class BuildDetail extends Component {
 
   scrollToMyRef = (eChild, offset) => {
     scrollToComponent(eChild.currentTarget, {
-      offset: -110+offset,
+      offset: -110 + offset,
       align: "top",
       duration: 600
     });
   };
 
   render() {
-    const { categories, selectDraftToEdit, auth, loading , exclusiveJobs} = this.props;
+    const {
+      categories,
+      selectDraftToEdit,
+      auth,
+      loading,
+      exclusiveJobs,
+      REGULAR_EXCLUSIVE_HEIGHT,
+      REGULAR_EXCLUSIVE_WIDTH,
+      COMPACT_EXCLUSIVE_HEIGHT,
+      COMPACT_EXCLUSIVE_WIDTH,
+      compactDisplayMode,
+      COMPACT_ITEM_HEIGHT,
+      COMPACT_ITEM_WIDTH,
+      REGULAR_ITEM_HEIGHT,
+      REGULAR_ITEM_WIDTH
+    } = this.props;
     const authenticated = auth.isLoaded && !auth.isEmpty;
     return (
-      <div style={{ marginTop: 10, paddingBottom: "900px" }}>
+      <div style={{ marginTop: 10,  paddingBottom: "900px" }}>
         {authenticated && (
           <MyJobsCarousel
             loading={loading}
@@ -167,13 +168,26 @@ class BuildDetail extends Component {
             myJobs={this.props.myJobs}
             myContracts={this.props.myContracts}
             selectDraftToEdit={selectDraftToEdit}
+            compactDisplayMode={compactDisplayMode}
+            REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
+            REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+            COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+            COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
           />
         )}
-        <ExclusiveJobsCarousel  selectDraftToEdit={selectDraftToEdit} scrollToMyRef={this.scrollToMyRef} exclusiveJobs={exclusiveJobs}/>
+        <ExclusiveJobsCarousel
+          selectDraftToEdit={selectDraftToEdit}
+          scrollToMyRef={this.scrollToMyRef}
+          exclusiveJobs={exclusiveJobs}
+          REGULAR_EXCLUSIVE_HEIGHT={REGULAR_EXCLUSIVE_HEIGHT}
+          REGULAR_EXCLUSIVE_WIDTH={REGULAR_EXCLUSIVE_WIDTH}
+          COMPACT_EXCLUSIVE_HEIGHT={COMPACT_EXCLUSIVE_HEIGHT}
+          COMPACT_EXCLUSIVE_WIDTH={COMPACT_EXCLUSIVE_WIDTH}
+          compactDisplayMode={compactDisplayMode}
+        />
         {!isLoaded(categories) ? (
           <LoadingComponent />
         ) : (
-          
           categories &&
           categories.map(category => (
             <BuildCarousel
@@ -181,6 +195,11 @@ class BuildDetail extends Component {
               category={category}
               scrollToMyRef={this.scrollToMyRef}
               handleContextRef={this.handleContextRef}
+              compactDisplayMode={compactDisplayMode}
+              REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
+              REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+              COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+              COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
             />
           ))
         )}

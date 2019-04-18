@@ -2,14 +2,14 @@ import React, { Component } from 'react'
 import OpenJobItem from './OpenJobItem'
 class OpenJobsSlider extends Component {
   render() {
-      const {jobs} = this.props
+      const {jobs, compactDisplayMode, COMPACT_ITEM_HEIGHT,COMPACT_ITEM_WIDTH,REGULAR_ITEM_HEIGHT,REGULAR_ITEM_WIDTH,} = this.props
     return (
         <div
         class="list"
       //  onMouseEnter={this.props.onMouseEnterHandler}
       //  onMouseLeave={this.props.onMouseLeaveHandler}
         style={{
-          height: 110,
+          height: compactDisplayMode? (COMPACT_ITEM_HEIGHT+10):(REGULAR_ITEM_HEIGHT+10),
           marginBottom: 1,
           width: "100%",
           // backgroundColor: "blue",
@@ -27,6 +27,12 @@ class OpenJobsSlider extends Component {
         {jobs &&
           jobs.map((job, i) => (
             <OpenJobItem
+            compactDisplayMode={compactDisplayMode}
+            COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
+            COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+            REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+            REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
+       
             myQuotes={this.props.myQuotes}
             handleSelectOpenJob={this.props.handleSelectOpenJob}
             handleHoverJob={this.props.handleHoverJob}

@@ -52,25 +52,25 @@ export default class OpenJobItem extends Component {
     }
 
     render() {
-        const {job, index} = this.props
+        const {job, index, compactDisplayMode, COMPACT_ITEM_HEIGHT,COMPACT_ITEM_WIDTH,REGULAR_ITEM_HEIGHT,REGULAR_ITEM_WIDTH,} = this.props
         const { date,  startDate, contract} = job ||{}
 
         const contractorHired = !(job.contract==undefined)
 
 
         let postedDistance = distanceInWords(date , Date.now())
-        let startDistance = distanceInWords(startDate.seconds*1000 , Date.now())
+   //     let startDistance = distanceInWords(startDate.seconds*1000 , Date.now())
 
-        const postedString = `Posted ${postedDistance} ago`
-        let startString; // `Starts in ${startDistance}`
+        const postedString = `${postedDistance} ago`
+        // let startString; // `Starts in ${startDistance}`
 
-        if(startDate.seconds*1000<Date.now()){
-          //in the past
-          startString = `Started ${startDistance} ago.`
-        } else {
-          //in the future
-          startString = `Starts in ${startDistance}`
-        }
+        // if(startDate.seconds*1000<Date.now()){
+        //   //in the past
+        //   startString = `Started ${startDistance} ago.`
+        // } else {
+        //   //in the future
+        //   startString = `Starts in ${startDistance}`
+        // }
 
       return (
         <div
@@ -83,11 +83,12 @@ export default class OpenJobItem extends Component {
           boxShadow:
             "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
           display: "inline-block",
-          height: 100, // this.state.hovered ? 200 : 150,
-          width: 300, //: 400,
-          marginLeft: 15,
+          height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
+          width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
+          marginLeft: 5,
           //left: this.state.hovered ? -30: 0,
-          opacity: (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
+          opacity: contractorHired? 0.2 : (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
+          
           // transition: "opacity 1500ms, height 1500ms , width 1500ms ",
           //   transform: this.state.hovered ? "scaleY(1.5)" : this.props.scrollRightClicked ? "translateX(-500%)" : "scaleY(1)" ,
           //transform: this.state.clicked ? "translateX(-100%)" : "translateX(0%)",
@@ -105,8 +106,8 @@ export default class OpenJobItem extends Component {
         >
           <img
             style={{
-              height: 100, //this.state.hovered ? 200 : 150,
-              width: 300, //this.state.hovered ? 600 : 400, //300,//this.state.hovered ? 450 : 300,
+              height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
+              width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
               //    left:this.state.hovered ? 50 : 0,
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               //    transition: "opacity 1500ms , height 1500ms , width 1500ms ",
@@ -146,34 +147,44 @@ export default class OpenJobItem extends Component {
             bottom: 20,
             textAlign: "center",
             width: "100%",
+            opacity: contractorHired? 0 : (this.state.hovered||this.state.isSelected) ? 0.8 : 0,
 
-           opacity: this.state.hovered ? 0.8 : 0,
             height: "auto"
           }}
         >
           <Icon color="white" size="huge" name="arrow down" />
         </div>
 
-        {(!contractorHired)&&this.state.quoteSubmitted  ? (
+        {this.state.quoteSubmitted  ? (
           <div
             style={{
               position: "absolute",
-              top: 5,
-             left:5,
+              top: "30%",
+            
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "blue",
-              background:"white"
+              background:"white",
+              textAlign: "right",
+              width: "100%",
+              height: "auto",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden"
             }}
           >
             Quote Submitted!
           </div>
-        ) : (!(contractorHired)&&this.state.quoteExists) ? (
+        ) : (this.state.quoteExists) ? (
           <div
             style={{
               position: "absolute",
-              top: 5,
-              left:5,
-            
+              top: "60%",
+              textAlign: "center",
+              width: "100%",
+              height: "auto",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
               background: "black",
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "yellow"
@@ -198,7 +209,7 @@ export default class OpenJobItem extends Component {
           </div>
 
 
-          {(!contractorHired)&&      <div
+          {/* {(!contractorHired)&&      <div
             style={{
               position: "absolute",
               top: 20,
@@ -210,48 +221,28 @@ export default class OpenJobItem extends Component {
           >
    {startString}
 
-          </div>}
+          </div>} */}
 
 
 
 
 
-        {contractorHired?  <div
-            style={{
-              position: "absolute",
-              top: 30,
-              right: 60,
-              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
-              color: "white"
-            }}
-          >
-            CONTRACTOR HIRED
-          </div> :
-        job.inDraft  ? (
           <div
             style={{
               position: "absolute",
-              top: 5,
-              right: 5,
+              top: "35%",
+              textAlign: "center",
+              width: "100%",
+              height: "auto",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "white"
             }}
           >
-            In Draft
-          </div>
-        ) : (
-          <div
-            style={{
-              position: "absolute",
-              top: 5,
-              right: 5,
-              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
-              color: "white"
-            }}
-          >
-            OPEN
-          </div>
-        )}
+           {contractorHired? "HIRED" : "OPEN"}
+          </div> 
 
         <div
           style={{
