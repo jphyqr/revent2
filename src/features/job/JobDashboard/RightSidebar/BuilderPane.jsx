@@ -25,7 +25,7 @@ class BuilderPane extends Component {
   };
 
   render() {
-    const { builderProfile } = this.props;
+    const { builderProfile , compactDisplayMode} = this.props;
     const { jobsStarted, jobsCompleted, isABuilder, rating, volumeTotal, builderPhotos } =
       builderProfile || {};
     const { communication, feedback, professionalism, punctuality } =
@@ -49,7 +49,124 @@ class BuilderPane extends Component {
     const fakeIsABuilder=true;
 
     return (
-      <div style={{height:300}}>
+      <div style={{ padding: "20px" }}>
+
+      {compactDisplayMode ? 
+      <div>
+      <Grid>
+        <Grid.Row>
+        <Message
+          style={{ width: "100%" }}
+          info
+          size="mini"
+          attached="top"
+          content="You must add a verified credit card."
+        />
+        </Grid.Row>
+        <Grid.Row>
+        <Button
+          onClick={()=>this.props.openModal("PaymentModal")}
+          content="+ credit card"
+          icon="credit card"
+          labelPosition="left"
+        /> 
+        </Grid.Row>
+    
+
+      </Grid>
+          <Divider />
+          {fakeIsABuilder ? (
+        <Grid>
+      
+          <Grid.Row>
+            <Grid.Column width={3}>Rating</Grid.Column>
+            <Grid.Column width={3}>Volume</Grid.Column>
+            <Grid.Column width={3}>Jobs Started</Grid.Column>
+            <Grid.Column width={6}>Jobs Completed</Grid.Column>
+          </Grid.Row>
+         
+            <Grid.Row
+              style={{ textAlign: "center", paddingTop: 0, marginTop: 0 }}
+            >
+              <Grid.Column width={3}>{averageRating}</Grid.Column>
+              <Grid.Column width={3}>{volumeTotalString}</Grid.Column>
+              <Grid.Column width={3}>{jobsStarted}</Grid.Column>
+              <Grid.Column width={6}>{jobsCompleted}</Grid.Column>
+            </Grid.Row>
+            </Grid>
+          ) : (
+          
+              <Message style={{width:"100%"}}>
+                <Message.Header>Become a Builder</Message.Header>
+                <Message.List>
+                  <Message.Item>Add a Credit Card</Message.Item>
+                  <Message.Item>Post a Job</Message.Item>
+                </Message.List>
+              </Message>
+           
+          )}
+     
+        <Divider />  
+        <Grid.Row>
+              <div style={{ width: "100%", height: "auto" }}>
+                <Dropzone
+                  style={{
+                    width: "50%",
+                    marginTop: 10,
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    borderRadius: "20px",
+                    display: "block",
+                    height: 30,
+                    backgroundColor: "orange"
+                  }}
+                  onDrop={this.onDrop}
+                  multiple={false}
+                  acceptedFiles={"image/jpeg,image/png,image/gif"}
+                >
+                  <div style={{ textAlign: "center" }}>
+                    <Header style={{ paddingTop: 4 }} content="+Add Photo" />
+                  </div>
+                </Dropzone>
+                <Divider />
+                <div
+                  style={{
+                    height: 130,
+                    width: "auto",
+                    whiteSpace: "nowrap",
+                    padding: 5,
+                    backgroundColor: "grey",
+                    overflowY: "hidden",
+                    overflowX: "auto"
+                  }}
+                >
+                  {this.state.files[0] && (
+                    <Image
+                      style={{
+                        display: "inline-block",
+                        opacity: 0.3,
+                        maxHeight: 115,
+                        maxWidth: 115
+                      }}
+                      src={this.state.files[0].preview}
+                    />
+                  )}
+                  {builderPhotos &&
+                    builderPhotos.map(photo => (
+                      <Image
+                        style={{
+                          marginLeft: 10,
+                          height: 115,
+                          display: "inline-block"
+                        }}
+                        src={photo}
+                      />
+                    ))}
+                </div>
+              </div>
+            </Grid.Row>
+      </div>
+      :
       <Grid>
         <Grid.Column width={8}>
         <Message
@@ -128,7 +245,7 @@ class BuilderPane extends Component {
          </div>
         </div>
         </Grid.Column>
-      </Grid>
+      </Grid>}
      
         </div>
     );

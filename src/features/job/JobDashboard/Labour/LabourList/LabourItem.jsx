@@ -3,7 +3,7 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
  class LabourItem extends Component {
     
   render() {
-      const {labourer, newChatLabourer} = this.props
+      const {labourer, newChatLabourer, compactDisplayMode} = this.props
       const {displayName, jobsCompleted, jobsStarted,  volumeTotal, photoURL, rating, updatedSkills, labourPhotos} = labourer
       const{rate, coverletter, hasTransportation, hasBasicTools, hasValidLicense} = updatedSkills
 
@@ -31,7 +31,7 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
       
         style={{
            
-          height: 440,
+          height: compactDisplayMode? 290: 440,
           width: 300,
 
           borderRadius: "5%",
@@ -48,11 +48,11 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
       >
     <Grid style={{margin: 3,}}>
       <Grid.Row>
-        <Grid.Column width={6}>
+        <Grid.Column width={compactDisplayMode?4:6}>
         <img
           style={{
-            height: "100",
-            width: "100",
+            height: compactDisplayMode?50:100,
+            width: compactDisplayMode? 50:100,
   //    borderRadius: "50%",
    //   border: "3px solid grey",
             transition: "0.15s all ease",
@@ -63,15 +63,15 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
           src={photoURL||"/assets/user.png"}
         />
         </Grid.Column>
-        <Grid.Column width={10}>
+        <Grid.Column width={compactDisplayMode?6:10}>
         <label
           style={{
             width:"100%",
-            fontSize: 18,
+            fontSize: compactDisplayMode? 12: 18,
             color: "grey",
             display: "block",
             textOverflow:"ellipsis",
-            padding:5
+            padding:compactDisplayMode?0:5
           }}
         >
         {displayName}
@@ -79,9 +79,9 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
    <label
           style={{
            
-            fontSize: 18,
+            fontSize: compactDisplayMode? 12: 18,
             color: "green",
-            padding:5,
+            padding:compactDisplayMode? 0: 5,
             display: "block",
             textOverflow:"ellipsis",
             
@@ -89,16 +89,44 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
         >
         {`$${rate}/hr`}
    </label>
-   <Icon size="large" name="car" style={{color: hasTransportation ? "green" : "grey", opacity: hasTransportation ? "1" : ".3"}}/>
-   <Icon size="large" name="drivers license" style={{color: hasValidLicense ? "green" : "grey", opacity: hasValidLicense ? "1" : ".3"}}/>
-   <Icon size="large" name="briefcase" style={{color: hasBasicTools ? "green" : "grey", opacity: hasBasicTools ? "1" : ".3"}}/>
+   <Icon size={compactDisplayMode?"small":"large"} name="car" style={{color: hasTransportation ? "green" : "grey", opacity: hasTransportation ? "1" : ".3"}}/>
+   <Icon size={compactDisplayMode?"small":"large"} name="drivers license" style={{color: hasValidLicense ? "green" : "grey", opacity: hasValidLicense ? "1" : ".3"}}/>
+   <Icon size={compactDisplayMode?"small":"large"} name="briefcase" style={{color: hasBasicTools ? "green" : "grey", opacity: hasBasicTools ? "1" : ".3"}}/>
        
        
        
        
         </Grid.Column>
+       {compactDisplayMode&& <Grid.Column width={6}>
+       <Button
+           fluid
+           inverted
+            positive
+       // onClick={()=>this.props.handleViewQuote(item)}
+          style={{
+      
+            fontSize: 12,
+           
+          }}
+        >
+          Skills
+        </Button>
+
+        <Button 
+           fluid
+        loading={this.props.loading}
+        onClick={()=>newChatLabourer(labourer)}
+                  style={{
+                 
+                    fontSize: 12,
+               
+                  }}
+        
+         inverted
+        secondary>Message</Button>
+          </Grid.Column>}
 </Grid.Row>
-        <Grid.Row>
+        <Grid.Row style={{padding: compactDisplayMode? 0:5}}>
             <Grid.Column width={4}>Rating</Grid.Column>
             <Grid.Column width={6}>$Volume</Grid.Column>
        
@@ -113,11 +141,11 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
             
               <Grid.Column width={4}>{jobsCompleted}</Grid.Column>
             </Grid.Row>
-            <Grid.Row>
+         {(!compactDisplayMode)&&   <Grid.Row>
             {coverletter}
 
 
-            </Grid.Row>
+            </Grid.Row>}
             <div style={{height:135,  width:"100%", whiteSpace: "nowrap", padding:5, backgroundColor:"lightgrey", overflowY:"hidden", overflowX:"auto"}}>
 
           {labourPhotos && labourPhotos.map(photo=>(

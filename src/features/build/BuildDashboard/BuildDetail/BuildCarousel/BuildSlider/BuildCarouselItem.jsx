@@ -216,7 +216,7 @@ class BuildCarouselItem extends Component {
         >
           <Icon color="white" size="huge" name="arrow down" />
         </div>
-        {item.managerUid === auth.uid ? (
+        {/* {item.managerUid === auth.uid ? (
           <div
             style={{
               position: "absolute",
@@ -240,7 +240,7 @@ class BuildCarouselItem extends Component {
           >
             Managed By: {item.managedBy}
           </div>
-        )}
+        )} */}
 
         <div
           style={{

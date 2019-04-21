@@ -14,7 +14,8 @@ state = {
     }
 
   render() {
-      const {subscribers} = this.state
+      const {subscribers,} = this.state
+      const {compactDisplayMode} = this.props
       console.log({subscribers})
     return (
       <div
@@ -22,7 +23,7 @@ state = {
       //  onMouseEnter={this.props.onMouseEnterHandler}
       //  onMouseLeave={this.props.onMouseLeaveHandler}
         style={{
-          height: 160,
+          height: compactDisplayMode? 110: 160,
           marginBottom: 1,
           width: "100vw",
         // backgroundColor: "grey",
@@ -44,6 +45,7 @@ state = {
               index={i}
             //  category={this.props.category}
               item={item}
+              compactDisplayMode={compactDisplayMode}
             //   scrollRightClicked={this.state.scrollRightClicked}
             //   scrollToMyRef={this.props.scrollToMyRef}
             //   showExpanded={this.props.showExpanded}

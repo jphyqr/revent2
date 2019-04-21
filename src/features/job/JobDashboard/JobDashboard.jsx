@@ -15,6 +15,7 @@ import { openModal } from "../../modals/modalActions";
 import OpenJobsSlider from "./OpenJobsSlider/OpenJobsSlider";
 import OpenJobExpanded from "./OpenJobExpanded"
 import LabourList from './Labour/LabourList/LabourList'
+import Post from './Post/Post'
 import StatsDashboard from './Stats/StatsDashboard'
 import MarketDashboard from './Market/MarketDashboard/MarketDashboard'
 import Profile from './RightSidebar/Profile'
@@ -82,7 +83,7 @@ class JobDashboard extends Component {
     selectedJobId: "",
     myQuotes: [],
     quotesLoading: false,
-    navShow: "map"
+    navShow: "post"
   };
 
   handleSelectTab = tab =>{
@@ -207,9 +208,9 @@ class JobDashboard extends Component {
         />
 
 
-<Responsive   minWidth={CUSTOM_TABLET_CUTOFF} >
+<Responsive   minWidth={1} >
           
-<div style={{ minHeight: "500px" }}>
+<div style={{ minHeight: compactDisplayMode? "300px":  "500px" }}>
           <Grid>
             <Grid.Row >
               <Grid.Column width={3} only='computer'>
@@ -222,7 +223,7 @@ class JobDashboard extends Component {
              
               <Grid.Column mobile={16} tablet={16} computer={10} >
               
-              <NavBar role={role} handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
+              <NavBar compactDisplayMode={compactDisplayMode} role={role} handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
            {this.state.loading ?  <Loader active inline='centered' /> :
                 this.state.showExpanded ? (
                   <OpenJobExpanded
@@ -235,10 +236,16 @@ class JobDashboard extends Component {
                 
                     selectedJob={this.state.selectedJob}
                   />
-                ) : (this.state.navShow==="profile") ? 
+                ) :(this.state.navShow==="post")?
+                <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="post")}>
+                <Post compactDisplayMode={compactDisplayMode}/>
+             </Transition.Group>
+
+                :
+                 (this.state.navShow==="profile") ? 
 
                 <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="profile")}>
-                 <Profile/>
+                 <Profile compactDisplayMode={compactDisplayMode}/>
               </Transition.Group>
 
 :(this.state.navShow==="market") ?
@@ -257,7 +264,7 @@ class JobDashboard extends Component {
                 
                 (this.state.navShow==="labour") ?
                 <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="profile")}>
-                <LabourList/>
+                <LabourList compactDisplayMode/>
              </Transition.Group>
                 :
                 (this.state.navShow==="supporters") ? 
@@ -268,6 +275,7 @@ class JobDashboard extends Component {
                 (
                   <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="map")}>
                   <JobMap
+                    compactDisplayMode={compactDisplayMode}
                     hoveredJobId={this.state.hoveredJobId}
                     jobs={jobs}
                     lat={50.44}

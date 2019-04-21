@@ -94,23 +94,34 @@ class MyJobItem extends Component {
         </div>
         <div
           style={{
-            //    backgroundColor: "black",
-            color: "white",
             backgroundColor: "black",
-            
-            fontSize: compactDisplayMode? 12 : 22,
+            color: "white",
+            fontSize: compactDisplayMode? 12: 16,
             position: "absolute",
             bottom: "0",
-            marginRight: 5,
+
             //right: "100",
-            textAlign: "right",
+            textAlign: "center",
             width: "100%",
             height: "auto",
-            paddingBottom: compactDisplayMode? 1: 5,
-            paddingTop: compactDisplayMode? 1: 5,
+
+
             textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            whiteSpace: compactDisplayMode? "normal" : "nowrap",
             overflow: "hidden"
+
+
+
+
+
+
+
+
+
+
+
+
+
           }}
         >
           {myJob.taskName}
@@ -125,7 +136,7 @@ class MyJobItem extends Component {
             textAlign: "center",
             width: "100%",
 
-            //     opacity: this.state.hovered ? 0.8 : 0,
+                 opacity: this.state.hovered ? 0.8 : 0,
             height: "auto"
           }}
         >
@@ -138,7 +149,8 @@ class MyJobItem extends Component {
               top: 5,
               right: 5,
               opacity: 0.6,
-              color: "white"
+              color: "white",
+              background:"grey"
             }}
           >
             In Draft
@@ -150,7 +162,8 @@ class MyJobItem extends Component {
               top: 5,
               right: 5,
               opacity: 0.6,
-              color: "white"
+              color: "white",
+              background:"green"
             }}
           >
             LIVE

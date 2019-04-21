@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Card, Icon, Image, Rating } from "semantic-ui-react";
 class ContractorItem extends Component {
   render() {
-    const { item } = this.props;
+    const { item, compactDisplayMode } = this.props;
     return (
       //     <Card>
       //     <Image src={item.photoURL} />
@@ -22,15 +22,15 @@ class ContractorItem extends Component {
       //   </Card>
       <div
         style={{
-          height: 135,
-          width: 250,
+          height: compactDisplayMode ? 90 : 135,
+          width: compactDisplayMode?190:250,
 
           borderRadius: "5%",
           backgroundColor: "gainsboro",
           position: "relative",
           boxShadow:
             "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
-          marginRight: 10,
+          marginLeft: 10,
           marginTop: 10,
           display: "inline-block",
           whiteSpace: "nowrap",
@@ -39,10 +39,10 @@ class ContractorItem extends Component {
       >
         <img
           style={{
-            height: 75,
-            width: 75,
-      borderRadius: "50%",
-      border: "3px solid grey",
+            height: compactDisplayMode ? 50 : 75,
+            width: compactDisplayMode ? 50 : 75,
+            borderRadius: "50%",
+            border: "3px solid grey",
             transition: "0.15s all ease",
             position: "absolute",
             top: 5,
@@ -54,54 +54,43 @@ class ContractorItem extends Component {
         <label
           style={{
             position: "absolute",
-            fontSize: 18,
+            fontSize: compactDisplayMode ? 12 : 18,
             color: "grey",
-            top: 10,
-            left: 90,
-            textOverflow: "ellipsis",
-           
+            top: compactDisplayMode ? 5 : 10,
+            left: compactDisplayMode ? 70 : 90,
+            textOverflow: "ellipsis"
           }}
         >
-        {item.displayName}
-   </label>
-<label
-          style={{
-            position: "absolute",
-            fontSize: 14,
-            color: "grey",
-            top: 35,
-            left: 90
-          }}
-        >
-          Contractor
+          {item.displayName}
         </label>
 
         <label
           style={{
             position: "absolute",
-            fontSize: 14,
+            fontSize: compactDisplayMode ? 12 : 14,
             color: "grey",
-            top: 55,
-            left: 90
+            top: compactDisplayMode ? 25 : 55,
+            left: compactDisplayMode ? 70 : 90
           }}
         >
           Cool Company
         </label>
         <Rating
-          style={{ position: "absolute", top: 92, left: 5 , opacity:0.6}}
+          style={{ position: "absolute", top: compactDisplayMode ? 62 : 92, left: 5, opacity: 0.6 }}
           icon="star"
           defaultRating={4}
           maxRating={5}
         />
 
-<label
+        <label
           style={{
             position: "absolute",
             fontSize: 14,
             color: "green",
-            top: 90,
+            top: compactDisplayMode ? 62 : 92,
             margin: 0,
-            left: 120, opacity:0.6
+            left:  compactDisplayMode ? 105 : 120,
+            opacity: 0.6
           }}
         >
           >10K
@@ -112,9 +101,10 @@ class ContractorItem extends Component {
             position: "absolute",
             fontSize: 14,
             color: "brown",
-            top: 90,
+            top: compactDisplayMode ? 62 : 92,
             margin: 0,
-            left: 180, opacity:0.6
+            left:  compactDisplayMode ? 155 : 180,
+            opacity: 0.6
           }}
         >
           V3

@@ -8,13 +8,13 @@ import MapMarker from './MapMarker'
  class JobMap extends Component {
   
   render() {
-    const { lat, lng, jobs } = this.props
+    const { lat, lng, jobs, compactDisplayMode } = this.props
 
     const center = [lat, lng];
     const zoom = 11;
     return (
     //  <Segment attached="bottom" style={{padding:0, marginTop: 0}}>
-      <div style={{ height: '500px', width: '100%' }}>
+      <div style={{ height: compactDisplayMode? '300px': '500px', width: '100%' }}>
         <GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyBeJlBUVhFnJrXS5flaYydbj5AmbuGCNBQ' }}
           defaultCenter={center}

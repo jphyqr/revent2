@@ -20,22 +20,23 @@ const actions = {
 
     }
   render() {
-      const {labourers, newChatLabourer} = this.props
+      const {labourers, newChatLabourer, compactDisplayMode} = this.props
     return (
       <div
       style={{
         width: "100%",
-        height: "500px",
+        height: compactDisplayMode?"300px": "500px",
+        overflowX:"hidden", overflowY:"auto",
         backgroundColor: "lightgrey",
-        margin: 10
+      //  margin: 10
         // position: "relative"
       }}
     >
 
-    <Header as="h1">Looking for Work</Header>
-      <div  style={{minHeight:"490", overflowY:"hidden",  whiteSpace: "nowrap", overflowX:"auto"}}>
+   {(!compactDisplayMode)&& <Header as="h1">Looking for Work</Header>}
+      <div  style={{ overflowY:"hidden",  whiteSpace: "nowrap", overflowX:"auto"}}>
         {labourers&&labourers.map(labourer=>(
-            <LabourItem labourer={labourer} newChatLabourer={newChatLabourer}/>
+            <LabourItem compactDisplayMode labourer={labourer} newChatLabourer={newChatLabourer}/>
         ))}
       </div>
       </div>

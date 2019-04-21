@@ -11,6 +11,7 @@ import {getTasksForCarousel} from './carouselActions'
 import { connect } from "react-redux";
 import {selectTaskToEdit} from '../../../../modals/TaskModal/taskActions'
 import {subscribeToTask, unsubscribeToTask} from '../../../../../features/user/userActions'
+import { openModal } from "../../../../modals/modalActions";
 const query = ({ category }) => {
   return [
     {
@@ -23,7 +24,7 @@ const query = ({ category }) => {
 
 
 const actions = {
-  getTasksForCarousel,selectTaskToEdit,subscribeToTask, unsubscribeToTask
+  getTasksForCarousel,selectTaskToEdit,subscribeToTask, unsubscribeToTask, openModal
     
 }
 
@@ -123,11 +124,19 @@ async componentDidMount(){
   };
 
   handleShowExpanded  = async job => {
-    this.setState({expandedLoading:true})
-    let newTask = await this.props.selectTaskToEdit(job)
-    console.log({newTask})
-    this.setState({ selectedJob: this.props.task, showExpanded: true });
-    this.setState({expandedLoading:false})
+    if(false){
+      await this.props.selectTaskToEdit(job)
+    this.props.openModal('BuildModal')
+  
+   
+    }else{
+      this.setState({expandedLoading:true})
+      
+      await this.props.selectTaskToEdit(job)
+      this.setState({ selectedJob: this.props.task, showExpanded: true });
+      this.setState({expandedLoading:false})
+    }
+
   };
 
   handleClose = () => {
@@ -223,6 +232,7 @@ async componentDidMount(){
             selectedJob={this.state.selectedJob.value}
             selectedJobId={this.state.selectedJob.key}
             handleClose={this.handleClose}
+            compactDisplayMode={compactDisplayMode}
             handleUnsubscribe={this.handleUnsubscribe}
             expandedLoading={this.state.expandedLoading}
             />

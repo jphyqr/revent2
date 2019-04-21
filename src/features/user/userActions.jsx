@@ -1035,7 +1035,7 @@ export const createLabourProfile = (profile, profileListed) => async (
   const userProfile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
 
-
+labourProfile.isALabourer=true
 
   let updatedProfile = {
     profileListed: profileListed,
@@ -1075,7 +1075,7 @@ export const createLabourProfile = (profile, profileListed) => async (
         type: FETCH_LABOUR,
         payload: { labour }
       });
-      await firebase.updateProfile({profileListed:profileListed, skillsHaveBeenUpdated:false})
+      await firebase.updateProfile({profileListed:profileListed, isALabourer:true, skillsHaveBeenUpdated:false})
     toastr.success("Success", "Profile Created and Listed");
   } catch (error) {
     toastr.error("Ooops", "Profile was not Created");

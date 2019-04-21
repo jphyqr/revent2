@@ -120,19 +120,20 @@ export default class OpenJobItem extends Component {
         </div>
         <div
           style={{
-            //    backgroundColor: "black",
+                backgroundColor: "black",
             color: "white",
             fontSize: 12,
             position: "absolute",
             bottom: "0",
-            marginBottom: 5,
-            marginRight: 5,
+
             //right: "100",
-            textAlign: "right",
+            textAlign: "center",
             width: "100%",
             height: "auto",
+
+
             textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            whiteSpace: compactDisplayMode? "normal" : "nowrap",
             overflow: "hidden"
           }}
         >
@@ -201,7 +202,10 @@ export default class OpenJobItem extends Component {
               width:"100%",
               textAlign:"center",
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
-              color: "white"
+              color: "white",
+              textOverflow: "ellipsis",
+              whiteSpace: compactDisplayMode? "normal" : "nowrap",
+              overflow: "hidden"
             }}
           >
    {postedString}

@@ -13,13 +13,12 @@ import { selectDraftToEdit } from "../../../../draftActions";
 import { selectTaskToEdit } from "../../../../../modals/TaskModal/taskActions";
 //import ContractorSlider from "./BuildContractorTab/ContractorSlider";
 import { openModal } from "../../../../../modals/modalActions";
-import {compose} from 'redux'
-import {connect} from 'react-redux'
+import { compose } from "redux";
+import { connect } from "react-redux";
 import { firestoreConnect } from "react-redux-firebase";
 import QuoteSlider from "./QuoteSlider";
 
 const query = ({ selectedJobId }) => {
-
   console.log("QUERY", selectedJobId);
   return [
     {
@@ -57,8 +56,8 @@ class MyJobsExpanded extends Component {
     isLoading: false,
     pauseButtonLoading: false
     //subscribers: [],
-  //  isSubscribed: false,
- //   isManager: false
+    //  isSubscribed: false,
+    //   isManager: false
   };
 
   handleSelectTab = tab => {
@@ -72,14 +71,14 @@ class MyJobsExpanded extends Component {
       objectToArray(selectedJob.jobQuotes);
     // const isSubscribed =
     //   subscribers && auth && subscribers.some(a => a.id === auth.uid);
-  //  const isManager = selectedJob&&selectedJob.managerUid === auth.uid;
+    //  const isManager = selectedJob&&selectedJob.managerUid === auth.uid;
 
     this.setState({
       quotes: jobQuotes,
-   //   isSubscribed: isSubscribed,
+      //   isSubscribed: isSubscribed,
       isLoading: false,
       currentJob: selectedJob,
-    //  isManager: isManager,
+      //  isManager: isManager,
       selectedTab: "quotes"
     });
   }
@@ -90,168 +89,160 @@ class MyJobsExpanded extends Component {
   };
 
   componentWillReceiveProps = nextProps => {
+    if (!nextProps.expandedLoading) {
+      if (nextProps.selectedJob !== this.state.currentJob) {
+        const { selectedJob, auth } = nextProps;
+        //   const subscribers =
+        //     selectedJob &&
+        //     selectedJob.subscribers &&
+        //     objectToArray(selectedJob.subscribers);
+        //   const isSubscribed =
+        //     subscribers && auth && subscribers.some(a => a.id === auth.uid);
+        //   const isManager = selectedJob.managerUid === auth.uid;
 
-
-   if(!nextProps.expandedLoading)
-   {
-
-   
-    if (nextProps.selectedJob !== this.state.currentJob) {
-      const { selectedJob, auth } = nextProps;
-    //   const subscribers =
-    //     selectedJob &&
-    //     selectedJob.subscribers &&
-    //     objectToArray(selectedJob.subscribers);
-    //   const isSubscribed =
-    //     subscribers && auth && subscribers.some(a => a.id === auth.uid);
-    //   const isManager = selectedJob.managerUid === auth.uid;
-
-      this.setState({
-     //   subscribers: subscribers,
-     //   isSubscribed: isSubscribed,
-        isLoading: false,
-        currentJob: selectedJob,
-     //   isManager: isManager,
-        selectedTab: "quotes"
-      });
-      this.forceUpdate();
+        this.setState({
+          //   subscribers: subscribers,
+          //   isSubscribed: isSubscribed,
+          isLoading: false,
+          currentJob: selectedJob,
+          //   isManager: isManager,
+          selectedTab: "quotes"
+        });
+        this.forceUpdate();
+      }
     }
-  }
   };
 
-//   handleBookClick = async () => {
-//     this.setState({ loading: true });
-//     let createdJob = await this.props.createJobDraft(
-//       this.props.selectedJob,
-//       this.props.selectedJobId
-//     );
-//     console.log({ createdJob });
-//     await this.props.selectDraftToEdit(createdJob.id);
-//     this.setState({ loading: false });
-//     this.props.openModal("CreateJobModal");
-//   };
+  //   handleBookClick = async () => {
+  //     this.setState({ loading: true });
+  //     let createdJob = await this.props.createJobDraft(
+  //       this.props.selectedJob,
+  //       this.props.selectedJobId
+  //     );
+  //     console.log({ createdJob });
+  //     await this.props.selectDraftToEdit(createdJob.id);
+  //     this.setState({ loading: false });
+  //     this.props.openModal("CreateJobModal");
+  //   };
 
-//   handleSubscribe = async () => {
-//     const { currentJob } = this.state;
-//     this.setState({ isLoading: true });
-//     this.props.handleSubscribe();
-//     // await this.props.subscribeToTask(currentJob);
-//     // await this.props.selectTaskToEdit(currentJob.id);
-//     this.setState({ isSubscribed: true, isLoading: false });
-//   };
+  //   handleSubscribe = async () => {
+  //     const { currentJob } = this.state;
+  //     this.setState({ isLoading: true });
+  //     this.props.handleSubscribe();
+  //     // await this.props.subscribeToTask(currentJob);
+  //     // await this.props.selectTaskToEdit(currentJob.id);
+  //     this.setState({ isSubscribed: true, isLoading: false });
+  //   };
 
-//   handleUnsubscribe = async () => {
-//     console.log("handleUnsubscribe");
-//     this.setState({ isLoading: true });
-//     this.props.handleUnsubscribe();
+  //   handleUnsubscribe = async () => {
+  //     console.log("handleUnsubscribe");
+  //     this.setState({ isLoading: true });
+  //     this.props.handleUnsubscribe();
 
-//     this.setState({ isSubscribed: false, isLoading: false });
-//   };
+  //     this.setState({ isSubscribed: false, isLoading: false });
+  //   };
 
- 
   render() {
+    const { compactDisplayMode } = this.props;
     const { selectedTab, currentJob } = this.state;
- const {displayURL} = currentJob || {}
+    const { displayURL } = currentJob || {};
 
-  
     return (
       <div
         container
         style={{
-          height: 475,
-          // width: "100%",
+          height: compactDisplayMode ? 350 : 475,
+          width: "100%",
           backgroundColor: "black",
           position: "relative"
         }}
       >
-    
-    {this.props.expandedLoading ?        <Dimmer active>
-      <Loader />
-    </Dimmer> :
-(
-
-<div>
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            minWidth: "85%",
-            maxWidth: "85%",
-            minHeight: 475,
-            maxHeight: 475,
-            background: `url(${
-            displayURL}) center center no-repeat `,
-            backgroundSize: "cover"
-          }}
-        />
-
-        <div
-          style={{
-            height: 475,
-            position: "absolute",
-            minWidth: "85%",
-            right: 0,
-            maxWidth: "85%",
-            backgroundImage:
-              "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)"
-            //  zIndex: "5"
-          }}
-        />
-        <div style={{ zIndex: "5" }}>
-          <p
-            style={{
-              cursor: "pointer",
-              color: "white",
-              zIndex: "5",
-              position: "absolute",
-              right: "0",
-
-              fontSize: 40,
-              marginRight: "25px",
-              marginTop: "15px",
-              textAlign: "right"
-            }}
-            onClick={() => {
-              this.props.handleClose();
-            }}
-          >
-            X
-          </p>
-
-          {selectedTab === "overview" && (
+        {this.props.expandedLoading ? (
+          <Dimmer active>
+            <Loader />
+          </Dimmer>
+        ) : (
+          <div>
             <div
-              className="description"
               style={{
                 position: "absolute",
-                fontSize: 30,
-                top: "50%",
-                color: "white",
-                height: 100,
-                width: "auto",
-                left: "50px",
-                zIndex: "5"
-              }}
-            >
-              {" "}
-              <p>{currentJob.description}</p>
-            </div>
-          )}
+                right: 0,
+                width: compactDisplayMode ? "100%" : "85%",
+                height: compactDisplayMode ? 350 : 475,
 
-          <div
-            className="actionButton"
-            style={{
-              position: "absolute",
-              fontSize: 30,
-              top: "75%",
-              color: "white",
-              height: 100,
-              width: "auto",
-              left: "50px",
-              zIndex: "5"
-            }}
-          >
-            {" "}
-            {/* <button
+                background: `url(${displayURL}) center center no-repeat `,
+                backgroundSize: "cover"
+              }}
+            />
+
+            <div
+              style={{
+                height: compactDisplayMode ? 350 : 475,
+                position: "absolute",
+                width: compactDisplayMode ? "100%" : "85%",
+                right: 0,
+                //   maxWidth: "85%",
+                backgroundImage: compactDisplayMode
+                  ? "linear-gradient(to top, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)"
+                  : "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)"
+                //  zIndex: "5"
+              }}
+            />
+            <div style={{ zIndex: "5" }}>
+              <p
+                style={{
+                  cursor: "pointer",
+                  color: "white",
+                  zIndex: "5",
+                  position: "absolute",
+                  right: "0",
+
+                  fontSize: compactDisplayMode ? 30 : 40,
+                  marginRight: compactDisplayMode ? "15px": "25px",
+                  marginTop: compactDisplayMode? "10px": "15px",
+                  textAlign: "right"
+                }}
+                onClick={() => {
+                  this.props.handleClose();
+                }}
+              >
+                X
+              </p>
+
+              {selectedTab === "overview" && (
+                <div
+                  className="description"
+                  style={{
+                    position: "absolute",
+                    fontSize: compactDisplayMode ? 15 : 30,
+                    top: "50%",
+                    color: "white",
+                    height: 100,
+                    width: "auto",
+                    left: "50px",
+                    zIndex: "5"
+                  }}
+                >
+                  {" "}
+                  <p>{currentJob.description}</p>
+                </div>
+              )}
+
+              <div
+                className="actionButton"
+                style={{
+                  position: "absolute",
+                  fontSize: 30,
+                  top: "75%",
+                  color: "white",
+                  height: 100,
+                  width: "auto",
+                  left: "50px",
+                  zIndex: "5"
+                }}
+              >
+                {" "}
+                {/* <button
               onClick={this.handleBookClick}
               style={{
                 width: 200,
@@ -263,68 +254,71 @@ class MyJobsExpanded extends Component {
             >
               Book
             </button> */}
-     
-            {!this.state.currentJob.inDraft?
-            <Button
-            icon
-            size="huge"
-            labelPosition="left"
-            handlePostJob
-            onClick={()=>this.props.handlePostJob(false, this.props.selectedJobId)}
-            color="white"
-            loading={this.props.pauseButtonLoading}
-            >
-            <Icon name="add" />
-           Pause Job
-            </Button>
-            : 
-            !this.state.currentJob.showState.showConfirm ? 
-<Button
-icon
-size="huge"
-labelPosition="left"
-onClick={()=>this.props.handleEditDraft(this.props.selectedJobId)}
-color="white"
-loading={this.state.isLoading}
->
-<Icon name="add" />
-Complete Draft
-</Button>
-:
-<Button
-icon
-size="huge"
-labelPosition="left"
-onClick={()=>this.props.handlePostJob(true, this.props.selectedJobId)}
-color="white"
-loading={this.props.pauseButtonLoading}
->
-<Icon name="add" />
-Dispatch Job
-</Button>
-          
-          }
-            {currentJob.inDraft &&currentJob.showState.showConfirm
-            &&
-              <button
-                onClick={()=>this.props.handleEditDraft(this.props.selectedJobId)}
-                
-                style={{
-                  width: 200,
-                  marginLeft: "30px",
-                  cursor: "pointer",
-                  color: "white",
-                  background: "transparent"
-                }}
-              >
-                Edit Task
-              </button>
-           }
-          </div>
+                {!this.state.currentJob.inDraft ? (
+                  <Button
+                    icon
+                    size="huge"
+                    labelPosition="left"
+                    handlePostJob
+                    onClick={() =>
+                      this.props.handlePostJob(false, this.props.selectedJobId)
+                    }
+                    color="white"
+                    loading={this.props.pauseButtonLoading}
+                  >
+                    <Icon name="add" />
+                    Pause Job
+                  </Button>
+                ) : !this.state.currentJob.showState.showConfirm ? (
+                  <Button
+                    icon
+                    size="huge"
+                    labelPosition="left"
+                    onClick={() =>
+                      this.props.handleEditDraft(this.props.selectedJobId)
+                    }
+                    color="white"
+                    loading={this.state.isLoading}
+                  >
+                    <Icon name="add" />
+                    Complete Draft
+                  </Button>
+                ) : (
+                  <Button
+                    icon
+                    size="huge"
+                    labelPosition="left"
+                    onClick={() =>
+                      this.props.handlePostJob(true, this.props.selectedJobId)
+                    }
+                    color="white"
+                    loading={this.props.pauseButtonLoading}
+                  >
+                    <Icon name="add" />
+                    Dispatch Job
+                  </Button>
+                )}
+                {currentJob.inDraft && currentJob.showState.showConfirm && (
+                  <button
+                    onClick={() =>
+                      this.props.handleEditDraft(this.props.selectedJobId)
+                    }
+                    style={{
+                      width: 200,
+                      marginLeft: "30px",
+                      cursor: "pointer",
+                      color: "white",
+                      background: "transparent"
+                    }}
+                  >
+                    Edit Task
+                  </button>
+                )}
+              </div>
 
-          {selectedTab === "quotes" && (
-            <div>
-              {/* <div
+              {selectedTab === "quotes" && (
+                <div>
+                  {/* <div
               className="contractors"
               style={{
                 position: "absolute",
@@ -341,112 +335,111 @@ Dispatch Job
               {" "}
               <p>Contractors Content</p>
             </div> */}
+                  <div
+                    className="contractors"
+                    style={{
+                      position: "absolute",
+                      fontSize: 30,
+                      top: "33%",
+                      color: "white",
+                      //     backgroundColor: "grey",
+
+                      //   height: 100,
+                      //  width: "auto",
+                      left: "0",
+                      zIndex: "5"
+                    }}
+                  >
+                    {" "}
+                    <QuoteSlider
+                      loading={this.props.loading}
+                      handleNewChat={this.props.handleNewChat}
+                      handleViewQuote={this.props.handleViewQuote}
+                      quotes={this.props.jobQuotes}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {selectedTab === "supplies" && (
+                <div
+                  className="contractors"
+                  style={{
+                    position: "absolute",
+                    fontSize: 30,
+                    top: "50%",
+                    color: "white",
+                    height: 100,
+                    width: "auto",
+                    left: "50px",
+                    zIndex: "5"
+                  }}
+                >
+                  {" "}
+                  <p>Supplies Content</p>
+                </div>
+              )}
+
+              {selectedTab === "tips" && (
+                <div
+                  className="contractors"
+                  style={{
+                    position: "absolute",
+                    fontSize: 30,
+                    top: "50%",
+                    color: "white",
+                    height: 100,
+                    width: "auto",
+                    left: "50px",
+                    zIndex: "5"
+                  }}
+                >
+                  {" "}
+                  <p>Tips Content</p>
+                </div>
+              )}
+
               <div
-                className="contractors"
+                className="title"
                 style={{
                   position: "absolute",
-                  fontSize: 30,
-                  top: "33%",
+                   fontSize: compactDisplayMode ? 25 : 50,
+                  top: compactDisplayMode? "50px": "20px",
                   color: "white",
-                  //     backgroundColor: "grey",
-
-                  //   height: 100,
-                  //  width: "auto",
-                  left: "0",
+                  height: 100,
+                  width: "auto",
+                  left: "10px",
                   zIndex: "5"
                 }}
               >
                 {" "}
-                 <QuoteSlider loading={this.props.loading} handleNewChat={this.props.handleNewChat} handleViewQuote={this.props.handleViewQuote} quotes={this.props.jobQuotes} /> 
+                <p>{currentJob.title}</p>
               </div>
-            </div>
-          )}
 
-          {selectedTab === "supplies" && (
-            <div
-              className="contractors"
-              style={{
-                position: "absolute",
-                fontSize: 30,
-                top: "50%",
-                color: "white",
-                height: 100,
-                width: "auto",
-                left: "50px",
-                zIndex: "5"
-              }}
-            >
-              {" "}
-              <p>Supplies Content</p>
-            </div>
-          )}
+              <div
+                style={{
+                  position: "absolute",
+                  fontSize: 20,
+                  minWidth: 100,
+                  bottom: 0,
+                  left: "50%",
+                  marginLeft: "-170px",
 
-          {selectedTab === "tips" && (
-            <div
-              className="contractors"
-              style={{
-                position: "absolute",
-                fontSize: 30,
-                top: "50%",
-                color: "white",
-                height: 100,
-                width: "auto",
-                left: "50px",
-                zIndex: "5"
-              }}
-            >
-              {" "}
-              <p>Tips Content</p>
-            </div>
-          )}
-
-          <div
-            className="title"
-            style={{
-              position: "absolute",
-              fontSize: 50,
-              top: "20px",
-              color: "white",
-              height: 100,
-              width: "auto",
-              left: "10px",
-              zIndex: "5"
-            }}
-          >
-            {" "}
-            <p>{currentJob.title}</p>
-          </div>
-
-          <div
-            style={{
-              position: "absolute",
-              fontSize: 20,
-              minWidth: 100,
-              bottom: 0,
-              left: "50%",
-              marginLeft: "-170px",
-
-              zIndex: "5"
-            }}
-          >
-            {/* <BuildExpandedNavBar
+                  zIndex: "5"
+                }}
+              >
+                {/* <BuildExpandedNavBar
               selectedTab={this.state.selectedTab}
               handleSelectTab={this.handleSelectTab}
             /> */}
+              </div>
+            </div>
           </div>
-        </div>
-</div>
-)
-
-}  
-        
+        )}
       </div>
     );
   }
 }
-
-
-
 
 export default compose(
   connect(mapState),

@@ -3,7 +3,7 @@ import { Grid } from "semantic-ui-react";
 class BuildExpandedNavBar extends Component {
   state = { hoveredTab: "" };
   render() {
-    const { selectedTab, handleSelectTab } = this.props;
+    const { selectedTab, handleSelectTab , compactDisplayMode} = this.props;
     const tabs = [
       { key: "overview", value: "Overview" },
       { key: "contractors", value: "Contractors" },
@@ -11,10 +11,12 @@ class BuildExpandedNavBar extends Component {
       { key: "tips", value: "Tips" }
     ];
     return (
-      <div style={{ minWidth: "400", overflowY: "hidden" }}>
+   
+       <div style={{width:"100%"}}>
+       <Grid centered columns={4}>
         {tabs &&
           tabs.map(tab => (
-            <p
+            <Grid.Column
            
             
               onMouseEnter={() => this.setState({ hoveredTab: tab.key })}
@@ -23,16 +25,19 @@ class BuildExpandedNavBar extends Component {
               style={{
                 cursor:"pointer",
                 opacity: this.state.hoveredTab === tab.key ? 1 : 0.8,
-                marginLeft: "12px",
-                display: "inline-block",
-                fontSize: 20,
-                color: selectedTab === tab.key ? "red" : "lightGrey"
+                marginLeft: compactDisplayMode? "0px": "12px",
+               //display: "inline-block",
+                fontSize: compactDisplayMode? 12:20,
+                textAlign:"center",
+                color: selectedTab === tab.key ? "orange" : "lightGrey"
               }}
             >
               {tab.value}
-            </p>
+              </Grid.Column>
           ))}
-      </div>
+</Grid>
+</div>
+     
     );
   }
 }

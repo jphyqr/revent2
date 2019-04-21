@@ -122,7 +122,7 @@ COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
 <Transition.Group animation="scale" duration={400}>
 {(this.state.showExpanded || this.state.expandedLoading) && (
   <MyJobsExpanded
-
+  compactDisplayMode={compactDisplayMode}
     selectedJob={this.state.selectedJob.value}
     selectedJobId={this.state.selectedJob.key}
     handleViewQuote={this.props.handleViewQuote}

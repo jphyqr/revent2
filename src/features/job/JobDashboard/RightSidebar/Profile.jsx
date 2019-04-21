@@ -16,6 +16,7 @@ import { openModal } from "../../../modals/modalActions";
 import BuilderPane from "./BuilderPane";
 import ContractorPane from "./ContractorPane";
 import LabourPane from "./LabourPane";
+import ProfilePane from "./ProfilePane"
 import { createLabourProfile , uploadLabourPhoto, uploadContractorPhoto, uploadBuilderPhoto} from "../../../user/userActions";
 
 const query = ({ auth }) => {
@@ -89,9 +90,22 @@ class Profile extends Component {
   };
   renderPanes = () => {
     const { profile } = this.state;
-    const { openModal,uploadProfileImage, labour_profile, createLabourProfile } = this.props;
+    const { openModal,uploadProfileImage, labour_profile, createLabourProfile, compactDisplayMode } = this.props;
     const { builderProfile, contractorProfile } = profile || {};
     return [
+      {
+        menuItem: "Profile",
+        render: () => (
+          <Tab.Pane attached style={{ height: "100%" }}>
+            <ProfilePane
+              profile={profile}
+              openModal={openModal}
+              compactDisplayMode
+              
+            />
+          </Tab.Pane>
+        )
+      },
       {
         menuItem: "Builder",
         render: () => (
@@ -101,6 +115,7 @@ class Profile extends Component {
               openModal={openModal}
               uploadProfileImage={uploadProfileImage}
               uploadBuilderPhoto={this.props.uploadBuilderPhoto}
+              compactDisplayMode
             />
           </Tab.Pane>
         )
@@ -115,6 +130,7 @@ class Profile extends Component {
               openModal={openModal}
               uploadProfileImage={uploadProfileImage}
               uploadContractorPhoto={this.props.uploadContractorPhoto}
+              compactDisplayMode
             />
           </Tab.Pane>
         )
@@ -122,13 +138,14 @@ class Profile extends Component {
       {
         menuItem: "Labour",
         render: () => (
-          <Tab.Pane attached style={{ height: "100%" }}>
+          <Tab.Pane attached style={{ height: "100%", paddingTop:0 }}>
             <LabourPane
               createLabourProfile={createLabourProfile}
               profile={profile}
               openModal={openModal}
               labour_profile={labour_profile}
               uploadLabourPhoto={this.props.uploadLabourPhoto}
+              compactDisplayMode={compactDisplayMode}
             />
           </Tab.Pane>
         )
@@ -137,7 +154,7 @@ class Profile extends Component {
   };
 
   render() {
-    const { bank_account_status, credit_cards } = this.props || {};
+    const { bank_account_status, credit_cards, compactDisplayMode } = this.props || {};
     const { profile } = this.state;
     const {
       city,
@@ -161,121 +178,20 @@ class Profile extends Component {
       <div
         style={{
           width: "100%",
-          height: "500px",
-          backgroundColor: "lightgrey"
-
+          maxHeight: compactDisplayMode?"300px": "500px",
+          backgroundColor: "lightgrey",
+          overflowX:"hidden", overflowY:"auto"
+          
           // position: "relative"
         }}
       >
         <Grid>
-          <Grid.Column width={4}>
-            {" "}
-            <img
-              onClick={() => this.props.openModal("ProfileModal")}
-              style={{
-                height: 200,
-                width: 200,
-                marginLeft: "auto",
-                marginRight: "auto",
-                display: "block"
-                // borderRadius: "50%",
-                //    border: "3px solid grey",
-                //     transition: "0.15s all ease"
-                //  position: "absolute",
-                //   top: 0,
-                //   left: 0
-              }}
-              src={photoURL || "/assets/user.png"}
-            />
-            <label
-              style={{
-                //     position: "absolute",
-                fontSize: 18,
-                color: "grey",
-                marginLeft: "auto",
-                marginRight: "auto",
-                display: "block",
-                textAlign: "center",
-                //    top: 5,
-                //     left: 100,
-                textOverflow: "ellipsis"
-              }}
-            >
-              {displayName}
-            </label>
-            <label
-              style={{
-                fontSize: 14,
-                color: "grey",
-                marginLeft: "auto",
-                marginRight: "auto",
-                display: "block",
-                textAlign: "center"
-              }}
-            >
-              <a href={companyUrl}> {companyName || "Add Company"}</a>
-            </label>
-            <div style={{maxWidth:200,                marginLeft: "auto",
-                marginRight: "auto",
-                display: "block",}}>
-            <Button.Group
-              fluid
-            >
-              {" "}
-              <Button
-                size="mini"
-                color="facebook"
-                icon="facebook"
-                onClick={() => window.location.assign(facebookUrl)}
-                disabled={!facebookUrl}
-                style={
-                  {
-                    //   position: "absolute",
-                    //      top: 53,
-                    //     left: 102
-                  }
-                }
-                size="big"
-              />
-              <Button
-                size="mini"
-                color="instagram"
-                icon="instagram"
-                onClick={() => window.location.assign(instagramUrl)}
-                disabled={!instagramUrl}
-                style={
-                  {
-                    //   position: "absolute",
-                    //     top: 53,
-                    //     left: 160
-                  }
-                }
-                size="big"
-              />
-              <Button
-                size="mini"
-                color="orange"
-                icon="chrome"
-                onClick={() => window.location.assign(companyUrl)}
-                disabled={!instagramUrl}
-                style={
-                  {
-                    //   position: "absolute",
-                    //     top: 53,
-                    //     left: 160
-                  }
-                }
-                size="big"
-              />
-            </Button.Group>
-            <Button fluid primary style={{marginTop:5}}>Edit Profile</Button>
-            </div>
-          </Grid.Column>
-          <Grid.Column width={12} >       
+
+          <Grid.Column width={16} >       
             <Tab
             attached
-              style={{  width: "100%", height: "100%", padding:20 }}
-              menu={{ secondary: true }}
+              style={{  width: "100%", height: "100%", margin:0, padding:compactDisplayMode?0:20 }}
+              menu={{ secondary: true, margin:0, padding:0}}
               panes={this.renderPanes()}
             /></Grid.Column>
         </Grid>
