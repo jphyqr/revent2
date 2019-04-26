@@ -8,11 +8,16 @@ const initialState = [];
 export const openMessage = (state, payload) => {
   console.log({state})
   let alreadyExists = false
+  if(state.length>0){
+    return [ Object.assign({}, payload.message)]
+  }else{
+
+  
    let filtered =  state.filter(openMessage => {if(openMessage.id===payload.message.id) alreadyExists=true})
     if(alreadyExists)
     return state
     else
-      return [...state, Object.assign({}, payload.message)]
+      return [...state, Object.assign({}, payload.message)]}
   }
   
 

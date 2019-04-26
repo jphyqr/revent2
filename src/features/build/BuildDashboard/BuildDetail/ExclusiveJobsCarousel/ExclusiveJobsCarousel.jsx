@@ -134,6 +134,7 @@ class ExclusiveJobsCarousel extends Component {
           handleShowExpanded={this.handleShowExpanded}
           toggleLockInHover={this.toggleLockInHover}
           exclusiveJobs={exclusiveJobs}
+          role={this.props.role}
         />
 
         <Transition.Group animation="scale" duration={400}>

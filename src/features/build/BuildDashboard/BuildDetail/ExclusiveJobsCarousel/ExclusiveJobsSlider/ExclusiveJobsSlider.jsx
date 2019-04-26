@@ -36,6 +36,7 @@ class ExclusiveJobsSlider extends Component {
           exclusiveJobs.map((exclusiveJob, i) => (
             <ExclusiveJobItem
               index={i}
+              role={this.props.role}
               REGULAR_EXCLUSIVE_HEIGHT={REGULAR_EXCLUSIVE_HEIGHT}
               REGULAR_EXCLUSIVE_WIDTH={REGULAR_EXCLUSIVE_WIDTH}
               COMPACT_EXCLUSIVE_HEIGHT={COMPACT_EXCLUSIVE_HEIGHT}

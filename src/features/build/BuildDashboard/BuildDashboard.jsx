@@ -1,12 +1,22 @@
 import React, { Component } from "react";
 import BuildDetail from "./BuildDetail/BuildDetail";
-import { Grid, Container, Responsive } from "semantic-ui-react";
+import { Grid, Container, Responsive, Message } from "semantic-ui-react";
 import JobDashboard from "../../job/JobDashboard/JobDashboard";
 import LogDashboard from "./LogDashboard/LogDashboard";
+import { firestoreConnect } from "react-redux-firebase"; //even though we using firestore this gives our binding
 
+import { connect } from "react-redux";
+
+const mapState = state => {
+  return {
+    role: state.role,
+    verified: state.firebase.auth.emailVerified,
+  };
+};
 class BuildDashboard extends Component {
   state = {
-    showJobs: true
+    showJobs: true,
+    verified : false
   };
   handleOnUpdate = (e, { width }) => this.setState({ width });
   handleClickShowJobs = () => {
@@ -14,12 +24,28 @@ class BuildDashboard extends Component {
     this.setState({ showJobs: true });
   };
 
+
+  async componentDidMount(){
+    const { firestore } = this.props;
+    await firestore.setListener(`auth`);
+    this.setState({verified: this.props.verified})
+  }
+
+  componentWillReceiveProps = nextProps => {
+    if(nextProps.verified !== this.state.verified)
+    {
+      this.setState({verified: nextProps.verified})
+    }
+  }
+
   handleClickShowLogs = () => {
     console.log("show logs");
     this.setState({ showJobs: false });
   };
   render() {
-    const { width } = this.state;
+    const { role } = this.props || {};
+    const { authenticated } = role || {};
+    const { width,verified } = this.state;
     const CUSTOM_TABLET_CUTOFF = 800;
     const COMPACT_ITEM_HEIGHT = 125;
     const COMPACT_ITEM_WIDTH = 110;
@@ -32,10 +58,40 @@ class BuildDashboard extends Component {
     const compactDisplayMode = width >= CUSTOM_TABLET_CUTOFF ? false : true;
     return (
       <Responsive fireOnMount onUpdate={this.handleOnUpdate}>
-        <div style={{paddingTop: compactDisplayMode?0:10}}>
-          <div style={{ height: "600" }}>
-            {this.state.showJobs ? (
-              <JobDashboard
+        <div style={{ paddingTop: compactDisplayMode ? 10 : 40 }}>
+          {authenticated && !verified ? (
+             <div style={{ height: "600",  margin:20, paddingBottom:400 }}>
+             <Message
+    warning
+    header='You must Verify your e-mail!'
+    content='Check your email for a link sent from us!'
+  />
+            </div>
+          ) : (
+            <div>
+              {" "}
+              <div style={{ height: "600" }}>
+                {this.state.showJobs ? (
+                  <JobDashboard
+                    compactDisplayMode={compactDisplayMode}
+                    REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
+                    REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+                    COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+                    COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
+                    CUSTOM_TABLET_CUTOFF={CUSTOM_TABLET_CUTOFF}
+                    handleClickShowLogs={this.handleClickShowLogs}
+                  />
+                ) : (
+                  <LogDashboard
+                    handleClickShowJobs={this.handleClickShowJobs}
+                  />
+                )}
+              </div>
+              <BuildDetail
+                REGULAR_EXCLUSIVE_HEIGHT={REGULAR_EXCLUSIVE_HEIGHT}
+                REGULAR_EXCLUSIVE_WIDTH={REGULAR_EXCLUSIVE_WIDTH}
+                COMPACT_EXCLUSIVE_HEIGHT={COMPACT_EXCLUSIVE_HEIGHT}
+                COMPACT_EXCLUSIVE_WIDTH={COMPACT_EXCLUSIVE_WIDTH}
                 compactDisplayMode={compactDisplayMode}
                 REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
                 REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
@@ -44,27 +100,18 @@ class BuildDashboard extends Component {
                 CUSTOM_TABLET_CUTOFF={CUSTOM_TABLET_CUTOFF}
                 handleClickShowLogs={this.handleClickShowLogs}
               />
-            ) : (
-              <LogDashboard handleClickShowJobs={this.handleClickShowJobs} />
-            )}
-          </div>
-          <BuildDetail
-            REGULAR_EXCLUSIVE_HEIGHT={REGULAR_EXCLUSIVE_HEIGHT}
-            REGULAR_EXCLUSIVE_WIDTH={REGULAR_EXCLUSIVE_WIDTH}
-            COMPACT_EXCLUSIVE_HEIGHT={COMPACT_EXCLUSIVE_HEIGHT}
-            COMPACT_EXCLUSIVE_WIDTH={COMPACT_EXCLUSIVE_WIDTH}
-            compactDisplayMode={compactDisplayMode}
-            REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
-            REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
-            COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
-            COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
-            CUSTOM_TABLET_CUTOFF={CUSTOM_TABLET_CUTOFF}
-            handleClickShowLogs={this.handleClickShowLogs}
-          />
+            </div>
+          )}
         </div>
       </Responsive>
     );
   }
 }
 
-export default BuildDashboard;
+export default connect(
+  mapState,
+  null
+)(firestoreConnect()(BuildDashboard));
+
+
+

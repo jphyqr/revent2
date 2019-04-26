@@ -7,6 +7,9 @@ const currency = functions.config().stripe.currency || "USD";
 const retrieveAccount = require("./retrieve_account.js");
 const stripeEvent = require("./stripe_event.js");
 const SENDGRID_API_KEY = functions.config().sendgrid.key;
+const Distance = require("geo-distance");
+const twilio = require("./twilio");
+
 const sgClient = require("@sendgrid/client");
 sgClient.setApiKey(SENDGRID_API_KEY);
 const sgMail = require("@sendgrid/mail");
@@ -804,8 +807,6 @@ exports.alphaJoin = functions.firestore
       }
     };
 
-
-
     const data = [
       {
         first_name: newAlphaUser.first_name,
@@ -813,14 +814,14 @@ exports.alphaJoin = functions.firestore
         email: newAlphaUser.email,
         kitchenAndBath: newAlphaUser.kitchenAndBath.toString(),
         renovations: newAlphaUser.renovations.toString(),
-       
+
         paint: newAlphaUser.paint.toString(),
         electrical: newAlphaUser.electrical.toString(),
         plumbing: newAlphaUser.plumbing.toString(),
         landscaping: newAlphaUser.landscaping.toString(),
         exterior: newAlphaUser.exterior.toString(),
         design: newAlphaUser.design.toString(),
-        other: newAlphaUser.other.toString(),
+        other: newAlphaUser.other.toString()
       }
     ];
     let request = {
@@ -833,21 +834,20 @@ exports.alphaJoin = functions.firestore
       .request(request)
       .then(([response, body]) => {
         console.log("response", response);
-        return body
+        return body;
       })
 
       .then(body => {
-      
-       const newRecipientId = body.persisted_recipients
+        const newRecipientId = body.persisted_recipients;
 
-    
-        let request ={method:'POST', url: `/v3/contactdb/lists/7723731/recipients/${newRecipientId}`}
-       return sgClient.request(request)
-        .then(([response, body]) => {
+        let request = {
+          method: "POST",
+          url: `/v3/contactdb/lists/7723731/recipients/${newRecipientId}`
+        };
+        return sgClient.request(request).then(([response, body]) => {
           console.log(response.statusCode);
-        return  console.log(response.body);
-        })
-
+          return console.log(response.body);
+        });
       })
       .then(() => {
         return sgMail.send(msg).then(() => console.log("email sent"));
@@ -856,3 +856,138 @@ exports.alphaJoin = functions.firestore
         console.log(error);
       });
   });
+
+exports.requestOnboarding = functions.firestore
+  .document("request_for_onboarding/{requestId}")
+  .onCreate((info, context) => {
+    const requestId = context.params.requestId;
+    console.log("Request For Onboardging V1");
+    let newRequest = info.data();
+    console.log("new request Lat Lng", newRequest.venueLatLng);
+
+    const phone = String(newRequest.phone).replace(/[^\d]/g, "");
+
+    let onboarders = [];
+    let available = [];
+    let day = newRequest.day.split("-")[0];
+    let timeBlock = "";
+
+    let hour = newRequest.hour;
+    console.log("hour", hour);
+    if (hour < 13) {
+      timeBlock = "8-12";
+    } else if (hour < 18) {
+      timeBlock = "12-5";
+    } else {
+      timeBlock = "5-9";
+    }
+
+    console.log("day", day);
+    console.log("time block", timeBlock);
+    return admin
+      .firestore()
+      .collection("onboarder_users")
+
+      .get()
+      .then(onboardersSnapshot => {
+        const snapShot = onboardersSnapshot;
+        snapShot.forEach(onboarder => {
+          onboarders.push(onboarder.data());
+
+          console.log({ onboarder });
+          //  console.log('values', onboarder.data().values );
+          console.log("onboarderLatLng", onboarder.data().values.venueLatLng);
+
+          console.log("schedule", onboarder.data().schedule);
+
+          const schedule = onboarder.data().schedule;
+
+          const workingThatDay = schedule[`${day}`];
+          console.log("workingThatDay", workingThatDay);
+          if (workingThatDay) {
+            console.log("working that day");
+            console.log("shifts that day", schedule[`${day}`]);
+
+            const workingThatShift = schedule[`${day}`][`${timeBlock}`];
+            if (workingThatShift) {
+              console.log("working that shift");
+
+              var jobLocation = {
+                lat: newRequest.venueLatLng.lat,
+                lon: newRequest.venueLatLng.lng
+              };
+              var onboarderLocation = {
+                lat: onboarder.data().values.venueLatLng.lat,
+                lon: onboarder.data().values.venueLatLng.lng
+              };
+              var jobDistance = Distance.between(
+                jobLocation,
+                onboarderLocation
+              );
+
+              console.log("" + jobDistance.human_readable());
+
+              available.push({
+                claimURL: `http://yaybour.com/claimOnboard/${requestId}`,
+                jobDistance: jobDistance.human_readable(),
+                first_name: onboarder.data().values.first_name,
+                last_name: onboarder.data().values.last_name,
+                phone_number: onboarder.data().values.phone_number
+              });
+            } else {
+              console.log("not working that shift");
+            }
+          } else {
+            console.log("not working that day");
+          }
+        });
+        console.log({ onboarders });
+        console.log({available})
+        return available;
+      })
+      .then(available => {
+      return  available.forEach(onboarder => {
+
+
+          return twilio.messages.create(
+            {
+              body:
+              "Sent to: [" +
+              available.length +
+                "] JOB: " +
+                newRequest.description +
+                ".  " +
+                onboarder.jobDistance +
+                "from you. LINK: " + onboarder.claimURL,
+              to: onboarder.phone_number,
+              from: "13069937236"
+            },
+            err => {
+              if (err) {
+                return res.status(422).send(err);
+              }
+  
+              // admin.database().ref('users/' + phone)
+              //   .update({ code: code, codeValid: true }, () => {
+              //     res.send({ success: true });
+              //   });
+            }
+          );
+
+
+
+
+
+
+
+        })
+
+     
+     
+     
+     
+      });
+  });
+// .catch((err) => {
+//   res.status(422).send({ error: err });
+// });

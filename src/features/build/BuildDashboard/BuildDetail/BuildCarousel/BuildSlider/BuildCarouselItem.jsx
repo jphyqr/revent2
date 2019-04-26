@@ -8,13 +8,14 @@ import {
   subscribeToTask,
   unsubscribeToTask
 } from "../../../../../user/userActions";
-
+import {toastr} from 'react-redux-toastr'
 import { selectTaskToEdit } from "../../../../../modals/TaskModal/taskActions";
 import { openModal } from "../../../../../modals/modalActions";
 
 const mapState = state => {
   return {
-    loading: state.async.loading
+    loading: state.async.loading,
+    role: state.role
   };
 };
 
@@ -122,6 +123,7 @@ class BuildCarouselItem extends Component {
   render() {
     const {
       item,
+      role,
       category,
       index,
       setNextRef,
@@ -131,7 +133,9 @@ class BuildCarouselItem extends Component {
       COMPACT_ITEM_WIDTH,
       REGULAR_ITEM_HEIGHT,
       REGULAR_ITEM_WIDTH
-    } = this.props;
+    } = this.props ||{};
+    const {isOpen} = item ||{}
+    const {isAdmin} = role ||{}
     const { subscribers, isSubscribed, isLoading } = this.state;
 
     return (
@@ -140,16 +144,21 @@ class BuildCarouselItem extends Component {
         className="ui  image"
         onMouseEnter={this.onMouseEnterHandler}
         onMouseLeave={this.onMouseLeaveHandler}
-        onClick={e => this.handleClick(e, item, category)}
+        onClick={(isOpen||isAdmin) ? e => this.handleClick(e, item, category) :
+           ()=>{   toastr.confirm("This job is currently locked.", {
+          onOk: () => {}})}}
+      
         style={{
           boxShadow:
             "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
           display: "inline-block",
-          height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
-          width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
+          height: compactDisplayMode
+            ? COMPACT_ITEM_HEIGHT
+            : REGULAR_ITEM_HEIGHT, // this.state.hovered ? 200 : 150,
+          width: compactDisplayMode ? COMPACT_ITEM_WIDTH : REGULAR_ITEM_WIDTH,
           marginLeft: 5,
           //left: this.state.hovered ? -30: 0,
-          opacity: this.state.hovered || this.state.isSelected ? 1 : 0.8,
+          opacity: (!isOpen&&!isAdmin) ? 0.3 : (this.state.hovered || this.state.isSelected) ? 1 : 0.8,
           // transition: "opacity 1500ms, height 1500ms , width 1500ms ",
           //   transform: this.state.hovered ? "scaleY(1.5)" : this.props.scrollRightClicked ? "translateX(-500%)" : "scaleY(1)" ,
           //transform: this.state.clicked ? "translateX(-100%)" : "translateX(0%)",
@@ -167,8 +176,12 @@ class BuildCarouselItem extends Component {
         >
           <img
             style={{
-              height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
-              width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
+              height: compactDisplayMode
+                ? COMPACT_ITEM_HEIGHT
+                : REGULAR_ITEM_HEIGHT, // this.state.hovered ? 200 : 150,
+              width: compactDisplayMode
+                ? COMPACT_ITEM_WIDTH
+                : REGULAR_ITEM_WIDTH,
               //    left:this.state.hovered ? 50 : 0,
               opacity: this.state.hovered || this.state.isSelected ? 1 : 0.8,
               //    transition: "opacity 1500ms , height 1500ms , width 1500ms ",
@@ -183,23 +196,43 @@ class BuildCarouselItem extends Component {
           style={{
             //    backgroundColor: "black",
             color: "white",
-            fontSize: compactDisplayMode? 14: 22,
+            fontSize: compactDisplayMode ? 14 : 22,
             position: "absolute",
             bottom: "0",
-            paddingTop: compactDisplayMode? 0: 3,
-          //  marginRight: 5,
+            paddingTop: compactDisplayMode ? 0 : 3,
+            //  marginRight: 5,
             backgroundColor: "black",
             //right: "100",
             textAlign: "center",
             width: "100%",
-            height: compactDisplayMode?"37px":"28px",//  height: "auto",
+            height: compactDisplayMode ? "37px" : "28px", //  height: "auto",
             textOverflow: "ellipsis",
-            whiteSpace: compactDisplayMode? "normal" : "nowrap",
+            whiteSpace: compactDisplayMode ? "normal" : "nowrap",
             overflow: "hidden"
           }}
         >
           {item.name}
         </div>
+
+      {(!isOpen)&&  <div
+          style={{
+            //     backgroundColor: "black",
+            color: "white",
+            fontSize: 18,
+            position: "absolute",
+            bottom: 40,
+            textAlign: "center",
+            width: "100%",
+
+            opacity: 0.5,
+            height: "auto"
+          }}
+        >
+          <Icon color="white" size="huge" name="lock" />
+        </div>}
+
+
+
         <div
           style={{
             //     backgroundColor: "black",
@@ -252,10 +285,11 @@ class BuildCarouselItem extends Component {
           }}
         >
           {item.managerUid === auth.uid ? (
-            <Button loading={isLoading} onClick={() => this.editTask(item)}>
+            (!compactDisplayMode)&&<Button loading={isLoading} onClick={() => this.editTask(item)}>
               edit task
             </Button>
           ) : isSubscribed ? (
+            compactDisplayMode? <div style={{ backgroundColor:"green", color:"white"}}>subscribed</div> :
             <Button
               icon
               circular
@@ -270,19 +304,25 @@ class BuildCarouselItem extends Component {
               loading={
                 this.props.subscribeButtonLoading && this.state.isSelected
               }
-              onClick={() => this.props.handleUnsubscribe(item)}
+             
+              onClick={
+                () => this.props.handleUnsubscribe(item)
+              }
             >
               <Icon size="large" name="deaf" />
             </Button>
           ) : (
-            <Button
+            (!compactDisplayMode)&&<Button
               icon
               circular
               size="large"
+              
               loading={
                 this.props.subscribeButtonLoading && this.state.isSelected
               }
-              onClick={() => this.props.handleSubscribe(item)}
+              onClick={
+                 () => this.props.handleSubscribe(item)
+              }
               inverted
               color="white"
               style={{

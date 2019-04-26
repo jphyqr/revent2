@@ -80,7 +80,8 @@ state={
 
     this.setState({
       exclusive: task&&task.value&&task.value.exclusive,
-      contractor: task&&task.value&&task.value.contractor || {}
+      contractor: task&&task.value&&task.value.contractor || {},
+      displayURL: task&&task.value&&task.value.displayURL || ""
     })
   }
 
@@ -292,6 +293,15 @@ state={
       </div>       }
       </Form.Group>
         
+      <Field
+        style={{paddingBottom:5}}
+                name="isOpen"
+                type="checkbox"
+
+                label="Open"
+                component={Checkbox}
+               
+              />
             <Button
               disabled={invalid || submitting}
               positive

@@ -195,6 +195,7 @@ class JobDashboard extends Component {
        {(!process.env.NODE_ENV || process.env.NODE_ENV === 'development') ? <p>IN DEV</p>: <p>IN PROD</p> }  */}
           <p style={{ color: "white", fontSize: compactDisplayMode ? 14 : 26, margin:5 }}>Open Jobs</p>
         <OpenJobsSlider
+        role={role}
            myQuotes={myQuotes}
           handleSelectOpenJob={this.handleSelectOpenJob}
           handleHoverJob={this.handleHoverJob}
@@ -211,7 +212,7 @@ class JobDashboard extends Component {
 <Responsive   minWidth={1} >
           
 <div style={{ minHeight: compactDisplayMode? "300px":  "500px" }}>
-          <Grid>
+          <Grid style={{margin:0}}>
             <Grid.Row >
               <Grid.Column width={3} only='computer'>
               <div style={{width:"100%"}}>
@@ -221,7 +222,7 @@ class JobDashboard extends Component {
                </div>
               </Grid.Column>
              
-              <Grid.Column mobile={16} tablet={16} computer={10} >
+              <Grid.Column style={{padding:0}}mobile={16} tablet={16} computer={10} >
               
               <NavBar compactDisplayMode={compactDisplayMode} role={role} handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
            {this.state.loading ?  <Loader active inline='centered' /> :
@@ -232,8 +233,9 @@ class JobDashboard extends Component {
                     selectQuoteToEdit={selectQuoteToEdit}
                     selectedJobId={this.state.selectedJobId}
                     myQuotes={myQuotes}
+                    compactDisplayMode={compactDisplayMode}
                     openModal={this.props.openModal}
-                
+                    role={this.props.role}
                     selectedJob={this.state.selectedJob}
                   />
                 ) :(this.state.navShow==="post")?

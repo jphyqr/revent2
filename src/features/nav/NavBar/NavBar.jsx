@@ -24,6 +24,7 @@ const mapState = state => {
 return{
   auth: state.firebase.auth,
   profile: state.firebase.profile,
+  role: state.role,
   accountToken:
   authuid &&
   state.firebase.ordered.stripe_connected_account &&
@@ -105,15 +106,16 @@ this.props.clearAccount()
   };
 
   render() {
-    const { auth, profile } = this.props;
+    const { auth, profile, role } = this.props ||{};
+    const {isAlpha} = role ||{}
     const authenticated = auth.isLoaded && !auth.isEmpty;
     const {join} = this.state
     return (
-      <Menu inverted  fixed="top">
+      <Menu inverted  fixed="top" style={{width:"100%", margin:0, padding:0, right:0}}>
         <Container>
 
        
-          
+          <Responsive minWidth={ isAlpha? 300:400}>
         <Menu.Item  as={Link} to="/" header>
             <img src="/assets/white on orange logo.png" alt="logo" />
            
@@ -121,7 +123,7 @@ this.props.clearAccount()
            
           </Menu.Item>
                  
-          
+          </Responsive>
 
           <Responsive as={Menu.Item} style={{width:"30%", }}position="right" minWidth={1100}>
           
@@ -158,13 +160,19 @@ this.props.clearAccount()
 
 
  
-                    <Responsive  as={Menu.Item} style={{padding:"5px" ,borderStyle:"none"}} minWidth={420}>
+                    {(!isAlpha)&&        <Responsive  as={Menu.Item} style={{padding:"5px" ,borderStyle:"none"}} minWidth={300}>
           
 
+
+                  <Menu.Item   style={{padding:"0px", margin:"0px", borderStyle:"none"}} onClick={ authenticated? () => this.props.history.push('/alpha/about'):()=>this.props.openModal("RegisterModal") }>
+        <Button  style={{padding:10, margin:0}}basic inverted content="JOIN ALPHA" />
+          </Menu.Item>
+
+{/* 
                     <Menu.Item   style={{padding:"0px", margin:"0px", borderStyle:"none"}} onClick={()=>this.props.openModal("JoinBetaModal")}>
         <Button  basic inverted content="JOIN BETA" />
-          </Menu.Item>
-                    </Responsive> 
+          </Menu.Item> */}
+                    </Responsive> }
 
 
 

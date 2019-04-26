@@ -45,7 +45,7 @@ class OwnerProfile extends Component {
   render() {
     console.log(this.props.ownerUid);
     console.log(this.props.ownerProfile);
-    const { ownerProfile } = this.props;
+    const { ownerProfile , compactDisplayMode} = this.props;
     const rating = (ownerProfile && ownerProfile.rating) || 0;
     const averageRating =
       (rating &&

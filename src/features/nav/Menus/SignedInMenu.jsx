@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Menu, Image, Segment, Dropdown } from "semantic-ui-react";
+import { Menu, Responsive, Image, Segment, Dropdown } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { firestoreConnect } from "react-redux-firebase";
 import { initializePush } from "../../../app/common/util/helpers";
@@ -18,6 +18,16 @@ const query = ({ auth }) => {
         collection: "admin_users",
         doc: auth.uid,
         storeAs: "admin_user_profile"
+      },
+      {
+        collection: "onboarder_users",
+        doc: auth.uid,
+        storeAs: "onboarder_user_profile"
+      },
+      {
+        collection: "join_alpha",
+        doc: auth.uid,
+        storeAs: "alpha_profile"
       }
     ];
   } else {
@@ -28,10 +38,23 @@ const query = ({ auth }) => {
 const mapState = state => {
   return {
     auth: state.firebase.auth,
+    verified: state.firebase.auth.emailVerified,
     isAdmin:
       (state.firestore.ordered.admin_user_profile &&
         state.firestore.ordered.admin_user_profile[0] &&
         state.firestore.ordered.admin_user_profile[0].isAdmin) ||
+      false,
+
+      isOnboarder:
+      (state.firestore.ordered.onboarder_user_profile &&
+        state.firestore.ordered.onboarder_user_profile[0] &&
+        state.firestore.ordered.onboarder_user_profile[0].isOnboarder) ||
+      false,
+
+      isAlpha:
+      (state.firestore.ordered.alpha_profile &&
+        state.firestore.ordered.alpha_profile[0] &&
+        state.firestore.ordered.alpha_profile[0].isAlpha) ||
       false
   };
 };
@@ -57,9 +80,19 @@ class SignedInMenu extends Component {
     this.props.openModal("CategoryModal");
   };
 
+  handleOnUpdate = (e, { width }) => this.setState({ width });
+
+
   handleNewField = () => {
     this.props.openModal("NewFieldModal");
   };
+
+
+  handleOnboardSettings = () => {
+    this.props.openModal("OnboardingModal");
+  };
+
+
 
   handleNewTask = async () => {
     await this.props.clearTask();
@@ -69,17 +102,22 @@ class SignedInMenu extends Component {
   async componentDidMount() {
     console.log("cdp auth");
    await this.props.storeDeviceToken();
-   await this.props.setRole(this.props.isAdmin)
+   await this.props.setRole(this.props.isAdmin, this.props.isOnboarder, this.props.isAlpha, this.props.verified)
   
   }
 
    async componentWillReceiveProps(nextProps) {
-    await this.props.setRole(nextProps.isAdmin)
+    await this.props.setRole(nextProps.isAdmin, nextProps.isOnboarder, nextProps.isAlpha, this.props.verified)
   }
 
   render() {
-    const { signOut, profile, auth } = this.props;
+    const { signOut, profile, auth, isOnboarder, isAdmin, isAlpha , verified} = this.props;
+
+    const {width} = this.state ||{}
+    const NAME_CUT_OFF = 400;
+    const hideName = width >= NAME_CUT_OFF ? false : true; 
     return (
+      <Responsive fireOnMount onUpdate={this.handleOnUpdate}>
       <Menu.Item position="right">
         <Image
           avatar
@@ -87,24 +125,29 @@ class SignedInMenu extends Component {
           spaced="right"
           src={profile.photoURL || "/assets/user.png"}
         />
-        <Dropdown pointing="top right" text={profile.displayName}>
+        <Dropdown pointing="top right" text={hideName? null : profile.displayName}>
           <Dropdown.Menu>
-            <Dropdown.Item text="Create Event" icon="plus" />
-            <Dropdown.Item
+          
+         {isAdmin &&  <Dropdown.Item
               onClick={this.handleCreateCategory}
               text="New Category"
               icon="plus"
-            />
-            <Dropdown.Item
+            />}
+          {isAdmin && <Dropdown.Item
               onClick={this.handleNewTask}
               text="New Task"
               icon="plus"
-            />
-            <Dropdown.Item
+            />}
+        {isAdmin&&   <Dropdown.Item
               onClick={this.handleNewField}
               text="New Field"
               icon="plus"
-            />
+            />}
+                    {isOnboarder&&   <Dropdown.Item
+              onClick={this.handleOnboardSettings}
+              text="Onboarding"
+              icon="settings"
+            />}
 
             <Dropdown.Item
               as={Link}
@@ -116,6 +159,7 @@ class SignedInMenu extends Component {
           </Dropdown.Menu>
         </Dropdown>
       </Menu.Item>
+      </Responsive>
     );
   }
 }

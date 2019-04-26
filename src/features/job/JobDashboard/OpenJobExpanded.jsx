@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Grid, Segment, Dimmer, Loader } from "semantic-ui-react";
+import { Button, Grid, Label, Segment, Dimmer, Loader } from "semantic-ui-react";
 
 import OwnerProfile from "./OwnerProfile";
 import OpenJobSummary from "./OpenJobSummary";
@@ -9,7 +9,8 @@ class OpenJobExpanded extends Component {
   state = {
     jobId: "",
     quoteId: "",
-    showEditButton: false
+    showEditButton: false,
+    quoteSubmitted: false,
   };
 
   componentWillReceiveProps = nextProps => {
@@ -28,7 +29,7 @@ class OpenJobExpanded extends Component {
           typeof myQuotes[i] == "object" &&
           myQuotes[i].jobId === selectedJobId
         ) {
-          this.setState({ quoteId: myQuotes[i].quoteId, showEditButton: true });
+          this.setState({ quoteId: myQuotes[i].quoteId, showEditButton: true, quoteSubmitted:myQuotes[i].submitted });
         }
       }
     }
@@ -44,8 +45,13 @@ class OpenJobExpanded extends Component {
       selectedJob,
       selectedJobId,
       quotesLoading,
-      ownerProfileLoading
+      ownerProfileLoading,compactDisplayMode
     } = this.props;
+
+
+
+    const contractorHired = !(selectedJob.contract==undefined)
+
     const { quoteId, showEditButton, jobId } = this.state;
     const {
       ownerUid,
@@ -56,21 +62,79 @@ class OpenJobExpanded extends Component {
       acceptsHourlyOwner
     } = selectedJob;
     return (
-      <Segment attached="bottom" style={{ paddingBottom: "0px" }}>
-        <div style={{ color: "black", height: "500px", width: "100%" }}>
+      <Segment attached="bottom" style={{ maxHeight:compactDisplayMode?"300px": "500px", height: compactDisplayMode?"300px": "500px",paddingBottom: "0px" }}>
+        <div style={{ color: "black",   width: "100%" }}>
           {quotesLoading? (
             <Dimmer style={{ paddingBottom: "0px" }} active inverted>
               <Loader style={{ paddingBottom: "0px" }} content="Loading Job" />
             </Dimmer>
           ) : (
-            <Grid>
+         compactDisplayMode ? 
+         
+         
+         <div style={{paddingLeft:10, background:"lightgrey", height: 260, overflowY:"auto", overflowX:"hidden", width:'100%'}}>
+      
+           
+            <div>
+            
+            { contractorHired? <Label size="big" color="red">Contractor Hired</Label> : 
+            
+            this.state.quoteSubmitted  ? 
+            <Label size="big" color="green">Quote Submitted</Label>
+            :
+            showEditButton ? (
+                <Button
+                  primary
+                  loading={quotesLoading}
+                  fluid
+                  onClick={this.handleEditQuote}
+                >
+                  Edit Quote
+                </Button>
+              ) : (
+                <Button
+                  primary
+                  loading={quotesLoading}
+                  fluid
+                  onClick={() => this.props.openModal("QuoteJobModal")}
+                >
+                  Quote Now
+                </Button>
+              )}
+          
+            <OwnerProfile
+                compactDisplayMode={compactDisplayMode}
+                ownerUid={ownerUid}
+              />
+
+           
+            
+            
+
+       
+              <OpenJobSummary compactDisplayMode={compactDisplayMode} selectedJob={selectedJob} />{" "}
+         
+              </div>
+   
+         </div>
+         
+         : 
+         <div>
+           <Grid>
               <Grid.Column width={4}>
               
                 <OwnerProfile
                   
                   ownerUid={ownerUid}
                 />
-                {showEditButton ? (
+                {contractorHired? <Label size="big" color="red">Contractor Hired</Label> :
+                
+                this.state.quoteSubmitted  ? 
+                <Label size="big" color="green">Quote Submitted</Label>
+                :
+                
+                
+                showEditButton ? (
                   <Button
                     primary
                     loading={quotesLoading}
@@ -98,6 +162,7 @@ class OpenJobExpanded extends Component {
 
               </Grid.Column>
             </Grid>
+           </div>
           )}
         </div>
       </Segment>

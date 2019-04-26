@@ -1425,6 +1425,11 @@ console.log({values})
   
 
   
+    const firebase = getFirebase();
+
+    let userUid = firestore.auth().currentUser.uid;
+   
+  let alpha = {isAlpha:true}
 
       
 
@@ -1435,17 +1440,20 @@ console.log({values})
 
 
 
-
-
-
   try {
     dispatch(asyncActionStart());
-    await firestore.add(
+
+    await firebase.updateProfile(alpha); //react redux firebase method
+ 
+   
+    await firestore.set(
       {
         collection: "join_alpha",
+        doc: userUid,
       },
-      values
-    );
+      {...values, isAlpha:true}
+  
+    )
     toastr.success("Success", "Joined Alpha");
     dispatch(asyncActionFinish());
   } catch (error) {

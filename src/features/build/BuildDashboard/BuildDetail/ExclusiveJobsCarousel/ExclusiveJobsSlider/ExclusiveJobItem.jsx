@@ -1,20 +1,27 @@
 import React, { Component, createRef } from "react";
-import { Icon } from "semantic-ui-react";
-
+import { Icon, Confirm } from "semantic-ui-react";
+import {toastr} from "react-redux-toastr";
 class ExclusiveJobItem extends Component {
-  state = { hovered: false, isSelected: false };
+  state = { hovered: false, isSelected: false, open: false };
   componentDidMount() {}
   componentWillReceiveProps = nextProps => {};
-
+  open = () => this.setState({ open: true });
+  close = () => this.setState({ open: false });
   handleClick = async (e, exclusiveJob) => {
-    this.setState({ clicked: true });
-    this.setState({ isSelected: true });
-    this.props.toggleLockInHover();
-    this.setState({ expanded: true });
-    this.setState({ hovered: false });
-    this.props.handleShowExpanded(exclusiveJob);
-    if (!this.props.showExpanded) {
-      this.props.scrollToMyRef(e, 300);
+    if (this.props.role.isAdmin) {
+      this.setState({ clicked: true });
+      this.setState({ isSelected: true });
+      this.props.toggleLockInHover();
+      this.setState({ expanded: true });
+      this.setState({ hovered: false });
+      this.props.handleShowExpanded(exclusiveJob);
+      if (!this.props.showExpanded) {
+        this.props.scrollToMyRef(e, 300);
+      }
+    } else {
+      toastr.confirm("Exclusive Jobs are disabled during Alpha Release", {
+        onOk: () => {}
+      });
     }
   };
 
@@ -33,6 +40,7 @@ class ExclusiveJobItem extends Component {
   render() {
     const {
       exclusiveJob,
+      role,
       index,
       REGULAR_EXCLUSIVE_HEIGHT,
       REGULAR_EXCLUSIVE_WIDTH,
@@ -40,6 +48,8 @@ class ExclusiveJobItem extends Component {
       COMPACT_EXCLUSIVE_WIDTH,
       compactDisplayMode
     } = this.props;
+
+    const { isAdmin, authenticated } = role || {};
     const { contractor } = exclusiveJob || {};
     return (
       <div
@@ -51,11 +61,15 @@ class ExclusiveJobItem extends Component {
           boxShadow:
             "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
           display: "inline-block",
-          height: compactDisplayMode ? COMPACT_EXCLUSIVE_HEIGHT:REGULAR_EXCLUSIVE_HEIGHT , // this.state.hovered ? 200 : 150,
-          width: compactDisplayMode ? COMPACT_EXCLUSIVE_WIDTH:REGULAR_EXCLUSIVE_WIDTH ,
+          height: compactDisplayMode
+            ? COMPACT_EXCLUSIVE_HEIGHT
+            : REGULAR_EXCLUSIVE_HEIGHT, // this.state.hovered ? 200 : 150,
+          width: compactDisplayMode
+            ? COMPACT_EXCLUSIVE_WIDTH
+            : REGULAR_EXCLUSIVE_WIDTH,
           marginLeft: 5,
           //left: this.state.hovered ? -30: 0,
-          opacity: this.state.hovered || this.state.isSelected ? 1 : 0.8,
+          opacity: isAdmin? this.state.hovered || this.state.isSelected ? 1 : 0.8 : 0.2,
           // transition: "opacity 1500ms, height 1500ms , width 1500ms ",
           //   transform: this.state.hovered ? "scaleY(1.5)" : this.props.scrollRightClicked ? "translateX(-500%)" : "scaleY(1)" ,
           //transform: this.state.clicked ? "translateX(-100%)" : "translateX(0%)",
@@ -67,8 +81,12 @@ class ExclusiveJobItem extends Component {
       >
         <div
           style={{
-            height: compactDisplayMode ? COMPACT_EXCLUSIVE_HEIGHT:REGULAR_EXCLUSIVE_HEIGHT , // this.state.hovered ? 200 : 150,
-            width: compactDisplayMode ? COMPACT_EXCLUSIVE_WIDTH:REGULAR_EXCLUSIVE_WIDTH ,
+            height: compactDisplayMode
+              ? COMPACT_EXCLUSIVE_HEIGHT
+              : REGULAR_EXCLUSIVE_HEIGHT, // this.state.hovered ? 200 : 150,
+            width: compactDisplayMode
+              ? COMPACT_EXCLUSIVE_WIDTH
+              : REGULAR_EXCLUSIVE_WIDTH,
             position: "absolute",
             //  minWidth: "25%",
             //    left: 825,
@@ -118,8 +136,12 @@ class ExclusiveJobItem extends Component {
           <img
             ref={index}
             style={{
-              height: compactDisplayMode ? COMPACT_EXCLUSIVE_HEIGHT:REGULAR_EXCLUSIVE_HEIGHT , // this.state.hovered ? 200 : 150,
-              width: compactDisplayMode ? COMPACT_EXCLUSIVE_WIDTH:REGULAR_EXCLUSIVE_WIDTH ,
+              height: compactDisplayMode
+                ? COMPACT_EXCLUSIVE_HEIGHT
+                : REGULAR_EXCLUSIVE_HEIGHT, // this.state.hovered ? 200 : 150,
+              width: compactDisplayMode
+                ? COMPACT_EXCLUSIVE_WIDTH
+                : REGULAR_EXCLUSIVE_WIDTH,
               //    left:this.state.hovered ? 50 : 0,
               //       opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               //    transition: "opacity 1500ms , height 1500ms , width 1500ms ",
@@ -137,20 +159,20 @@ class ExclusiveJobItem extends Component {
           style={{
             //    backgroundColor: "black",
             color: "white",
-            fontSize: compactDisplayMode? 14 : 28,
+            fontSize: compactDisplayMode ? 14 : 28,
             position: "absolute",
             bottom: "0",
             backgroundColor: "black",
-            paddingBottom: compactDisplayMode? 2: 10,
-            paddingTop: compactDisplayMode? 2: 10,
+            paddingBottom: compactDisplayMode ? 2 : 10,
+            paddingTop: compactDisplayMode ? 2 : 10,
 
             marginRight: 5,
             //right: "100",
             textAlign: "center",
             //wordBreak:"break-all",
             width: "100%",
-            height: compactDisplayMode?"45px":"60px",
-          //  textOverflow: "ellipsis",
+            height: compactDisplayMode ? "45px" : "60px",
+            //  textOverflow: "ellipsis",
             whiteSpace: "normal",
             overflowX: "hidden"
           }}

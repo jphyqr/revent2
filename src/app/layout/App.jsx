@@ -20,6 +20,7 @@ import AboutDashboard from "../../features/nav/AboutDashboard/AboutDashboard";
 import PricingDashboard from "../../features/nav/PricingDashboard/PricingDashboard";
 import TestComponent from "../../features/testarea/TestComponent";
 import ModalManager from "../../features/modals/ModalManager";
+import ClaimOnboarding from '../../features/nav/OnboardingPage/ClaimOnboarding'
 import { connect } from "react-redux";
 import { closeMessage } from "../../features/popup/popupActions";
 import { withRouter } from "react-router-dom";
@@ -94,7 +95,7 @@ class App extends Component {
               <NavBar />
 
               <div
-                style={{ width: "100%", marginTop: 61, marginLeft:0, marginRight:"0px", background: "DimGrey" }}
+                style={{ width: "100%", marginTop: 50, marginLeft:0, marginRight:0, padding:0, background: "DimGrey" }}
                 className="main"
               >
                 <Switch>
@@ -107,7 +108,7 @@ class App extends Component {
                   <Route path="/alpha/joined" component={JoinedAlpha} />
                   <Route path="/about" component={AboutDashboard} />
                   <Route path="/pricing" component={PricingDashboard} />
-
+                  <Route path="/claimOnboard/:id" component={ClaimOnboarding} />
                   <Route path="/profile/:id" component={UserDetailedPage} />
                   <Route
                     path="/directmessage/:id"

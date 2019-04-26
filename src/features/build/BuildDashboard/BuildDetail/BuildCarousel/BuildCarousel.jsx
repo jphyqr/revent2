@@ -17,7 +17,9 @@ const query = ({ category }) => {
     {
       collection: "tasks",
       where: [["category", "==", `${category.id}`]],
-      storeAs: "tasksInCategory"
+      orderBy: ["created", "desc"],
+      storeAs: "tasksInCategory",
+      
     }
   ];
 };
@@ -235,6 +237,7 @@ async componentDidMount(){
             compactDisplayMode={compactDisplayMode}
             handleUnsubscribe={this.handleUnsubscribe}
             expandedLoading={this.state.expandedLoading}
+            role={this.props.role}
             />
           }
         </Transition.Group>

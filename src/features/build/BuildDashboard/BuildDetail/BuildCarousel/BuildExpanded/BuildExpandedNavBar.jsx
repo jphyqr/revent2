@@ -25,8 +25,9 @@ class BuildExpandedNavBar extends Component {
               style={{
                 cursor:"pointer",
                 opacity: this.state.hoveredTab === tab.key ? 1 : 0.8,
-                marginLeft: compactDisplayMode? "0px": "12px",
+                marginLeft: 0,// compactDisplayMode? "0px": "12px",
                //display: "inline-block",
+                marginBottom: 10,
                 fontSize: compactDisplayMode? 12:20,
                 textAlign:"center",
                 color: selectedTab === tab.key ? "orange" : "lightGrey"

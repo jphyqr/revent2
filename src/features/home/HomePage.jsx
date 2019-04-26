@@ -13,7 +13,9 @@ const HomePage = ({history}) => {
             />
             <div className="content">Yaybour</div>
           </h1>
-          <h2></h2>
+          <h2>
+            Save Time and Money on any project.
+          </h2>
           <div onClick={() => history.push('/build')} className="ui huge white inverted button">
             Get Started
             <i className="right arrow icon" />
@@ -21,21 +23,7 @@ const HomePage = ({history}) => {
         </div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        Icons made by{' '}
-        <a href="http://www.freepik.com" title="Freepik">
-          Freepik
-        </a>{' '}
-        from{' '}
-        <a href="https://www.flaticon.com/" title="Flaticon">
-          www.flaticon.com
-        </a>{' '}
-        is licensed by{' '}
-        <a
-          href="http://creativecommons.org/licenses/by/3.0/"
-          title="Creative Commons BY 3.0"
-        >
-          CC 3.0 BY
-        </a>
+        Proudly built in Regina, Saskatchewan.
       </div>
     </div>
   );

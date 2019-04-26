@@ -134,7 +134,8 @@ class BuildExpanded extends Component {
   };
   render() {
     const { selectedTab, isManager, isSubscribed, currentJob } = this.state;
-    const { compactDisplayMode } = this.props;
+    const { compactDisplayMode, role } = this.props;
+    const {isAdmin} = role || {}
     const { displayURL } = currentJob || "";
 
     return (
@@ -244,7 +245,7 @@ class BuildExpanded extends Component {
             >
               Book
             </button> */}
-                <Button
+                {isAdmin&&<Button
                   icon
                   size={compactDisplayMode ? "small" : "huge"}
                   labelPosition="left"
@@ -255,7 +256,7 @@ class BuildExpanded extends Component {
                 >
                   <Icon name="add" />
                   Book Job
-                </Button>
+                </Button>}
                 {isManager ? (
                   <Button
                     onClick={this.handleEdit}
@@ -288,7 +289,7 @@ class BuildExpanded extends Component {
 
                   <Button
                     icon
-                    size="huge"
+                    size={compactDisplayMode ? "small" : "huge"}
                     labelPosition="left"
                     onClick={this.handleUnsubscribe}
                     color="white"
@@ -313,7 +314,7 @@ class BuildExpanded extends Component {
                   // </button>
                   <Button
                     icon
-                    size="huge"
+                    size={compactDisplayMode ? "small" : "huge"}
                     labelPosition="left"
                     onClick={this.handleSubscribe}
                     color="white"
@@ -429,8 +430,8 @@ class BuildExpanded extends Component {
                   fontSize: 20,
 
                   bottom: 0,
-                  left: compactDisplayMode ? 0 : "50%",
-                  marginLeft: compactDisplayMode ? "0" : "-170px",
+                  left: 0,//compactDisplayMode ? 0 : "50%",
+                  marginLeft: 0,// compactDisplayMode ? "0" : "-170px",
                   width: compactDisplayMode ? "100%" : "100%",
                   zIndex: "5"
                 }}

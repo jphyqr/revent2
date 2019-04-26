@@ -14,12 +14,15 @@ import {
 } from "semantic-ui-react";
 class PopupNavBar extends Component {
   render() {
-    const { message, closeMessage } = this.props;
+    const { message, closeMessage, width } = this.props;
     return (
-      <Grid  container padding={false}>
-        <Grid.Row  color="blue">
-          <Grid.Column width={14}>{message.displayName}</Grid.Column>
-         <Icon  onClick={()=>closeMessage(message)}size='medium' name='close'/>
+      <Grid  style={{ padding:0, margin:0, width:width}} >
+        <Grid.Row  style={{padding:5}} color="blue">
+          <Grid.Column  style={{padding:5}} width={14}>{message.displayName}</Grid.Column>
+          <Grid.Column  style={{padding:5}} width={2}>
+          <Icon  onClick={()=>closeMessage(message)}size='medium' name='close'/>
+          </Grid.Column>
+        
         </Grid.Row>
       </Grid>
     );

@@ -73,7 +73,8 @@ const mapState = state => {
     myContracts: state.firestore.ordered.contracts,
     exclusiveJobs: state.firestore.ordered.exclusive_jobs,
     draft: state.draft,
-    contract: state.contract
+    contract: state.contract,
+    role:state.role
   };
 };
 
@@ -184,6 +185,7 @@ class BuildDetail extends Component {
           COMPACT_EXCLUSIVE_HEIGHT={COMPACT_EXCLUSIVE_HEIGHT}
           COMPACT_EXCLUSIVE_WIDTH={COMPACT_EXCLUSIVE_WIDTH}
           compactDisplayMode={compactDisplayMode}
+          role={this.props.role}
         />
         {!isLoaded(categories) ? (
           <LoadingComponent />
@@ -192,6 +194,7 @@ class BuildDetail extends Component {
           categories.map(category => (
             <BuildCarousel
               key={category.id}
+              role={this.props.role}
               category={category}
               scrollToMyRef={this.scrollToMyRef}
               handleContextRef={this.handleContextRef}

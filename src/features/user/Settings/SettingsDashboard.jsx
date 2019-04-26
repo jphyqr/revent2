@@ -1,5 +1,5 @@
-import React from "react";
-import { Grid } from "semantic-ui-react";
+import React, { Component } from 'react'
+import { Grid, Responsive } from "semantic-ui-react";
 import { Switch, Route, Redirect } from "react-router-dom";
 import SettingsNav from "./SettingsNav";
 import AboutPage from "./AboutPage";
@@ -22,9 +22,46 @@ const mapState =(state) =>({
 })
 
 
-const SettingsDashboard = ({ updatePassword, providerId, user, updateProfile }) => {
-  return (
-    <Grid>
+
+
+ class SettingsDashboard extends Component {
+
+state={width:0}
+
+  handleOnUpdate = (e, { width }) => this.setState({ width });
+
+  render() {
+    const { updatePassword, providerId, user, updateProfile } = this.props
+       const {width} = this.state
+
+    const CUSTOM_TABLET_CUTOFF = 800;
+    const compactDisplayMode = width >= CUSTOM_TABLET_CUTOFF ? false : true;
+    return (
+      <Responsive fireOnMount onUpdate={this.handleOnUpdate}>
+    
+      {compactDisplayMode? 
+         <div>
+
+<SettingsNav compactDisplayMode={compactDisplayMode}/>
+<Grid>
+<Grid.Column width={16}>
+        <Switch>
+          <Redirect exact from="/settings" to="/settings/basic" />
+          <Route path="/settings/basic" render={()=> <BasicPage updateProfile={updateProfile} initialValues={user}/>} />
+          <Route path="/settings/about" render={()=> <AboutPage updateProfile={updateProfile} initialValues={user}/>} />
+          <Route path="/settings/photos" component={PhotosPage} />
+          <Route
+            path="/settings/account"
+            render={() => <AccountPage updatePassword={updatePassword} providerId={providerId}/>}
+          />
+        </Switch>
+      </Grid.Column>
+    
+
+</Grid>
+         </div> 
+      :
+      <Grid>
       <Grid.Column width={12}>
         <Switch>
           <Redirect exact from="/settings" to="/settings/basic" />
@@ -39,10 +76,16 @@ const SettingsDashboard = ({ updatePassword, providerId, user, updateProfile }) 
       </Grid.Column>
       <Grid.Column width={4}>
         <SettingsNav />
-      </Grid.Column>
-    </Grid>
-  );
-};
+      </Grid.Column> </Grid>}
+   
+    </Responsive>
+    )
+  }
+}
+
+
+
+
 
 export default connect(
   mapState,
