@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import NavBar from "./NavBar";
 import { Tab, Grid, Button, Icon, Dimmer, Loader } from "semantic-ui-react";
 import PaymentsTab from './PaymentsTab'
+
 import { objectToArray } from "../../../../../../app/common/util/helpers";
 import LoadingComponent from "../../../../../../app/layout/LoadingComponent";
 import { selectDraftToEdit } from "../../../../draftActions";
@@ -44,7 +45,7 @@ class MyContractsExpanded extends Component {
   handleSelectTab = tab => {
     this.setState({ selectedTab: tab });
   };
-  componentDidMount() {
+  async componentDidMount()  {
     const { selectedContract, auth } = this.props;
 
     this.setState({
@@ -53,6 +54,8 @@ class MyContractsExpanded extends Component {
 
       selectedTab: "payments"
     });
+
+
   }
 
   componentWillUnmount = () => {

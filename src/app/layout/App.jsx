@@ -12,7 +12,7 @@ import JobDetailedPage from "../../features/job/JobDetailed/JobDetailedPage";
 import MessageDashboard from "../../features/user/MessageDashboard/MessageDashboard";
 import TestScroll from "../../features/testarea/TestScroll";
 import TestAnimations from "../../features/testarea/TestAnimations";
-
+import QuoteDetailedPage from '../../features/nav/QuoteDetailedPage/QuoteDetailedPage'
 import HomePage from "../../features/home/HomePage";
 import AboutAlpha from "../../features/nav/Alpha/AboutAlpha";
 import JoinedAlpha from "../../features/nav/Alpha/JoinedAlpha";
@@ -116,6 +116,7 @@ class App extends Component {
                   />
                   <Route path="/settings" component={SettingsDashboard} />
                   <Route path="/job/:id" component={JobDetailedPage} />
+                  <Route path="/quote/:id" component={QuoteDetailedPage} />
                   <Route path="/messages" component={MessageDashboard} />
                 </Switch>
               </div>

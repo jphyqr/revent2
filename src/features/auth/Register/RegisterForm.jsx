@@ -6,10 +6,11 @@ import {combineValidators, isRequired} from 'revalidate'
 import TextInput from '../../../app/common/form/TextInput';
 import SocialLogin from '../SocialLogin/SocialLogin'
   import {registerUser} from '../authActions'
+import {closeModal, openModal} from '../../modals/modalActions'
 
 
   const actions = {
-    registerUser
+    registerUser, closeModal, openModal
   }
 
   const validate = combineValidators({
@@ -18,7 +19,11 @@ import SocialLogin from '../SocialLogin/SocialLogin'
     password: isRequired('password')
   })
 
+
 const RegisterForm = ({handleSubmit, registerUser, error, invalid, submitting}) => {
+
+
+
   return (
     <div>
       <Form size="large" onSubmit={handleSubmit(registerUser)}>
@@ -46,6 +51,7 @@ const RegisterForm = ({handleSubmit, registerUser, error, invalid, submitting}) 
             Register
           </Button>
           <Divider horizontal>Or</Divider>
+         
         <SocialLogin/>
         </Segment>
       </Form>

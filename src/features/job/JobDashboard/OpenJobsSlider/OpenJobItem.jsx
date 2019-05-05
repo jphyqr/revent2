@@ -6,7 +6,7 @@ import distanceInWords from 'date-fns/distance_in_words'
 export default class OpenJobItem extends Component {
 
   state = {
-    quoteId: "", quoteSubmitted: false, quoteExists:false, hovered: false, isSelected: false
+    new: false, quoteId: "", quoteSubmitted: false, quoteExists:false, hovered: false, isSelected: false
   }
 
     componentDidMount(){
@@ -36,6 +36,22 @@ export default class OpenJobItem extends Component {
       }
 
 
+
+      componentWillReceiveProps(nextProps){
+        const {myQuotes, job}= nextProps
+        const {id, date, startDate} = job
+        
+
+        for (var i = 0; i < myQuotes.length; i++) {
+          if (
+            typeof myQuotes[i] == "object" &&
+            myQuotes[i].jobId === id
+          ) {
+            this.setState({ quoteId: myQuotes[i].quoteId, quoteSubmitted:myQuotes[i].submitted, quoteExists: true });
+          }
+        }
+      }
+
     
     
     onMouseEnterHandler = () => {
@@ -48,6 +64,7 @@ export default class OpenJobItem extends Component {
   }
 
     handleClick=(e,job)=>{
+        this.setState({new:false})
         this.props.handleSelectOpenJob(job)
     }
 
@@ -149,7 +166,7 @@ export default class OpenJobItem extends Component {
             textAlign: "center",
             width: "100%",
             opacity: contractorHired? 0 : (this.state.hovered||this.state.isSelected) ? 0.8 : 0,
-
+            zIndex:1000,
             height: "auto"
           }}
         >
@@ -160,7 +177,7 @@ export default class OpenJobItem extends Component {
           <div
             style={{
               position: "absolute",
-              top: "30%",
+              top: "52%",
             
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
               color: "blue",
@@ -179,7 +196,7 @@ export default class OpenJobItem extends Component {
           <div
             style={{
               position: "absolute",
-              top: "60%",
+              top: "52%",
               textAlign: "center",
               width: "100%",
               height: "auto",
@@ -198,7 +215,7 @@ export default class OpenJobItem extends Component {
 <div
             style={{
               position: "absolute",
-              top: 5,
+              top: 15,
               width:"100%",
               textAlign:"center",
               opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
@@ -229,14 +246,54 @@ export default class OpenJobItem extends Component {
 
 
 
+{this.state.new&&<div
+            style={{
+              position: "absolute",
+              top: "0%",
+              textAlign: "right",
+              width: "auto",
+              height: "auto",
+              fontSize:8,
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              color: "white",
+              backgroundColor:"green"
+            }}
+          >
+        NEW
+</div> }
+
+<div
+            style={{
+              position: "absolute",
+              top: 0,
+              
+              width: "auto",
+              textAlign: "right",
+              right:0,
+              height: "auto",
+              fontSize:8,
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              opacity: (this.state.hovered||this.state.isSelected)  ? 1 : 0.8,
+              color: "white",
+              backgroundColor:"orange"
+            }}
+          >
+        TEST JOB
+          </div> 
 
 
           <div
             style={{
               position: "absolute",
-              top: "35%",
+              top: "30%",
               textAlign: "center",
               width: "100%",
+              fontSize: 18,
               height: "auto",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",

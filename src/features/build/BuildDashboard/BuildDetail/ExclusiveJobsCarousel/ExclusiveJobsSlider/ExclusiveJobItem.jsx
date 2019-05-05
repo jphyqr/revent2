@@ -19,7 +19,7 @@ class ExclusiveJobItem extends Component {
         this.props.scrollToMyRef(e, 300);
       }
     } else {
-      toastr.confirm("Exclusive Jobs are disabled during Alpha Release", {
+      toastr.confirm("Exclusive Jobs are disabled during Alpha Release.  To set up an Exclusive Job contact admin@yaybour.com", {
         onOk: () => {}
       });
     }

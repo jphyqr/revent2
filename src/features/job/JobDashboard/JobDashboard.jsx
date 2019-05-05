@@ -83,7 +83,8 @@ class JobDashboard extends Component {
     selectedJobId: "",
     myQuotes: [],
     quotesLoading: false,
-    navShow: "post"
+    navShow: "post",
+    jobs: []
   };
 
   handleSelectTab = tab =>{
@@ -128,7 +129,7 @@ class JobDashboard extends Component {
   };
 
   async componentDidMount() {
-    this.setState({ quotesLoading: true });
+    this.setState({ quotesLoading: true, jobs: this.props.jobs });
     await this.props.getAllJobsForDashboard() // this.props.getJobsForDashboard();
 
     // if (next && next.docs && next.docs.length > 1) {
@@ -140,9 +141,11 @@ class JobDashboard extends Component {
     this.setState({ quotesLoading: false });
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps = async (nextProps)=> {
+ console.log('DASHBOARD RECEIVED PROPS')
     if (this.props.jobs !== nextProps.jobs) {
-      this.setState({ quotesLoading: true, ownerProfileLoading: true });
+      console.log('JOBS NOT EQUAL')
+      this.setState({ quotesLoading: true, ownerProfileLoading: true, jobs: nextProps.jobs });
       this.setState({
         loadedJobs: [...this.state.loadedJobs, ...nextProps.jobs],
           myQuotes: nextProps.myQuotes ||{}
@@ -181,8 +184,8 @@ class JobDashboard extends Component {
     
 
   render() {
-    const { role,compactDisplayMode, CUSTOM_TABLET_CUTOFF, COMPACT_ITEM_HEIGHT,COMPACT_ITEM_WIDTH,REGULAR_ITEM_HEIGHT,REGULAR_ITEM_WIDTH, loading, selectQuoteToEdit, auth, jobs, authenticated, } = this.props;
-    const { moreJobs, loadedJobs, myQuotes } = this.state;
+    const { role,compactDisplayMode, CUSTOM_TABLET_CUTOFF, COMPACT_ITEM_HEIGHT,COMPACT_ITEM_WIDTH,REGULAR_ITEM_HEIGHT,REGULAR_ITEM_WIDTH, loading, selectQuoteToEdit, auth,  authenticated, } = this.props;
+    const { moreJobs, loadedJobs, myQuotes, jobs } = this.state;
 
     
 

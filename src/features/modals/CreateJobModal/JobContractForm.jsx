@@ -89,7 +89,7 @@ toggleContract=()=> this.setState({checkedContract: !this.state.checkedContract}
     <div>
       
       <Message>Review the General Contracting Agreement.  The agreement is not subject to any change orders.  </Message>
-      <div style={{height: 400, overflowY:"auto"}}>
+      <div style={{height: 200, backgroundColor:"lightgrey", overflowX:"hidden", overflowY:"auto"}}>
     <Accordion defaultActiveIndex={0} panels={rootPanels} />
    </div>
 

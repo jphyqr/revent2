@@ -10,7 +10,7 @@ import MyJobsCarousel from "./MyJobsCarousel/MyJobsCarousel";
 import ExclusiveJobsCarousel from "./ExclusiveJobsCarousel/ExclusiveJobsCarousel";
 import { selectDraftToEdit, postToggle } from "../../draftActions";
 import { selectQuoteToEdit } from "../../../modals/QuoteJobModal/quoteActions";
-import { newChat } from "../../../user/userActions";
+import { newChat, contractsClicked } from "../../../user/userActions";
 import { openModal } from "../../../modals/modalActions";
 
 const query = ({ auth }) => {
@@ -61,7 +61,8 @@ const actions = {
   postToggle,
   openModal,
   selectQuoteToEdit,
-  newChat
+  newChat,
+  contractsClicked
 };
 
 const mapState = state => {
@@ -73,6 +74,7 @@ const mapState = state => {
     myContracts: state.firestore.ordered.contracts,
     exclusiveJobs: state.firestore.ordered.exclusive_jobs,
     draft: state.draft,
+    notifications: state.notifications,
     contract: state.contract,
     role:state.role
   };
@@ -82,11 +84,12 @@ class BuildDetail extends Component {
   async componentDidMount() {
     const { firestore } = this.props;
     await firestore.setListener(`categories`);
+    this.setState({notifications: this.props.notifications})
   }
 
   componentWillReceiveProps = nextProps => {
     if (nextProps.draft !== this.state.draft) {
-      this.setState({ draft: nextProps.draft });
+      this.setState({ draft: nextProps.draft, notifications:nextProps.notifications });
       console.log("updated draft State");
     }
   };
@@ -100,7 +103,8 @@ class BuildDetail extends Component {
     contextRef: {},
     selectedJob: "",
     draft: {},
-    pauseButtonLoading: false
+    pauseButtonLoading: false,
+    notifications: {}
   };
 
   handleEditDraft = async jobId => {
@@ -158,6 +162,8 @@ class BuildDetail extends Component {
       <div style={{ marginTop: 10,  paddingBottom: "900px" }}>
         {authenticated && (
           <MyJobsCarousel
+          contractsClicked={this.props.contractsClicked}
+          notifications={this.state.notifications}
             loading={loading}
             handleNewChat={this.handleNewChat}
             handleViewQuote={this.handleViewQuote}

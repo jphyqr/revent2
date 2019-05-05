@@ -69,6 +69,7 @@ class BuilderPane extends Component {
           content="+ credit card"
           icon="credit card"
           labelPosition="left"
+          disabled
         /> 
         </Grid.Row>
     

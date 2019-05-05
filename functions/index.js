@@ -704,78 +704,78 @@ const renderJobDescription = (job, jobId) => {
   ];
 };
 
-exports.notificationToEmail = functions.firestore
-  .document("users/{userUid}/notifications/{notificationID}")
-  .onCreate((info, context) => {
-    const userUID = context.params.userUid;
-    console.log("info.data()", info.data());
-    let job;
-    let email;
-    return admin
-      .auth()
-      .getUser(userUID)
-      .then(userRecord => {
-        console.log(userRecord);
+// exports.notificationToEmail = functions.firestore
+//   .document("users/{userUid}/notifications/{notificationID}")
+//   .onCreate((info, context) => {
+//     const userUID = context.params.userUid;
+//     console.log("info.data()", info.data());
+//     let job;
+//     let email;
+//     return admin
+//       .auth()
+//       .getUser(userUID)
+//       .then(userRecord => {
+//         console.log(userRecord);
 
-        return userRecord;
-      })
-      .then(userRecord => {
-        email = userRecord.email;
-        return admin
-          .firestore()
-          .collection("jobs")
-          .doc(info.data().jobId)
-          .get()
+//         return userRecord;
+//       })
+//       .then(userRecord => {
+//         email = userRecord.email;
+//         return admin
+//           .firestore()
+//           .collection("jobs")
+//           .doc(info.data().jobId)
+//           .get()
 
-          .then(job => {
-            return job.data();
-          })
-          .then(job => {
-            console.log("job", job);
+//           .then(job => {
+//             return job.data();
+//           })
+//           .then(job => {
+//             console.log("job", job);
 
-            const msg = {
-              to: email,
-              from: "admin@yaybour.com",
-              subject: "New Job!",
-              //templateId: "d-77320f6599ed4c57acf755099d7c6c6e", //NewJob
-              reply_to: "admin@yaybour.com",
-              content: [
-                {
-                  type: "text/html",
-                  value: `<html><body> ${renderJobDescription(
-                    job,
-                    info.data().jobId
-                  )}
+//             const msg = {
+//               to: email,
+//               from: "admin@yaybour.com",
+//               subject: "New Job!",
+//               //templateId: "d-77320f6599ed4c57acf755099d7c6c6e", //NewJob
+//               reply_to: "admin@yaybour.com",
+//               content: [
+//                 {
+//                   type: "text/html",
+//                   value: `<html><body> ${renderJobDescription(
+//                     job,
+//                     info.data().jobId
+//                   )}
                   
                      
                   
-                  </body></html>`
-                }
-              ],
-              // html: ' ',
+//                   </body></html>`
+//                 }
+//               ],
+//               // html: ' ',
 
-              //   dynamic_template_data: {"body":"<html><body> -name- </body></html>", "title": info.data().description, "name": userRecord.displayName},
+//               //   dynamic_template_data: {"body":"<html><body> -name- </body></html>", "title": info.data().description, "name": userRecord.displayName},
 
-              substitutionWrappers: ["{{", "}}"],
-              substitutions: {
-                title: "Test Title", //info.data().description,
-                photoURL: info.data().photoURL,
-                name: "Test Name" //userRecord.displayName
-              }
-            };
+//               substitutionWrappers: ["{{", "}}"],
+//               substitutions: {
+//                 title: "Test Title", //info.data().description,
+//                 photoURL: info.data().photoURL,
+//                 name: "Test Name" //userRecord.displayName
+//               }
+//             };
 
-            return sgMail
-              .send(msg)
-              .then(() => console.log("email sent"))
-              .catch(err => {
-                const { message, code, response } = error;
-                const { headers, body } = response;
-                console.log({ body });
-                console.log(err.toString());
-              });
-          });
-      });
-  });
+//             return sgMail
+//               .send(msg)
+//               .then(() => console.log("email sent"))
+//               .catch(err => {
+//                 const { message, code, response } = error;
+//                 const { headers, body } = response;
+//                 console.log({ body });
+//                 console.log(err.toString());
+//               });
+//           });
+//       });
+//   });
 
 exports.alphaJoin = functions.firestore
   .document("join_alpha/{alphaId}")
@@ -812,16 +812,26 @@ exports.alphaJoin = functions.firestore
         first_name: newAlphaUser.first_name,
         last_name: newAlphaUser.last_name,
         email: newAlphaUser.email,
-        kitchenAndBath: newAlphaUser.kitchenAndBath.toString(),
-        renovations: newAlphaUser.renovations.toString(),
+        kitchenAndBath: newAlphaUser.kitchenAndBath ? "true" : "false", //.toString()|| "",
+        renovations: newAlphaUser.renovations ? "true" : "false", //.toString()|| "",,
 
-        paint: newAlphaUser.paint.toString(),
-        electrical: newAlphaUser.electrical.toString(),
-        plumbing: newAlphaUser.plumbing.toString(),
-        landscaping: newAlphaUser.landscaping.toString(),
-        exterior: newAlphaUser.exterior.toString(),
-        design: newAlphaUser.design.toString(),
-        other: newAlphaUser.other.toString()
+        paint: newAlphaUser.paint ? "true" : "false", //.toString()|| "",,
+        electrical: newAlphaUser.electrical ? "true" : "false", //.toString()|| "",,
+        plumbing: newAlphaUser.plumbing ? "true" : "false", //.toString()|| "",,
+        landscaping: newAlphaUser.landscaping ? "true" : "false", //.toString()|| "",,
+        exterior: newAlphaUser.exterior ? "true" : "false", //.toString()|| "",,
+        design: newAlphaUser.design ? "true" : "false", //.toString()|| "",,
+        other: newAlphaUser.other ? "true" : "false", //.toString()|| "",
+
+        newBuilds: newAlphaUser.newBuilds ? "true" : "false", //.toString()|| "",,
+        engineering: newAlphaUser.engineering ? "true" : "false", //.toString()|| "",,
+        carpentry: newAlphaUser.carpentry ? "true" : "false", //.toString()|| "",,
+        concrete: newAlphaUser.concrete ? "true" : "false", //.toString()|| "",,
+        solar: newAlphaUser.solar ? "true" : "false", //.toString()|| "",,
+        drywall: newAlphaUser.drywall ? "true" : "false", //.toString()|| "",,
+        blinds: newAlphaUser.blinds ? "true" : "false", //.toString()|| "",,
+        windowsdoors: newAlphaUser.windowsdoors ? "true" : "false", //.toString()|| "",,
+        fencing: newAlphaUser.fencing ? "true" : "false" //.toString()|| "",,
       }
     ];
     let request = {
@@ -942,52 +952,224 @@ exports.requestOnboarding = functions.firestore
           }
         });
         console.log({ onboarders });
-        console.log({available})
+        console.log({ available });
         return available;
       })
       .then(available => {
-      return  available.forEach(onboarder => {
-
-
+        return available.forEach(onboarder => {
           return twilio.messages.create(
             {
               body:
-              "Sent to: [" +
-              available.length +
+                "Sent to: [" +
+                available.length +
                 "] JOB: " +
                 newRequest.description +
                 ".  " +
                 onboarder.jobDistance +
-                "from you. LINK: " + onboarder.claimURL,
+                "from you. LINK: " +
+                onboarder.claimURL,
               to: onboarder.phone_number,
               from: "13069937236"
             },
             err => {
               if (err) {
-                return res.status(422).send(err);
+                return console.log(err);
               }
-  
+
               // admin.database().ref('users/' + phone)
               //   .update({ code: code, codeValid: true }, () => {
               //     res.send({ success: true });
               //   });
             }
           );
-
-
-
-
-
-
-
-        })
-
-     
-     
-     
-     
+        });
       });
   });
 // .catch((err) => {
 //   res.status(422).send({ error: err });
 // });
+
+const renderQuoteDescription = (
+  quotedBy,
+  taskName,
+  jobTitle,
+  total,
+  quoteId, jobId
+) => {
+  return [
+    `<div style="width:200px;background:#F9EECF;border:1px dotted black;text-align:center">
+     <p>Generic content...</p>
+     </div>
+     
+     <p style="fontSize:16>${quotedBy} has quoted your ${taskName} job "${jobTitle}" at $${total}.</p><br/>
+     <br/>
+     
+     <a href="https://yaybour.com/quote/${jobId}_${quoteId}">VIEW QUOTE</a>
+     `
+  ];
+};
+
+exports.hireContractor = functions.firestore
+  .document("job_contracts/{contractId}")
+  .onCreate((info, context) => {
+    console.log("New Function v1");
+    let newContract = info.data();
+    const { contract, jobData, jobId, ownerData, schedule, total, created } =
+      newContract || {};
+    const { acceptedDate, hiredContractorUid, jobOwnerUid, payments } =
+      contract || {};
+    const { jobPhotoURL } = jobData || {};
+    const { ownerPhotoURL, owneredBy } = ownerData || {};
+    const { completionDate, startDate, startHour } = schedule || {};
+
+    console.log(newContract);
+
+    const notification = {
+      type: "hiredForJob",
+      jobId: jobId,
+      owner: owneredBy,
+      photoURL: jobPhotoURL,
+      created: created,
+      timestamp: admin.firestore.FieldValue.serverTimestamp()
+    };
+    return admin
+      .firestore()
+      .collection("users")
+      .doc(hiredContractorUid)
+      .collection("notifications")
+      .add(notification)
+      .then(docRef => {
+        return console.log("Notification created with ID: ", docRef.id);
+      })
+      .catch(err => {
+        return console.log("Error adding notification", err);
+      });
+  });
+
+exports.submitQuote = functions.firestore
+  .document("job_quotes/{quoteId}")
+  .onCreate((info, context) => {
+    console.log("Quote v1 v1");
+
+    let newQuote = info.data();
+
+    const {
+      bidType,
+      created,
+      jobData,
+      jobId,
+      lineItems,
+      notes,
+      ownerData,
+      paymentType,
+      quoteDate,
+      quoteId,
+      quotedBy,
+      quotedByPhotoURL,
+      quoterUid,
+      total
+    } = newQuote || {};
+
+    const { jobTitle, taskName } = jobData || {};
+    console.log('submitQuote quoteInfo', newQuote);
+    const { ownerUid } = ownerData || {};
+
+    const notification = {
+      type: "quoteSubmitted",
+      jobId: jobId,
+      quoteId: quoteId,
+      quotedBy: quotedBy,
+      quoterUid: quoterUid,
+      photoURL: quotedByPhotoURL,
+      total: total,
+      created: created,
+      timestamp: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    //  const userUID = context.params.userUid;
+    //  console.log("info.data()", info.data());
+    let job;
+    let email;
+
+    return (
+      admin
+        .firestore()
+        .collection("users")
+        .doc(ownerUid)
+        .collection("notifications")
+        .add(notification)
+        .then(docRef => {
+          return console.log("Notification created with ID: ", docRef.id);
+        })
+        .then(() => {
+          return admin.auth().getUser(ownerUid);
+        })
+        // .then(userRecord => {
+        //   console.log(userRecord);
+
+        //   return userRecord;
+        // })
+        // .then((userRecord) => {
+        //   email = userRecord.email;
+        //   return admin
+        //     .firestore()
+        //     .collection("jobs")
+        //     .doc(info.data().jobId)
+        //     .get()
+
+        //     .then(job => {
+        //       return job.data();
+        //     })
+        .then(ownerRecord => {
+          console.log("sending email to", ownerRecord);
+
+          const msg = {
+            to: ownerRecord.email,
+            from: "admin@yaybour.com",
+            subject: `Quote for ${jobTitle}`,
+            //templateId: "d-77320f6599ed4c57acf755099d7c6c6e", //NewJob
+            reply_to: "admin@yaybour.com",
+            content: [
+              {
+                type: "text/html",
+                value: `<html><body> ${renderQuoteDescription(
+                  quotedBy,
+                  taskName,
+                  jobTitle,
+                  total,
+                  quoteId,
+                  jobId
+                )}
+                  
+                     
+                  
+                  </body></html>`
+              }
+            ],
+            // html: ' ',
+
+            //   dynamic_template_data: {"body":"<html><body> -name- </body></html>", "title": info.data().description, "name": userRecord.displayName},
+
+            substitutionWrappers: ["{{", "}}"],
+            substitutions: {
+              title: "Test Title", //info.data().description,
+              photoURL: info.data().photoURL,
+              name: "Test Name" //userRecord.displayName
+            }
+          };
+
+          return sgMail
+            .send(msg)
+            .then(() => console.log("email sent"))
+            .catch(err => {
+              const { message, code, response } = error;
+              const { headers, body } = response;
+              console.log({ body });
+              console.log(err.toString());
+            });
+        })
+        .catch(err => {
+          return console.log("Error adding notification", err);
+        })
+    );
+  });

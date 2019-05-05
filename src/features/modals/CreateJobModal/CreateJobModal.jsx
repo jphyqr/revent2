@@ -15,7 +15,7 @@ import JobPhotos from "./JobPhotos";
 import JobProgress from "./JobProgress";
 import { Button } from "semantic-ui-react";
 import {postToggle} from '../../build/draftActions'
-import { dispatchJob, uploadJobPhoto, updateJobCustom, updateJobPhotosPage, updateJobSchedule ,updateJobBasic, updateJobContract} from "../../job/jobActions";
+import { getAllJobsForDashboard, dispatchJob, uploadJobPhoto, updateJobCustom, updateJobPhotosPage, updateJobSchedule ,updateJobBasic, updateJobContract} from "../../job/jobActions";
 const actions = {
   uploadJobPhoto,
   closeModal,
@@ -25,7 +25,8 @@ const actions = {
   updateJobBasic,
   updateJobContract,
   postToggle,
-  dispatchJob
+  dispatchJob,
+  getAllJobsForDashboard
 };
 
 const objIsEmpty = obj => {
@@ -46,6 +47,7 @@ class CreateJobModal extends Component {
   state = { showModal: true, jobSuccess: false };
 
  handleJobPosted = async () => {
+  await this.props.getAllJobsForDashboard()
   await this.setState({jobSuccess:true})
  }
 
@@ -68,11 +70,11 @@ class CreateJobModal extends Component {
       job,
       loading,
       draft,updateJobCustom, dispatchJob, postToggle, postJob, updateJobPhotosPage, updateJobSchedule,updateJobBasic,updateJobContract
-    } = this.props;
-   const {width} = this.state
-    const { value: draftValue } = draft;
+    } = this.props ||{};
+   const {width} = this.state ||{}
+    const { value: draftValue } = draft ||{};
 
-    const { showState } = draftValue;
+    const { showState } = draftValue ||{};
 
     const modalSize = width >= Responsive.onlyComputer.minWidth ? 'small' : width >= Responsive.onlyTablet.minWidth ? 'large' : 'fullscreen'
     return (

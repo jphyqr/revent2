@@ -52,9 +52,9 @@ class JobCustomForm extends Component {
 
 
   render() {
-    const {draft} = this.props
-    const {value:draftValue} =draft
-    const {fields} = draftValue
+    const {draft} = this.props ||{}
+    const {value:draftValue} =draft ||{}
+    const {fields} = draftValue ||[]
 
 
  

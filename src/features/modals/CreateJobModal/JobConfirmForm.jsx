@@ -63,7 +63,7 @@ this.setState({zoom:e.zoom})
 
     return (
       <div>
-       <div style={{height:400, overflowY:"auto", overflowX:"hidden", width:'auto', margin:20}}>
+       <div style={{height:300, backgroundColor:"lightgrey", overflowY:"auto", overflowX:"hidden", width:'auto', margin:20}}>
           <Grid>
           <Grid.Row>
         <Grid.Column style={{fontSize:'18px'}}>Title: {title}</Grid.Column>

@@ -145,7 +145,7 @@ class BuildCarouselItem extends Component {
         onMouseEnter={this.onMouseEnterHandler}
         onMouseLeave={this.onMouseLeaveHandler}
         onClick={(isOpen||isAdmin) ? e => this.handleClick(e, item, category) :
-           ()=>{   toastr.confirm("This job is currently locked.", {
+           ()=>{   toastr.confirm("This job is currently locked.  Will open once enough contractors are available for this industry", {
           onOk: () => {}})}}
       
         style={{

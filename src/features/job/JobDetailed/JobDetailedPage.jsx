@@ -171,6 +171,7 @@ const {showEditButton, quotesLoading} = this.state
                 <OwnerProfile
                   
                   ownerUid={ownerUid}
+                  profileType="owner"
                 />
 
               </Grid.Column>

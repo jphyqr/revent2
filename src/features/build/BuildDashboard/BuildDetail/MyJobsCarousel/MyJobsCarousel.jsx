@@ -3,7 +3,7 @@ import MyJobsSlider from "./MyJobsSlider/MyJobsSlider";
 import MyJobsExpanded from "./MyJobsExpanded/MyJobsExpanded";
 import ContractSlider from '../MyContractsCarousel/MyContractsSlider/ContractSlider'
 import MyContractsCarousel from '../MyContractsCarousel/MyContractsCarousel'
-import { Transition } from "semantic-ui-react";
+import { Transition, Icon , Label} from "semantic-ui-react";
 class MyJobsCarousel extends Component {
   state = {
     showExpanded: false,
@@ -30,6 +30,14 @@ class MyJobsCarousel extends Component {
     this.setState({ lockInHover: true });
   };
 
+
+
+  handleContractsClicked = () => {
+   console.log('handleContractsClicked')
+    this.setState({contractsSelected:true, projectsSelected:false})
+    this.props.contractsClicked()
+
+  }
   handleShowExpanded = async draft => {
     this.setState({ expandedLoading: true });
 
@@ -64,9 +72,11 @@ class MyJobsCarousel extends Component {
       COMPACT_ITEM_HEIGHT,
       COMPACT_ITEM_WIDTH,
       REGULAR_ITEM_HEIGHT,
-      REGULAR_ITEM_WIDTH
+      REGULAR_ITEM_WIDTH, notifications
     
-    } = this.props;
+    } = this.props||{};
+
+    const {newContract} = notifications ||{}
     const {projectsHovered, projectsSelected, contractsHovered, contractsSelected} = this.state
     return (
       <div style={{  marginTop: compactDisplayMode ? 0: 30 }}>
@@ -87,7 +97,7 @@ class MyJobsCarousel extends Component {
           My Projects
         </p>
         <p
-        onClick={()=>this.setState({contractsSelected:true, projectsSelected:false})}
+        onClick={this.handleContractsClicked}
              onMouseEnter={()=>this.setState({contractsHovered:true})}
              onMouseLeave={()=>this.setState({contractsHovered:false})}
           style={{
@@ -99,8 +109,12 @@ class MyJobsCarousel extends Component {
             margin: 5
           }}
         >
-          My Contracts
+        
+       My Contracts
+
         </p>
+        {newContract&&  <Label style={{marginBottom:5}}color='green'>NEW</Label>
+       }
 
 
    {projectsSelected ?       <div> <MyJobsSlider

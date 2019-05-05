@@ -3,7 +3,8 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
  class LabourItem extends Component {
     
   render() {
-      const {labourer, newChatLabourer, compactDisplayMode} = this.props
+      const {labourer, newChatLabourer, compactDisplayMode, role} = this.props||{}
+      const {authenticated} = role || {}
       const {displayName, jobsCompleted, jobsStarted,  volumeTotal, photoURL, rating, updatedSkills, labourPhotos} = labourer
       const{rate, coverletter, hasTransportation, hasBasicTools, hasValidLicense} = updatedSkills
 
@@ -112,7 +113,7 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
           Skills
         </Button>
 
-        <Button 
+       {authenticated&&<Button 
            fluid
         loading={this.props.loading}
         onClick={()=>newChatLabourer(labourer)}
@@ -123,7 +124,7 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
                   }}
         
          inverted
-        secondary>Message</Button>
+        secondary>Message</Button>}
           </Grid.Column>}
 </Grid.Row>
         <Grid.Row style={{padding: compactDisplayMode? 0:5}}>

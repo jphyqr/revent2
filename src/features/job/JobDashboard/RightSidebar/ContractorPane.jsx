@@ -75,6 +75,7 @@ class ContractorPane extends Component {
                     this.props.openModal("ConnectBankAccountModal")
                   }
                   content="+ bank account"
+                  disabled
                   icon="stripe card"
                   labelPosition="left"
                 />

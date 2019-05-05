@@ -5,7 +5,8 @@ import {getLabourForList} from './labourActions'
 import LabourItem from './LabourItem'
 import {newChatLabourer} from '../../../../user/userActions'
 const mapState = (state) =>({
-    labourers: state.labour 
+    labourers: state.labour ,
+    role: state.role
 })
 
 const actions = {
@@ -36,7 +37,7 @@ const actions = {
    {(!compactDisplayMode)&& <Header as="h1">Looking for Work</Header>}
       <div  style={{ overflowY:"hidden",  whiteSpace: "nowrap", overflowX:"auto"}}>
         {labourers&&labourers.map(labourer=>(
-            <LabourItem compactDisplayMode labourer={labourer} newChatLabourer={newChatLabourer}/>
+            <LabourItem role={this.props.role} compactDisplayMode labourer={labourer} newChatLabourer={newChatLabourer}/>
         ))}
       </div>
       </div>

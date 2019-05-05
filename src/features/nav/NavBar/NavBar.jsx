@@ -130,7 +130,7 @@ this.props.clearAccount()
 
 <Search
     fluid
-    style={{marginTop:"auto", width:"auto", marginBottom:"auto"}}
+    style={{marginTop:"auto", width:"auto", marginBottom:"auto", }}
     //  loading={isLoading}
     //  onResultSelect={this.handleResultSelect}
    //   onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}

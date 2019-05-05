@@ -11,6 +11,7 @@ import taskReducer from '../../features/modals/TaskModal/taskReducer'
 import authReducer from '../../features/auth/authReducer';  
 import fieldReducer from '../../features/modals/NewFieldModal/fieldReducer'
 import asyncReducer from '../../features/async/asyncReducer'
+import notificationReducer from '../../features/user/notificationReducer'
 import {firebaseReducer} from 'react-redux-firebase'
 import {firestoreReducer} from 'redux-firestore'
 import {reducer as toastrRedcer} from 'react-redux-toastr';
@@ -40,7 +41,8 @@ const rootReducer = combineReducers({
   quote: quoteReducer,
   labour: labourReducer,
   contract: contractReducer,
-  role: roleReducer
+  role: roleReducer,
+  notifications: notificationReducer
 })
 
 export default rootReducer

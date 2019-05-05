@@ -178,7 +178,7 @@ class Profile extends Component {
       <div
         style={{
           width: "100%",
-          maxHeight: compactDisplayMode?"300px": "500px",
+          height: compactDisplayMode?"300px": "500px",
           backgroundColor: "lightgrey",
           overflowX:"hidden", overflowY:"auto"
           

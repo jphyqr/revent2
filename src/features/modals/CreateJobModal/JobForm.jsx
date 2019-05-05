@@ -114,6 +114,8 @@ class JobForm extends Component {
   };
 
   handleVenueSelect = selectedVenue => {
+    console.log('selectedValue', selectedVenue)
+    console.log('venue selected')
     geocodeByAddress(selectedVenue)
       .then(results => getLatLng(results[0]))
       .then(latlng => {
@@ -127,6 +129,7 @@ class JobForm extends Component {
   };
 
   onFormSubmit = async values => {
+    console.log('on form submit')
     values.venueLatLng = this.state.venueLatLng;
     if (Object.keys(values.venueLatLng).length === 0) {
       values.venueLatLng = this.props.job.venueLatLng;
@@ -162,7 +165,7 @@ class JobForm extends Component {
         />
         <Grid.Column width={14}>
           <Header sub color="teal" content="Job Details" />
-          <Form onSubmit={()=>this.props.handleSubmit(this.onFormSubmit)}>
+          <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
 
 
             <Field name="title" type="text" component={TextInput} />
@@ -226,7 +229,7 @@ class JobForm extends Component {
                   types: ["address"]
                 }}
                 placeholder="Street Address"
-                onSelect={()=>this.handleVenueSelect()}
+                onSelect={this.handleVenueSelect}
               />
             )}
 

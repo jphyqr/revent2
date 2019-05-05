@@ -1,4 +1,10 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { firestoreConnect, isEmpty, isLoaded } from "react-redux-firebase";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
+import moment from "moment";
+import OwnerProfile from '../../job/JobDashboard/OwnerProfile'
+import format from "date-fns/format";
 import {
   Modal,
   Transition,
@@ -11,57 +17,54 @@ import {
   Label,
   Responsive
 } from "semantic-ui-react";
-import { closeModal } from "../modalActions";
-import { connect } from "react-redux";
-
-import { toastr } from "react-redux-toastr";
-
-import { clearQuote, hireContractor } from "../QuoteJobModal/quoteActions";
-
-import { isEmpty, isLoaded } from "react-redux-firebase";
-import moment from "moment";
-import format from "date-fns/format";
 import { objectToArray } from "../../../app/common/util/helpers";
-
-const actions = {
-  closeModal,
-  clearQuote,
-  hireContractor
+const query = ({ auth, match }) => {
+  const authenticated = auth.isLoaded && !auth.isEmpty;
+  if (authenticated) {
+    return [
+      {
+        collection: "job_quotes",
+        doc: match.params.id,
+        storeAs: "quote"
+      }
+    ];
+  } else {
+    return [];
+  }
 };
+const mapState = state => ({
+  loading: state.async.loading,
+  auth: state.firebase.auth,
+  selectedQuote:
+    (state.firestore.ordered.quote && state.firestore.ordered.quote[0]) || {},
 
-const mapState = state => {
-  return {
-    quote: state.quote,
-    loading: state.async.loading,
-    currentAccount: state.account
-  };
-};
+  authenticated: state.firebase.auth.isLoaded && !state.firebase.auth.isEmpty,
+  ownerOfQuoteUid:
+    (state.firestore.ordered.quote &&
+      state.firestore.ordered.quote[0] &&
+      state.firestore.ordered.quote[0].ownerData &&
+      state.firestore.ordered.quote[0].ownerData.ownerUid) ||
+    {}
+});
 
-class ViewQuoteModal extends Component {
+const actions = {};
+
+class QuoteDetailedPage extends Component {
   state = { showDetails: false, hireLoader: false };
 
   handleOnUpdate = (e, { width }) => this.setState({ width });
-  handleHire = async () => {
-    const message = "Are you sure you want to Hire";
-    toastr.confirm(message, {
-      onOk: () => {
-        this.setState({ hireLoader: true });
-        this.props.hireContractor(this.props.quote);
-        this.setState({ hireLoader: false });
-      }
-    });
-  };
-
-  handleClose = async () => {
-    await this.props.clearQuote();
-    this.props.closeModal();
-  };
 
   render() {
     const { showDetails, hireLoader, width } = this.state;
-    const { quote, loading, currentAccount } = this.props;
-    const CUSTOM_TABLET_CUTOFF = 800;
-    const compactDisplayMode = width >= CUSTOM_TABLET_CUTOFF ? false : true;
+    const {
+      selectedQuote,
+      ownerOfQuoteUid,
+      auth,
+      authenticated,
+      loading,
+      requesting
+    } = this.props || {};
+
     const {
       bidType,
       created,
@@ -73,36 +76,35 @@ class ViewQuoteModal extends Component {
       quoteDate,
       quoteId,
       quotedBy,
+      quoterUid,
       quotedByPhotoURL,
       schedule,
       total,
       contract
-    } = quote || {};
+    } = selectedQuote || {};
 
     let paidInApp = false;
     if (paymentType === "connectedAccount" || paymentType === "creditCard") {
       paidInApp = true;
     }
-
     const { startDate, startHour, completionDate } = schedule || {};
-
     const lineItemsArray = objectToArray(lineItems) || [];
-    console.log("LINE ITEMS ARRAY", lineItemsArray);
+
+    const CUSTOM_TABLET_CUTOFF = 800;
+    const compactDisplayMode = width >= CUSTOM_TABLET_CUTOFF ? false : true;
+
+    if (!isLoaded(selectedQuote) || isEmpty(selectedQuote) || requesting)
+      return <LoadingComponent inverted={true} />;
+
     return (
-      <Responsive fireOnMount onUpdate={this.handleOnUpdate}>
-        <Modal closeIcon="close" open={true} onClose={this.handleClose}>
-          <Modal.Header>{`Quote from ${quotedBy}`}</Modal.Header>
-          <Modal.Content scrolling>
-            <div
-              style={{
-                overflowY: "auto",
-                overflowX: "hidden",
-                height: "1200px"
-              }}
-            >
+      <div style={{ paddingTop: 30 , margin:10}}>
+        {authenticated ? (
+          auth.uid === ownerOfQuoteUid ? (
+            <div>
+              <Responsive fireOnMount onUpdate={this.handleOnUpdate} />
               {compactDisplayMode ? (
                 <div>
-                          {paidInApp ? 
+                  {paidInApp ? 
                     <Message warning>
                       <Message.Header>
                         This Contractor is Paid Through Yaybour
@@ -122,58 +124,63 @@ class ViewQuoteModal extends Component {
                   </Message>
 
                   }
-
-                  <Grid style={{margin:10}}> 
-                   
-                  {contract ? (
-                          <Label color="green" size="huge" style={{textAlign:"center", width:"100%"}}><Icon name="check"></Icon>Contractor Hired</Label>
-                        ) : (
-                          <Button
-                            loading={loading}
-                            onClick={() => this.handleHire()}
-                            positive
-                            size="massive"
-                          >
-                            Hire Contractor
-                          </Button>
-                        )}
+                
+                <Header as="h3">Quoted By</Header>
+                <OwnerProfile
                   
+                  ownerUid={quoterUid}
+                  compactDisplayMode={compactDisplayMode}
+                  profileType="contractor"
+                />
+                  <Grid style={{ margin: 10 }}>
+                    {contract ? (
+                      <Label
+                        color="green"
+                        size="huge"
+                        style={{ textAlign: "center", width: "100%" }}
+                      >
+                        <Icon name="check" />Contractor Hired
+                      </Label>
+                    ) : (
+                      <Button
+                        loading={loading}
+                        onClick={() => this.handleHire()}
+                        positive
+                        size="massive"
+                      >
+                        Hire Contractor
+                      </Button>
+                    )}
 
                     <Grid.Row>
-                    
-                        {" "}
-                        <Statistic
-                          style={{ marginBottom: "40px" }}
-                          color="green"
-                        >
-                          <Statistic.Value>
-                            <Icon name="dollar" />
-                            {total}
-                          </Statistic.Value>
-                          <Statistic.Label>
-                            {showDetails ? (
-                              <Button
-                                style={{ width: "100%" }}
-                                onClick={() =>
-                                  this.setState({ showDetails: false })
-                                }
-                              >
-                                Hide Details
-                              </Button>
-                            ) : (
-                              <Button
-                                style={{ width: "100%" }}
-                                onClick={() =>
-                                  this.setState({ showDetails: true })
-                                }
-                              >
-                                Show Details
-                              </Button>
-                            )}
-                          </Statistic.Label>
-                        </Statistic>
-                  
-
+                      {" "}
+                      <Statistic style={{ marginBottom: "40px" }} color="green">
+                        <Statistic.Value>
+                          <Icon name="dollar" />
+                          {total}
+                        </Statistic.Value>
+                        <Statistic.Label>
+                          {showDetails ? (
+                            <Button
+                              style={{ width: "100%" }}
+                              onClick={() =>
+                                this.setState({ showDetails: false })
+                              }
+                            >
+                              Hide Details
+                            </Button>
+                          ) : (
+                            <Button
+                              style={{ width: "100%" }}
+                              onClick={() =>
+                                this.setState({ showDetails: true })
+                              }
+                            >
+                              Show Details
+                            </Button>
+                          )}
+                        </Statistic.Label>
+                      </Statistic>
                     </Grid.Row>
                   </Grid>
 
@@ -278,7 +285,7 @@ class ViewQuoteModal extends Component {
                 </div>
               ) : (
                 <div>
-                    {paidInApp ? 
+                  {paidInApp ? 
                     <Message warning>
                       <Message.Header>
                         This Contractor is Paid Through Yaybour
@@ -464,9 +471,13 @@ class ViewQuoteModal extends Component {
                 </div>
               )}
             </div>
-          </Modal.Content>
-        </Modal>
-      </Responsive>
+          ) : (
+            "You are not the owner of this job"
+          )
+        ) : (
+          "Login to view Quote"
+        )}
+      </div>
     );
   }
 }
@@ -474,4 +485,4 @@ class ViewQuoteModal extends Component {
 export default connect(
   mapState,
   actions
-)(ViewQuoteModal);
+)(firestoreConnect(props => query(props))(QuoteDetailedPage));

@@ -233,7 +233,7 @@ export const updateJobPhotosPage = draft => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);
@@ -297,7 +297,7 @@ export const updateJobContract = draft => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);
@@ -358,7 +358,7 @@ export const updateJobBasic = (draft, values) => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);
@@ -419,7 +419,7 @@ export const updateJobCustom = (draft, values) => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);
@@ -481,7 +481,7 @@ export const updateJobSchedule = (draft, values, timesSelected) => {
       });
 
       dispatch(asyncActionFinish());
-      toastr.success("Success", "Job has been updated");
+      
     } catch (error) {
       dispatch(asyncActionError());
       console.log(error);

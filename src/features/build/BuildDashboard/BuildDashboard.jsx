@@ -1,16 +1,21 @@
 import React, { Component } from "react";
 import BuildDetail from "./BuildDetail/BuildDetail";
-import { Grid, Container, Responsive, Message } from "semantic-ui-react";
+import { Grid, Button, Container, Responsive, Message } from "semantic-ui-react";
 import JobDashboard from "../../job/JobDashboard/JobDashboard";
 import LogDashboard from "./LogDashboard/LogDashboard";
 import { firestoreConnect } from "react-redux-firebase"; //even though we using firestore this gives our binding
-
+import {resendEmailVerificationLink} from '../../user/userActions'
 import { connect } from "react-redux";
+
+const actions = {
+  resendEmailVerificationLink
+}
 
 const mapState = state => {
   return {
     role: state.role,
     verified: state.firebase.auth.emailVerified,
+    loading: state.async.loading
   };
 };
 class BuildDashboard extends Component {
@@ -43,7 +48,7 @@ class BuildDashboard extends Component {
     this.setState({ showJobs: false });
   };
   render() {
-    const { role } = this.props || {};
+    const { role , loading} = this.props || {};
     const { authenticated } = role || {};
     const { width,verified } = this.state;
     const CUSTOM_TABLET_CUTOFF = 800;
@@ -66,6 +71,8 @@ class BuildDashboard extends Component {
     header='You must Verify your e-mail!'
     content='Check your email for a link sent from us!'
   />
+
+     <Button loading={loading} onClick={()=>this.props.resendEmailVerificationLink()} primary>Resend Verification Link</Button>
             </div>
           ) : (
             <div>
@@ -110,7 +117,7 @@ class BuildDashboard extends Component {
 
 export default connect(
   mapState,
-  null
+  actions
 )(firestoreConnect()(BuildDashboard));
 
 

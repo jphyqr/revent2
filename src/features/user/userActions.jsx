@@ -1,8 +1,12 @@
 import moment from "moment";
 import { toastr } from "react-redux-toastr";
 import { FETCH_JOBS } from "../job/jobConstants";
-import { FETCH_TASK} from "../modals/TaskModal/taskConstants"
-import {FETCH_LABOUR} from '../job/JobDashboard/Labour/LabourList/labourConstants'
+import {
+  SET_NOTIFICATIONS,
+  CLEAR_NOTIFICATIONS
+} from "./notificationConstants";
+import { FETCH_TASK } from "../modals/TaskModal/taskConstants";
+import { FETCH_LABOUR } from "../job/JobDashboard/Labour/LabourList/labourConstants";
 import cuid from "cuid";
 import firebase from "../../app/config/firebase";
 import {
@@ -11,16 +15,15 @@ import {
   asyncActionError
 } from "../async/asyncActions";
 
-
 import { OPEN_MESSAGE } from "../popup/popupConstants";
 
-
-
-
-export const storeDeviceToken = () => async (dispatch, getState, {getFirestore}) => {
-  console.log('storeDeviceToken Code Reached')
+export const storeDeviceToken = () => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
+  console.log("storeDeviceToken Code Reached");
   dispatch(asyncActionStart);
-
 
   const messaging = firebase.messaging();
   messaging
@@ -34,39 +37,32 @@ export const storeDeviceToken = () => async (dispatch, getState, {getFirestore})
       //you probably want to send your new found FCM token to the
       //application server so that they can send any push
       //notification to you.
-      console.log('initialize push code reached, about to storeDeviceToken')
-    // storeDeviceToken(token)
-    const firestore = getFirestore();
-    const userUID = firestore.auth().currentUser.uid;
-      const tokenUID = cuid()
-    console.log('sdt uid', userUID)
-     firestore.set(
-      {
-        collection: "users",
-        doc: userUID,
-        subcollections: [{ collection: "web_push_token", doc: token }],
-       
-      },
+      console.log("initialize push code reached, about to storeDeviceToken");
+      // storeDeviceToken(token)
+      const firestore = getFirestore();
+      const userUID = firestore.auth().currentUser.uid;
+      const tokenUID = cuid();
+      console.log("sdt uid", userUID);
+      firestore.set(
+        {
+          collection: "users",
+          doc: userUID,
+          subcollections: [{ collection: "web_push_token", doc: token }]
+        },
 
-      {tokenUID:token, dateSet: Date.now()}
-    );
+        { tokenUID: token, dateSet: Date.now() }
+      );
 
-     dispatch(asyncActionError());
+      dispatch(asyncActionError());
     })
     .catch(error => {
       if (error.code === "messaging/permission-blocked") {
-          dispatch(asyncActionError());
+        dispatch(asyncActionError());
         console.log("Please Unblock Notification Request Manually");
       } else {
         console.log("Error Occurred", error);
       }
     });
-
-
-
-
-
-
 
   // const firestore = firebase.firestore();
   // const userUID = firestore.auth().currentUser.uid;
@@ -88,13 +84,7 @@ export const storeDeviceToken = () => async (dispatch, getState, {getFirestore})
   //   dispatch(asyncActionError());
   //   throw new Error("Problem following user");
   // }
-
-
 };
-
-
-
-
 
 export const updateProfile = user => async (
   dispatch,
@@ -113,6 +103,29 @@ export const updateProfile = user => async (
     toastr.success("Success", "Profile updated");
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const resendEmailVerificationLink = user => async (
+  dispatch,
+  getState,
+  { getFirebase, getFirestore }
+) => {
+  const firebase = getFirebase();
+  const firestore = getFirestore();
+  try {
+    dispatch(asyncActionStart());
+
+    const user = firebase.auth().currentUser;
+    user.sendEmailVerification();
+
+    dispatch(asyncActionFinish());
+    toastr.success("Success", "Email Link Sent");
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
+    toastr.error("Oops", "Problem sending link");
+    throw new Error("Problem uploading photo");
   }
 };
 
@@ -271,16 +284,10 @@ export const bidJob = job => async (dispatch, getState) => {
   }
 };
 
-
-
-
-
 export const subscribeToTask = task2 => async (dispatch, getState) => {
   dispatch(asyncActionStart());
 
-  
-  
-  console.log('subscribeToTask', task2)
+  console.log("subscribeToTask", task2);
   const firestore = firebase.firestore();
   const user = firebase.auth().currentUser;
   const photoURL = getState().firebase.profile.photoURL;
@@ -300,11 +307,11 @@ export const subscribeToTask = task2 => async (dispatch, getState) => {
       .doc(`${task2.key}_${user.uid}`);
 
     await firestore.runTransaction(async transaction => {
-    await transaction.get(taskDocRef);
-    await transaction.update(taskDocRef, {
+      await transaction.get(taskDocRef);
+      await transaction.update(taskDocRef, {
         [`subscribers.${user.uid}`]: subscriber
       });
-    
+
       await transaction.set(taskSubscribedDocRef, {
         taskId: task2.key,
         userUid: user.uid,
@@ -314,19 +321,22 @@ export const subscribeToTask = task2 => async (dispatch, getState) => {
         created: Date.now()
       });
     });
-console.log("test UPDATED")
-const key = task2.key
-    let taslSnap = await firestore.collection("tasks").doc(key).get()
-    console.log({taslSnap})
-    let task =  taslSnap.data()
-   console.log({task})
-   const payload = {key: task2.key, value:task}
-    console.log({payload})
+    console.log("test UPDATED");
+    const key = task2.key;
+    let taslSnap = await firestore
+      .collection("tasks")
+      .doc(key)
+      .get();
+    console.log({ taslSnap });
+    let task = taslSnap.data();
+    console.log({ task });
+    const payload = { key: task2.key, value: task };
+    console.log({ payload });
     dispatch({
-        type: FETCH_TASK,
-        payload: {payload}
-    })
-    
+      type: FETCH_TASK,
+      payload: { payload }
+    });
+
     dispatch(asyncActionFinish());
     toastr.success("Success", "You have subscrived to the event");
   } catch (error) {
@@ -343,7 +353,7 @@ export const unsubscribeToTask = task2 => async (
 ) => {
   const firestore = getFirestore();
   const user = firestore.auth().currentUser;
-  console.log('unsubscribe from', task2)
+  console.log("unsubscribe from", task2);
   try {
     //remove attendee from object map
     await firestore.update(`tasks/${task2.key}`, {
@@ -352,22 +362,19 @@ export const unsubscribeToTask = task2 => async (
     //remove documennt from lookup
     await firestore.delete(`task_subscribed/${task2.key}_${user.uid}`);
 
-
-    const key = task2.key
+    const key = task2.key;
     //let taskSnap = await firestore.getcollection("tasks").doc(key).get()
 
-   let taskSnap=  await firestore.get(`tasks/${key}`)
-    console.log({taskSnap})
-    let task =  taskSnap.data()
-   console.log({task})
-   const payload = {key: task2.key, value:task}
-    console.log({payload})
+    let taskSnap = await firestore.get(`tasks/${key}`);
+    console.log({ taskSnap });
+    let task = taskSnap.data();
+    console.log({ task });
+    const payload = { key: task2.key, value: task };
+    console.log({ payload });
     dispatch({
-        type: FETCH_TASK,
-        payload: {payload}
-    })
-
-
+      type: FETCH_TASK,
+      payload: { payload }
+    });
 
     toastr.success("Success", "You have unsubscribed from the task");
   } catch (error) {
@@ -375,9 +382,6 @@ export const unsubscribeToTask = task2 => async (
     toastr.error("Oops", "Something went wrong");
   }
 };
-
-
-
 
 export const goingToEvent = event => async (dispatch, getState) => {
   dispatch(asyncActionStart());
@@ -441,8 +445,6 @@ export const cancelBidForJob = job => async (
   }
 };
 
-
-
 export const cancelGoingToEvent = event => async (
   dispatch,
   getState,
@@ -463,8 +465,6 @@ export const cancelGoingToEvent = event => async (
     toastr.error("Oops", "Something went wrong");
   }
 };
-
-
 
 export const getUserEvents = (userUid, activeTab) => async (
   dispatch,
@@ -535,29 +535,29 @@ export const getUserJobs = (userUid, activeTab) => async (
       query = jobsRef
         .where("userUid", "==", userUid)
         .where("jobDate", "<=", today)
-       .orderBy("jobDate", "desc");
+        .orderBy("jobDate", "desc");
       break;
     case 2: //future jobs
       query = jobsRef
         .where("userUid", "==", userUid)
         .where("jobDate", ">=", today)
-       .orderBy("jobDate");
+        .orderBy("jobDate");
       break;
     case 3: //hosted jobs
       query = jobsRef
         .where("userUid", "==", userUid)
-        .where("owner", "==", true)
+        .where("owner", "==", true);
       // .orderBy("jobDate", "desc");
       break;
     default:
       query = jobsRef
         .where("userUid", "==", userUid)
-       .orderBy("jobDate", "desc");
+        .orderBy("jobDate", "desc");
   }
 
   try {
     let querySnap = await query.get();
-    console.log('querySnap', querySnap)
+    console.log("querySnap", querySnap);
     let jobs = [];
     for (let i = 0; i < querySnap.docs.length; i++) {
       let evt = await firestore
@@ -576,15 +576,13 @@ export const getUserJobs = (userUid, activeTab) => async (
   }
 };
 
-
-
 export const deleteJobDraft = job => async (
   dispatch,
   getState,
   { getFirebase, getFirestore }
 ) => {
-  console.log('delete action', job)
-  
+  console.log("delete action", job);
+
   const firebase = getFirebase();
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
@@ -595,28 +593,11 @@ export const deleteJobDraft = job => async (
     });
     await firestore.delete(`job_attendee/${job.jobId}_${user.uid}`);
     toastr.success("Success", "You have removed yourself from the job");
-    
-
-   
   } catch (error) {
     console.log(error);
     throw new Error("Problem deleting the photo");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const unfollowUser = userToUnfollow => async (
   dispatch,
@@ -765,9 +746,11 @@ export const selectLastMessage = lastRecipient => async (
   }
 };
 
-
-
-export const newChatLabourer = (labourer) => async(dispatch, getState, {getFirestore})=>{
+export const newChatLabourer = labourer => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
   console.log("userActions/newChat,", labourer);
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
@@ -784,52 +767,46 @@ export const newChatLabourer = (labourer) => async(dispatch, getState, {getFires
       }
     );
 
-   let message = {
-    newMessage: false,
-    id: labourer.id,
-    displayName: labourer.displayName,
-    photoURL: labourer.photoURL,
-    rating: labourer.rating,
-    jobsCompleted: labourer.jobsCompleted,
-    jobsStarted: labourer.jobsStarted,
-     updatedSkills: labourer.updatedSkills,
+    let message = {
+      newMessage: false,
+      id: labourer.id,
+      displayName: labourer.displayName,
+      photoURL: labourer.photoURL,
+      rating: labourer.rating,
+      jobsCompleted: labourer.jobsCompleted,
+      jobsStarted: labourer.jobsStarted,
+      updatedSkills: labourer.updatedSkills,
 
-    date: Date.now()
-   }
+      date: Date.now()
+    };
 
-   await firestore.set(
+    await firestore.set(
       {
         collection: "users",
         doc: user.uid,
-        subcollections: [{ collection: "messaging", doc: labourer.id}]
+        subcollections: [{ collection: "messaging", doc: labourer.id }]
       },
       message
     );
-
 
     dispatch({
       type: OPEN_MESSAGE,
       payload: { message }
     });
 
-
-    console.log({message})
+    console.log({ message });
     dispatch(asyncActionFinish());
   } catch (error) {
     console.log(error);
     dispatch(asyncActionError());
   }
-}
+};
 
-
-
-
-
-
-
-
-
-export const newChat = (receiver) => async(dispatch, getState, {getFirestore})=>{
+export const newChat = receiver => async (
+  dispatch,
+  getState,
+  { getFirestore }
+) => {
   console.log("userActions/newChat,", receiver);
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
@@ -846,43 +823,40 @@ export const newChat = (receiver) => async(dispatch, getState, {getFirestore})=>
       }
     );
 
-   let message = {
-    newMessage: false,
-    id: receiver.quoterUid,
-    displayName: receiver.quotedBy,
-    photoURL: receiver.quotedByPhotoURL,
-    rating: receiver.quoterRating,
-    volume: receiver.quoterVolume,
-    isContractor: receiver.quoterIsContractor,
-    jobReferenceId: receiver.jobId,
+    let message = {
+      newMessage: false,
+      id: receiver.quoterUid,
+      displayName: receiver.quotedBy,
+      photoURL: receiver.quotedByPhotoURL,
+      rating: receiver.quoterRating,
+      volume: receiver.quoterVolume,
+      isContractor: receiver.quoterIsContractor,
+      jobReferenceId: receiver.jobId,
 
-    date: Date.now()
-   }
+      date: Date.now()
+    };
 
-   await firestore.set(
+    await firestore.set(
       {
         collection: "users",
         doc: user.uid,
-        subcollections: [{ collection: "messaging", doc: receiver.quoterUid}]
+        subcollections: [{ collection: "messaging", doc: receiver.quoterUid }]
       },
       message
     );
-
 
     dispatch({
       type: OPEN_MESSAGE,
       payload: { message }
     });
 
-
-    console.log({message})
+    console.log({ message });
     dispatch(asyncActionFinish());
   } catch (error) {
     console.log(error);
     dispatch(asyncActionError());
   }
-}
-
+};
 
 export const addDirectMessage = (receiverId, values) => async (
   dispatch,
@@ -912,7 +886,6 @@ export const addDirectMessage = (receiverId, values) => async (
 
   try {
     await firebase.push(`direct_messages/${threadId}`, newComment);
- 
   } catch (error) {
     console.log(error);
     toastr.error("Oops", "Problem adding direct message");
@@ -997,9 +970,6 @@ export const chargeCard = token => async (
   }
 };
 
-
-
-
 export const updateSkills = skills => async (
   dispatch,
   getState,
@@ -1007,11 +977,11 @@ export const updateSkills = skills => async (
 ) => {
   const firebase = getFirebase();
   const { isLoaded, isEmpty, ...updatedSkills } = skills;
-  console.log({updatedSkills})
-  
-   let labourSkills = {updatedSkills}
-   labourSkills.skillsHaveBeenUpdated = true
-   
+  console.log({ updatedSkills });
+
+  let labourSkills = { updatedSkills };
+  labourSkills.skillsHaveBeenUpdated = true;
+
   try {
     await firebase.updateProfile(labourSkills); //react redux firebase method
     toastr.success("Success", "Profile updated");
@@ -1023,19 +993,19 @@ export const updateSkills = skills => async (
 export const createLabourProfile = (profile, profileListed) => async (
   dispatch,
   getState,
-  { getFirebase , getFirestore}
+  { getFirebase, getFirestore }
 ) => {
   const firebase = getFirebase();
   //const { isLoaded, isEmpty, ...updatedSkills } = skills;
-  console.log({profile})
-  const {labourProfile, updatedSkills} = profile || {}
- const {jobsCompleted, jobsStarted, rating} = labourProfile || {}
+  console.log({ profile });
+  const { labourProfile, updatedSkills } = profile || {};
+  const { jobsCompleted, jobsStarted, rating } = labourProfile || {};
 
   //const firebase = getFirebase();
   const userProfile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
 
-labourProfile.isALabourer=true
+  labourProfile.isALabourer = true;
 
   let updatedProfile = {
     profileListed: profileListed,
@@ -1043,39 +1013,42 @@ labourProfile.isALabourer=true
     photoURL: userProfile.photoURL || "/assets/user.png",
     uid: user.uid,
     jobsCompleted: jobsCompleted || 0,
-    jobsStarted: jobsStarted|| 0,
+    jobsStarted: jobsStarted || 0,
     rating: rating || {},
     updatedSkills: updatedSkills || {}
-    
-  }
-  
-  console.log({updatedProfile})
+  };
+
+  console.log({ updatedProfile });
   const firestore = getFirestore();
 
   try {
-      await firestore.set(`labour_profiles/${user.uid}`, updatedProfile)
+    await firestore.set(`labour_profiles/${user.uid}`, updatedProfile);
 
-      const firestoreDirect = firebase.firestore();
-      const labourRef = firestoreDirect.collection("labour_profiles");
-      let query = labourRef.where("profileListed", "==", true)
-      let querySnap = await query.get();
-      console.log('GET LABOUR FOR LIST', querySnap)
-      if (querySnap.docs.length === 0) {
-        dispatch(asyncActionFinish());
-        return querySnap;
-      }
-  
-      let labour = [];
-      for (let i = 0; i < querySnap.docs.length; i++) {
-        let evt = { ...querySnap.docs[i].data(), id: querySnap.docs[i].id };
-        labour.push(evt);
-      }
-  
-      dispatch({
-        type: FETCH_LABOUR,
-        payload: { labour }
-      });
-      await firebase.updateProfile({profileListed:profileListed, isALabourer:true, skillsHaveBeenUpdated:false})
+    const firestoreDirect = firebase.firestore();
+    const labourRef = firestoreDirect.collection("labour_profiles");
+    let query = labourRef.where("profileListed", "==", true);
+    let querySnap = await query.get();
+    console.log("GET LABOUR FOR LIST", querySnap);
+    if (querySnap.docs.length === 0) {
+      dispatch(asyncActionFinish());
+      return querySnap;
+    }
+
+    let labour = [];
+    for (let i = 0; i < querySnap.docs.length; i++) {
+      let evt = { ...querySnap.docs[i].data(), id: querySnap.docs[i].id };
+      labour.push(evt);
+    }
+
+    dispatch({
+      type: FETCH_LABOUR,
+      payload: { labour }
+    });
+    await firebase.updateProfile({
+      profileListed: profileListed,
+      isALabourer: true,
+      skillsHaveBeenUpdated: false
+    });
     toastr.success("Success", "Profile Created and Listed");
   } catch (error) {
     toastr.error("Ooops", "Profile was not Created");
@@ -1083,26 +1056,17 @@ labourProfile.isALabourer=true
   }
 };
 
-
-
-
-
-
-
-
-
-
 export const uploadLabourPhoto = (labourProfile, file) => async (
   dispatch,
   getState,
-  { getFirebase , getFirestore}
+  { getFirebase, getFirestore }
 ) => {
   const firebase = getFirebase();
   //const { isLoaded, isEmpty, ...updatedSkills } = skills;
 
-  const {labourPhotos} = labourProfile || []
-  let updatedLabourPhotos = labourPhotos || []
-  let updatedLabourProfile = labourProfile || {}
+  const { labourPhotos } = labourProfile || [];
+  let updatedLabourPhotos = labourPhotos || [];
+  let updatedLabourProfile = labourProfile || {};
   //const firebase = getFirebase();
   const userProfile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
@@ -1116,16 +1080,10 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
     name: imageName
   };
 
-
-
-
-
   try {
-
-
     dispatch(asyncActionStart());
     //upload the file to firebase storage
-    console.log({file})
+    console.log({ file });
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
     //get url of image
     let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
@@ -1140,34 +1098,35 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
         photoURL: downloadURL
       });
     }
-   
 
-    updatedLabourPhotos.unshift(downloadURL)
-    updatedLabourProfile.labourPhotos = updatedLabourPhotos
-    console.log({updatedLabourProfile})
-      await firestore.update(`labour_profiles/${user.uid}`, {labourPhotos:updatedLabourPhotos})
+    updatedLabourPhotos.unshift(downloadURL);
+    updatedLabourProfile.labourPhotos = updatedLabourPhotos;
+    console.log({ updatedLabourProfile });
+    await firestore.update(`labour_profiles/${user.uid}`, {
+      labourPhotos: updatedLabourPhotos
+    });
 
-      const firestoreDirect = firebase.firestore();
-      const labourRef = firestoreDirect.collection("labour_profiles");
-      let query = labourRef.where("profileListed", "==", true)
-      let querySnap = await query.get();
-      console.log('GET LABOUR FOR LIST', querySnap)
-      if (querySnap.docs.length === 0) {
-        dispatch(asyncActionFinish());
-        return querySnap;
-      }
-  
-      let labour = [];
-      for (let i = 0; i < querySnap.docs.length; i++) {
-        let evt = { ...querySnap.docs[i].data(), id: querySnap.docs[i].id };
-        labour.push(evt);
-      }
-  
-      dispatch({
-        type: FETCH_LABOUR,
-        payload: { labour }
-      });
-      await firebase.updateProfile({labourProfile:updatedLabourProfile})
+    const firestoreDirect = firebase.firestore();
+    const labourRef = firestoreDirect.collection("labour_profiles");
+    let query = labourRef.where("profileListed", "==", true);
+    let querySnap = await query.get();
+    console.log("GET LABOUR FOR LIST", querySnap);
+    if (querySnap.docs.length === 0) {
+      dispatch(asyncActionFinish());
+      return querySnap;
+    }
+
+    let labour = [];
+    for (let i = 0; i < querySnap.docs.length; i++) {
+      let evt = { ...querySnap.docs[i].data(), id: querySnap.docs[i].id };
+      labour.push(evt);
+    }
+
+    dispatch({
+      type: FETCH_LABOUR,
+      payload: { labour }
+    });
+    await firebase.updateProfile({ labourProfile: updatedLabourProfile });
     toastr.success("Success", "Labour profile updated");
     dispatch(asyncActionFinish());
   } catch (error) {
@@ -1177,22 +1136,17 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
   }
 };
 
-
-
-
-
-
 export const uploadContractorPhoto = (contractorProfile, file) => async (
   dispatch,
   getState,
-  { getFirebase , getFirestore}
+  { getFirebase, getFirestore }
 ) => {
   const firebase = getFirebase();
   //const { isLoaded, isEmpty, ...updatedSkills } = skills;
 
-  const {contractorPhotos} = contractorProfile || []
-  let updatedContractorPhotos = contractorPhotos || []
-  let updatedContractorProfile = contractorProfile
+  const { contractorPhotos } = contractorProfile || [];
+  let updatedContractorPhotos = contractorPhotos || [];
+  let updatedContractorProfile = contractorProfile;
   //const firebase = getFirebase();
   const userProfile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
@@ -1206,16 +1160,10 @@ export const uploadContractorPhoto = (contractorProfile, file) => async (
     name: imageName
   };
 
-
-
-
-
   try {
-
-
     dispatch(asyncActionStart());
     //upload the file to firebase storage
-    console.log({file})
+    console.log({ file });
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
     //get url of image
     let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
@@ -1230,12 +1178,13 @@ export const uploadContractorPhoto = (contractorProfile, file) => async (
         photoURL: downloadURL
       });
     }
-   
 
-    updatedContractorPhotos.unshift(downloadURL)
-    updatedContractorProfile.contractorPhotos = updatedContractorPhotos
-   
-      await firebase.updateProfile({contractorProfile:updatedContractorProfile})
+    updatedContractorPhotos.unshift(downloadURL);
+    updatedContractorProfile.contractorPhotos = updatedContractorPhotos;
+
+    await firebase.updateProfile({
+      contractorProfile: updatedContractorProfile
+    });
     toastr.success("Success", "Contractor profile updated");
     dispatch(asyncActionFinish());
   } catch (error) {
@@ -1245,20 +1194,17 @@ export const uploadContractorPhoto = (contractorProfile, file) => async (
   }
 };
 
-
-
-
 export const uploadBuilderPhoto = (builderProfile, file) => async (
   dispatch,
   getState,
-  { getFirebase , getFirestore}
+  { getFirebase, getFirestore }
 ) => {
   const firebase = getFirebase();
   //const { isLoaded, isEmpty, ...updatedSkills } = skills;
 
-  const {builderPhotos} = builderProfile || []
-  let updatedBuilderPhotos = builderPhotos || []
-  let updatedBuilderProfile = builderProfile
+  const { builderPhotos } = builderProfile || [];
+  let updatedBuilderPhotos = builderPhotos || [];
+  let updatedBuilderProfile = builderProfile;
   //const firebase = getFirebase();
   const userProfile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
@@ -1272,16 +1218,10 @@ export const uploadBuilderPhoto = (builderProfile, file) => async (
     name: imageName
   };
 
-
-
-
-
   try {
-
-
     dispatch(asyncActionStart());
     //upload the file to firebase storage
-    console.log({file})
+    console.log({ file });
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
     //get url of image
     let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
@@ -1296,12 +1236,11 @@ export const uploadBuilderPhoto = (builderProfile, file) => async (
         photoURL: downloadURL
       });
     }
-   
 
-    updatedBuilderPhotos.unshift(downloadURL)
-    updatedBuilderProfile.builderPhotos = updatedBuilderPhotos
-   
-      await firebase.updateProfile({builderProfile:updatedBuilderProfile})
+    updatedBuilderPhotos.unshift(downloadURL);
+    updatedBuilderProfile.builderPhotos = updatedBuilderPhotos;
+
+    await firebase.updateProfile({ builderProfile: updatedBuilderProfile });
     toastr.success("Success", "Builder profile updated");
     dispatch(asyncActionFinish());
   } catch (error) {
@@ -1311,75 +1250,54 @@ export const uploadBuilderPhoto = (builderProfile, file) => async (
   }
 };
 
-
-
-
-
-
-export const joinBeta = ( values) => async (
+export const joinBeta = values => async (
   dispatch,
   getState,
   { getFirebase, getFirestore }
 ) => {
+  console.log({ values });
 
+  const firestore = getFirestore();
 
-console.log({values})
+  let userDoc = await firestore.get(`sales_team/${values.salesperson}`);
+  const userDocData = userDoc.data();
+  console.log({ userDocData });
+  let email_list = userDocData.email_list;
+  email_list.push(values.email);
+  let count = userDocData.count;
+  let newcount = count + 1;
+  console.log({ newcount });
+  userDocData.email_list = email_list;
+  userDocData.count = newcount;
 
-    const firestore = getFirestore();
-  
+  await firestore.set(
+    {
+      collection: "sales_team",
+      doc: values.salesperson
+    },
+    userDocData
+  );
 
-  
-
-      
-      let userDoc = await firestore.get(`sales_team/${values.salesperson}`);
-      const userDocData = userDoc.data()
-      console.log({userDocData})
-      let email_list = userDocData.email_list
-      email_list.push(values.email)
-      let count = userDocData.count
-      let newcount = count+1
-      console.log({newcount})
-      userDocData.email_list = email_list
-      userDocData.count=newcount
-
-
-      await firestore.set(
-        {
-          collection: "sales_team",
-          doc: values.salesperson,
-          
-        },
-        userDocData
-      );
-
-
-      // if (userDoc.data()) {
-      //   await firestore.add(
-      //     {
-      //       collection: "sales_team",
-      //       doc: values.salesperson,
-      //     },
-      //     {
-      //       count: 1,
-      //       email_list: [values.email]
-      //     }
-      //   );
-      //   } else {
-      //     console.log('sales exists')
-      //   }
-
-
-
-
-
-
-
+  // if (userDoc.data()) {
+  //   await firestore.add(
+  //     {
+  //       collection: "sales_team",
+  //       doc: values.salesperson,
+  //     },
+  //     {
+  //       count: 1,
+  //       email_list: [values.email]
+  //     }
+  //   );
+  //   } else {
+  //     console.log('sales exists')
+  //   }
 
   const firebase = getFirebase();
 
   let newPost = {
     name: values.name || "No Name",
-    company: values.company|| "No Company",
+    company: values.company || "No Company",
     interest: values.interest || "No Interest",
     role: values.role || "No Role",
     industry: values.industry || "No Industry",
@@ -1387,8 +1305,6 @@ console.log({values})
     email: values.email || "No Email",
     phone: values.phone || "No Phone"
   };
-
-
 
   try {
     dispatch(asyncActionStart());
@@ -1402,58 +1318,33 @@ console.log({values})
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-export const joinAlpha = ( values) => async (
+export const joinAlpha = values => async (
   dispatch,
   getState,
   { getFirebase, getFirestore }
 ) => {
+  console.log({ values });
 
+  const firestore = getFirestore();
 
-console.log({values})
+  const firebase = getFirebase();
 
-    const firestore = getFirestore();
-  
+  let userUid = firestore.auth().currentUser.uid;
 
-  
-    const firebase = getFirebase();
-
-    let userUid = firestore.auth().currentUser.uid;
-   
-  let alpha = {isAlpha:true}
-
-      
-
-
-
-
-
-
-
+  let alpha = { isAlpha: true };
 
   try {
     dispatch(asyncActionStart());
 
     await firebase.updateProfile(alpha); //react redux firebase method
- 
-   
+
     await firestore.set(
       {
         collection: "join_alpha",
-        doc: userUid,
+        doc: userUid
       },
-      {...values, isAlpha:true}
-  
-    )
+      { ...values, isAlpha: true }
+    );
     toastr.success("Success", "Joined Alpha");
     dispatch(asyncActionFinish());
   } catch (error) {
@@ -1461,4 +1352,50 @@ console.log({values})
     toastr.error("Oops", "Problem joining Alpha");
     dispatch(asyncActionError());
   }
+};
+
+export const setNotifications = (
+  newContract,
+  newQuote,
+  newMessage,
+  newNotification
+) => {
+  return async (dispatch, getState, { getFirebase }) => {
+    try {
+      let notifications = {
+        newContract: newContract,
+        newQuote: newQuote,
+        newMessage: newMessage,
+        newNotification: newNotification
+      };
+      dispatch({
+        type: SET_NOTIFICATIONS,
+        payload: { notifications }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+};
+
+export const contractsClicked = () => {
+  return async (dispatch, getState, { getFirestore }) => {
+    const firestore = getFirestore();
+    const user = firebase.auth().currentUser;
+    user.newContract = false;
+    console.log("contractsClicked:");
+    try {
+      await firestore.update(
+        {
+          collection: "users",
+          doc: user.uid
+        },
+        {
+          newContract: false
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 };

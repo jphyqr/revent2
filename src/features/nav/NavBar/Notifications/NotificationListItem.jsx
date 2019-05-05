@@ -8,6 +8,22 @@ class NotificationListItem extends Component {
 
 renderSummary = (notification) => {
     switch (notification.type) {
+      case 'quoteSubmitted':
+
+      return (
+        <div>
+        Quote Submitted 
+        <Feed.Extra text >{notification.quotedBy}</Feed.Extra> {' '}
+    </div>
+    );
+        case 'hiredForJob' :
+
+        return (
+          <div>
+          Hired For Job 
+          <Feed.Extra text >{notification.owner}</Feed.Extra> {' '}
+      </div>
+      );
         case 'stripeSuccess':
             return (
                 <div>

@@ -542,9 +542,10 @@ export const updatePaymentType = (quote, paymentType) => {
 export const updateSubmitQuote = (quote) => {
   return async (dispatch, getState, {getFirestore}) => {
     dispatch(asyncActionStart());
-   const {jobId, quoteId, quoterUid} = quote
+   const {jobId, quoteId, quoterUid, ownerData} = quote
+   const {ownerUid} = ownerData
 
-
+console.log('updateSubmitQuote', quote)
 
     let firestore = getFirestore();
     quote.submitted = true;
@@ -555,17 +556,20 @@ export const updateSubmitQuote = (quote) => {
         let user = userSnap.data();
     
     firestore=firebase.firestore()  
-      console.log ('updateSubmitQuote', user)
+      console.log ('user', user)
       let quoteRef = firestore.collection("quotes").doc(quote.quoteId);
       let jobQuotesRef = firestore.collection("job_quotes")
       .doc(`${jobId}_${quoteId}`)
       
 
       let userQuotesRef = firestore.collection("users").doc(quoterUid).collection("quotes").doc(quote.quoteId)
-
+      let ownerUserRef = firestore.collection("users").doc(ownerUid)
+ 
 
 await firestore.runTransaction(async transaction =>{
   await transaction.update(quoteRef, quote)
+  await transaction.update(ownerUserRef, {newQuote:true, newJobQuottedId: jobId})
+ 
   await transaction.update(userQuotesRef, {submitted: true})
   await transaction.set(jobQuotesRef,{
 ...quote,
@@ -608,12 +612,73 @@ export const hireContractor = (quote) => {
      const user = firestore.auth().currentUser;
      const contractUID = cuid();
   console.log({contractUID})
-    let contract = {hiredContractorUid: quoterUid, jobOwnerUid: user.uid, acceptedDate: Date.now()}
+
+
+
+
+
+  const {lineItems} = quote ||{
+  }
+  
+  const lineItemsArray = objectToArray(lineItems)
+
+  let payments = [];
+
+  for (var i = 0; i < (lineItemsArray && lineItemsArray.length); i++) {
+    const item = lineItemsArray[i];
+    const id = item.id;
+
+    let deposit = Number(item[`${id}_deposit`]);
+    let due = Number(item[`${id}_due`]);
+    let taxType = item[`${id}_tax`];
+
+    //  let subTotal = due+deposit
+    let taxRate;
+
+    switch (taxType) {
+      case "gst5pst5":
+        taxRate = 0.1;
+        break;
+      case "gst5":
+        taxRate = 0.05;
+        break;
+      case "pst5":
+        taxRate = 0.05;
+        break;
+      case "noTax":
+        taxRate = 0.0;
+        break;
+      default:
+        taxRate = 0.0;
+    }
+
+    if (deposit > 0) {
+      let depositTax = deposit * taxRate;
+      let depositPayment = depositTax + deposit;
+      payments.push({ id: id, type: "deposit", amount: depositPayment });
+    }
+
+    if (due > 0) {
+      let dueTax = due * taxRate;
+      let duePayment = dueTax + deposit;
+      payments.push({ id: id, type: "due", amount: duePayment });
+    }
+  }
+
+
+  
+
+
+
+
+
+
+
+
+    let contract = {hiredContractorUid: quoterUid, jobOwnerUid: user.uid, acceptedDate: Date.now(), payments:payments}
 
     quote.contract = contract
     quote.jobOwnerUid = user.uid
-
-
 
 
     let contractPathString = "";
@@ -638,23 +703,27 @@ export const hireContractor = (quote) => {
       let quoteRef = firestore.collection("quotes").doc(quote.quoteId);
       let contractRef = firestore.collection("job_contracts")
       .doc(contractUID)
-
+      
       let jobRef = firestore.collection("jobs").doc(quote.jobId)
       let jobQuotesRef = firestore.collection("job_quotes").doc(`${quote.jobId}_${quote.quoteId}`)
 
       let userQuotesRef = firestore.collection("users").doc(quoterUid).collection("quotes").doc(quote.quoteId)
       let quoterContractsRef = firestore.collection("users").doc(quoterUid).collection("contracts").doc(contractUID)
       let ownerContractsRef = firestore.collection("users").doc(user.uid).collection("contracts").doc(contractUID)
-
+      let quoterUserRef =  firestore.collection("users").doc(quoterUid)
+      let ownerUserRef = firestore.collection("users").doc(user.uid)
+      
 
 await firestore.runTransaction(async transaction =>{
   await transaction.update(quoteRef, quote)
   await transaction.update(userQuotesRef, {contract})
   await transaction.update(jobRef, {contract})
   await transaction.update(jobQuotesRef, {contract})
+  await transaction.update(quoterUserRef, {newContract:true, jobWithNewContractId: contractUID})
+  await transaction.update(ownerUserRef, {newContract:true, jobWithNewContractId: contractUID})
   await transaction.set(contractRef,{
 ...quote,
-contract
+contract,
   } )
   await transaction.set(quoterContractsRef,{
     ...quote,

@@ -39,10 +39,10 @@ export const createSchedule = scheduleStartDate => {
 
 export const createNewQuote  =  (user, photoURL, jobValues, jobId) => {
   jobValues.date = moment(jobValues.date).toDate();
-  const {jobPhotoURL, ownerPhotoURL, owneredBy, ownerUid} = jobValues || {}
-  let jobData = {jobId:jobId, jobPhotoURL:jobPhotoURL}
+  const {jobPhotoURL, ownerPhotoURL, owneredBy, ownerUid, title, name} = jobValues || {}
+  let jobData = {jobId:jobId, jobPhotoURL:jobPhotoURL, jobTitle:title, taskName: name}
   let ownerData = {ownerPhotoURL: ownerPhotoURL, owneredBy: owneredBy, ownerUid: ownerUid}
-  console.log({jobValues})
+  console.log("createNewQuote JOB VALUES", jobValues)
   let quoteDate = moment().unix()
   //let scheduleStartDate = Date(Date.now()).toString()
   console.log('start date createNewJob moment.unix()', quoteDate)

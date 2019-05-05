@@ -9,7 +9,8 @@ import { openModal } from "../../modals/modalActions";
 import { connect } from "react-redux";
 import { toastr } from "react-redux-toastr";
 import { clearTask } from "../../../features/modals/TaskModal/taskActions";
-import {setRole, clearRole} from './roleActions'
+import { setRole, clearRole } from "./roleActions";
+import { setNotifications } from "../../user/userActions";
 const query = ({ auth }) => {
   const authenticated = auth.isLoaded && !auth.isEmpty;
   if (authenticated) {
@@ -28,6 +29,11 @@ const query = ({ auth }) => {
         collection: "join_alpha",
         doc: auth.uid,
         storeAs: "alpha_profile"
+      },
+      {
+        collection: "users",
+        doc: auth.uid,
+        storeAs: "user_profile"
       }
     ];
   } else {
@@ -38,6 +44,26 @@ const query = ({ auth }) => {
 const mapState = state => {
   return {
     auth: state.firebase.auth,
+    newContract:
+      (state.firestore.ordered.user_profile &&
+        state.firestore.ordered.user_profile[0] &&
+        state.firestore.ordered.user_profile[0].newContract) ||
+      false,
+    newQuote:
+      (state.firestore.ordered.user_profile &&
+        state.firestore.ordered.user_profile[0] &&
+        state.firestore.ordered.user_profile[0].newQuote) ||
+      false,
+    newMessage:
+      (state.firestore.ordered.user_profile &&
+        state.firestore.ordered.user_profile[0] &&
+        state.firestore.ordered.user_profile[0].newMessage) ||
+      false,
+    newNotification:
+      (state.firestore.ordered.user_profile &&
+        state.firestore.ordered.user_profile[0] &&
+        state.firestore.ordered.user_profile[0].newNotification) ||
+      false,
     verified: state.firebase.auth.emailVerified,
     isAdmin:
       (state.firestore.ordered.admin_user_profile &&
@@ -45,13 +71,13 @@ const mapState = state => {
         state.firestore.ordered.admin_user_profile[0].isAdmin) ||
       false,
 
-      isOnboarder:
+    isOnboarder:
       (state.firestore.ordered.onboarder_user_profile &&
         state.firestore.ordered.onboarder_user_profile[0] &&
         state.firestore.ordered.onboarder_user_profile[0].isOnboarder) ||
       false,
 
-      isAlpha:
+    isAlpha:
       (state.firestore.ordered.alpha_profile &&
         state.firestore.ordered.alpha_profile[0] &&
         state.firestore.ordered.alpha_profile[0].isAlpha) ||
@@ -64,7 +90,9 @@ const actions = {
   openModal,
   clearTask,
   setRole,
-  clearRole
+  clearRole,
+  setNotifications,
+  
 };
 
 const messaging = firebase.messaging();
@@ -82,17 +110,13 @@ class SignedInMenu extends Component {
 
   handleOnUpdate = (e, { width }) => this.setState({ width });
 
-
   handleNewField = () => {
     this.props.openModal("NewFieldModal");
   };
 
-
   handleOnboardSettings = () => {
     this.props.openModal("OnboardingModal");
   };
-
-
 
   handleNewTask = async () => {
     await this.props.clearTask();
@@ -101,64 +125,104 @@ class SignedInMenu extends Component {
 
   async componentDidMount() {
     console.log("cdp auth");
-   await this.props.storeDeviceToken();
-   await this.props.setRole(this.props.isAdmin, this.props.isOnboarder, this.props.isAlpha, this.props.verified)
-  
+    await this.props.storeDeviceToken();
+    await this.props.setRole(
+      this.props.isAdmin,
+      this.props.isOnboarder,
+      this.props.isAlpha,
+      this.props.verified
+    );
+    await this.props.setNotifications(
+      this.props.newContract,
+      this.props.newQuote,
+      this.props.newMessage,
+      this.props.newNotification
+    );
   }
 
-   async componentWillReceiveProps(nextProps) {
-    await this.props.setRole(nextProps.isAdmin, nextProps.isOnboarder, nextProps.isAlpha, this.props.verified)
+  async componentWillReceiveProps(nextProps) {
+    await this.props.setRole(
+      nextProps.isAdmin,
+      nextProps.isOnboarder,
+      nextProps.isAlpha,
+      this.props.verified
+    );
+
+    await this.props.setNotifications(
+      nextProps.newContract,
+      nextProps.newQuote,
+      nextProps.newMessage,
+      nextProps.newNotification
+    );
   }
 
   render() {
-    const { signOut, profile, auth, isOnboarder, isAdmin, isAlpha , verified} = this.props;
+    const {
+      signOut,
+      profile,
+      auth,
+      isOnboarder,
+      isAdmin,
+      isAlpha,
+      verified
+    } = this.props;
 
-    const {width} = this.state ||{}
+    const { width } = this.state || {};
     const NAME_CUT_OFF = 400;
-    const hideName = width >= NAME_CUT_OFF ? false : true; 
+    const hideName = width >= NAME_CUT_OFF ? false : true;
     return (
       <Responsive fireOnMount onUpdate={this.handleOnUpdate}>
-      <Menu.Item position="right">
-        <Image
-          avatar
-          size="mini"
-          spaced="right"
-          src={profile.photoURL || "/assets/user.png"}
-        />
-        <Dropdown pointing="top right" text={hideName? null : profile.displayName}>
-          <Dropdown.Menu>
-          
-         {isAdmin &&  <Dropdown.Item
-              onClick={this.handleCreateCategory}
-              text="New Category"
-              icon="plus"
-            />}
-          {isAdmin && <Dropdown.Item
-              onClick={this.handleNewTask}
-              text="New Task"
-              icon="plus"
-            />}
-        {isAdmin&&   <Dropdown.Item
-              onClick={this.handleNewField}
-              text="New Field"
-              icon="plus"
-            />}
-                    {isOnboarder&&   <Dropdown.Item
-              onClick={this.handleOnboardSettings}
-              text="Onboarding"
-              icon="settings"
-            />}
+        <Menu.Item position="right">
+          <Image
+            avatar
+            size="mini"
+            spaced="right"
+            src={profile.photoURL || "/assets/user.png"}
+          />
+          <Dropdown
+            pointing="top right"
+            text={hideName ? null : profile.displayName}
+          >
+            <Dropdown.Menu>
+              {isAdmin && (
+                <Dropdown.Item
+                  onClick={this.handleCreateCategory}
+                  text="New Category"
+                  icon="plus"
+                />
+              )}
+              {isAdmin && (
+                <Dropdown.Item
+                  onClick={this.handleNewTask}
+                  text="New Task"
+                  icon="plus"
+                />
+              )}
+              {isAdmin && (
+                <Dropdown.Item
+                  onClick={this.handleNewField}
+                  text="New Field"
+                  icon="plus"
+                />
+              )}
+              {isOnboarder && (
+                <Dropdown.Item
+                  onClick={this.handleOnboardSettings}
+                  text="Onboarding"
+                  icon="settings"
+                />
+              )}
 
-            <Dropdown.Item
-              as={Link}
-              to="/settings"
-              text="Settings"
-              icon="settings"
-            />
-            <Dropdown.Item onClick={signOut} text="Sign Out" icon="power" />
-          </Dropdown.Menu>
-        </Dropdown>
-      </Menu.Item>
+              <Dropdown.Item
+                as={Link}
+                to="/settings"
+                text="Settings"
+                icon="settings"
+              />
+              <Dropdown.Item onClick={signOut} text="Sign Out" icon="power" />
+            </Dropdown.Menu>
+          </Dropdown>
+        </Menu.Item>
       </Responsive>
     );
   }

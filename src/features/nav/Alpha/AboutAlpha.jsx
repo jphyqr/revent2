@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Message, Step, Form, Grid, Button } from "semantic-ui-react";
+import { Message, Step, Form, Grid, Button, } from "semantic-ui-react";
 import { connect } from "react-redux";
 import TextInput from "../../../app/common/form/TextInput";
 import Checkbox from "../../../app/common/form/Checkbox";
@@ -94,18 +94,13 @@ class AboutAlpha extends Component {
                   />
         
                   <Field
+                 
                     name="email"
                     type="text"
                     component={TextInput}
                     placeholder="Email"
                   />
 
-                  <Field
-                    name="phone"
-                    type="text"
-                    component={TextInput}
-                    placeholder="Phone"
-                  />
 
                   <Form.Group inline>
                     <Field
@@ -175,6 +170,66 @@ class AboutAlpha extends Component {
                     />
                   </Form.Group>
 
+
+
+
+                  <Form.Group inline>
+                    <Field
+                      name="carpentry"
+                      type="text"
+                      label="Carpentry"
+                      component={Checkbox}
+                      style={{ paddingRight: "20px", width: "150px" }}
+                    />
+
+                    <Field
+                      name="concrete"
+                      type="text"
+                      label="Concrete"
+                      component={Checkbox}
+                      style={{ paddingRight: "20px", width: "150px" }}
+                    />
+                  </Form.Group>
+
+
+                  <Form.Group inline>
+                    <Field
+                      name="drywall"
+                      type="text"
+                      label="Drywall"
+                      component={Checkbox}
+                      style={{ paddingRight: "20px", width: "150px" }}
+                    />
+
+                    <Field
+                      name="solar"
+                      type="text"
+                      label="Solar"
+                      component={Checkbox}
+                      style={{ paddingRight: "20px", width: "150px" }}
+                    />
+                  </Form.Group>
+
+
+                  <Form.Group inline>
+                    <Field
+                      name="blinds"
+                      type="text"
+                      label="Blinds"
+                      component={Checkbox}
+                      style={{ paddingRight: "20px", width: "150px" }}
+                    />
+
+                    <Field
+                      name="windowsdoors"
+                      type="text"
+                      label="Windows/Doors"
+                      component={Checkbox}
+                      style={{ paddingRight: "20px", width: "150px" }}
+                    />
+                  </Form.Group>
+
+
                   <Form.Group inline>
                     <Field
                       name="design"
@@ -185,14 +240,22 @@ class AboutAlpha extends Component {
                     />
 
                     <Field
-                      name="other"
+                      name="engineering"
                       type="text"
-                      label="Custom/Other"
+                      label="Engineering"
                       component={Checkbox}
                       style={{ paddingRight: "20px", width: "150px" }}
                     />
                   </Form.Group>
-
+                  <Form.Group inline>
+                  <Field
+                      name="fencing"
+                      type="text"
+                      label="Fencing"
+                      component={Checkbox}
+                      style={{ paddingRight: "20px", width: "150px" }}
+                    />
+</Form.Group>
                   <Button
                     loading={loading}
                     fluid
