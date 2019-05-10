@@ -746,9 +746,7 @@ const renderJobDescription = (job, jobId) => {
 //                     job,
 //                     info.data().jobId
 //                   )}
-                  
-                     
-                  
+
 //                   </body></html>`
 //                 }
 //               ],
@@ -994,17 +992,32 @@ const renderQuoteDescription = (
   taskName,
   jobTitle,
   total,
-  quoteId, jobId
+  quoteId,
+  jobId
 ) => {
   return [
     `<div style="width:200px;background:#F9EECF;border:1px dotted black;text-align:center">
      <p>Generic content...</p>
      </div>
      
-     <p style="fontSize:16>${quotedBy} has quoted your ${taskName} job "${jobTitle}" at $${total}.</p><br/>
+     <p style="fontSize:16">${quotedBy} has quoted your ${taskName} job "${jobTitle}" at $${total}.</p><br/>
      <br/>
      
      <a href="https://yaybour.com/quote/${jobId}_${quoteId}">VIEW QUOTE</a>
+     `
+  ];
+};
+
+const renderHiredDescription = (taskName, jobTitle) => {
+  return [
+    `<div style="width:200px;background:#F9EECF;border:1px dotted black;text-align:center">
+     <p>Generic content...</p>
+     </div>
+     
+     <p style="fontSize:16">Congratulations.  You have been hired for the ${taskName} job "${jobTitle}".</p><br/>
+     <br/>
+     
+     <a href="https://yaybour.com/build">GO TO APP</a>
      `
   ];
 };
@@ -1018,7 +1031,7 @@ exports.hireContractor = functions.firestore
       newContract || {};
     const { acceptedDate, hiredContractorUid, jobOwnerUid, payments } =
       contract || {};
-    const { jobPhotoURL } = jobData || {};
+    const { jobPhotoURL, jobTitle, taskName } = jobData || {};
     const { ownerPhotoURL, owneredBy } = ownerData || {};
     const { completionDate, startDate, startHour } = schedule || {};
 
@@ -1040,6 +1053,51 @@ exports.hireContractor = functions.firestore
       .add(notification)
       .then(docRef => {
         return console.log("Notification created with ID: ", docRef.id);
+      })
+      .then(() => {
+        return admin.auth().getUser(hiredContractorUid);
+      })
+
+      .then(contractorRecord => {
+        console.log("sending email to", contractorRecord);
+
+        const msg = {
+          to: contractorRecord.email,
+          from: "admin@yaybour.com",
+          subject: `Hired for ${jobTitle}`,
+          //templateId: "d-77320f6599ed4c57acf755099d7c6c6e", //NewJob
+          reply_to: "admin@yaybour.com",
+          content: [
+            {
+              type: "text/html",
+              value: `<html><body> ${renderHiredDescription(taskName, jobTitle)}
+                
+                   
+                
+                </body></html>`
+            }
+          ],
+          // html: ' ',
+
+          //   dynamic_template_data: {"body":"<html><body> -name- </body></html>", "title": info.data().description, "name": userRecord.displayName},
+
+          substitutionWrappers: ["{{", "}}"],
+          substitutions: {
+            title: "Test Title", //info.data().description,
+            photoURL: info.data().photoURL,
+            name: "Test Name" //userRecord.displayName
+          }
+        };
+
+        return sgMail
+          .send(msg)
+          .then(() => console.log("email sent"))
+          .catch(err => {
+            const { message, code, response } = error;
+            const { headers, body } = response;
+            console.log({ body });
+            console.log(err.toString());
+          });
       })
       .catch(err => {
         return console.log("Error adding notification", err);
@@ -1071,7 +1129,7 @@ exports.submitQuote = functions.firestore
     } = newQuote || {};
 
     const { jobTitle, taskName } = jobData || {};
-    console.log('submitQuote quoteInfo', newQuote);
+    console.log("submitQuote quoteInfo", newQuote);
     const { ownerUid } = ownerData || {};
 
     const notification = {
@@ -1091,85 +1149,69 @@ exports.submitQuote = functions.firestore
     let job;
     let email;
 
-    return (
-      admin
-        .firestore()
-        .collection("users")
-        .doc(ownerUid)
-        .collection("notifications")
-        .add(notification)
-        .then(docRef => {
-          return console.log("Notification created with ID: ", docRef.id);
-        })
-        .then(() => {
-          return admin.auth().getUser(ownerUid);
-        })
-        // .then(userRecord => {
-        //   console.log(userRecord);
+    return admin
+      .firestore()
+      .collection("users")
+      .doc(ownerUid)
+      .collection("notifications")
+      .add(notification)
+      .then(docRef => {
+        return console.log("Notification created with ID: ", docRef.id);
+      })
+      .then(() => {
+        return admin.auth().getUser(ownerUid);
+      })
 
-        //   return userRecord;
-        // })
-        // .then((userRecord) => {
-        //   email = userRecord.email;
-        //   return admin
-        //     .firestore()
-        //     .collection("jobs")
-        //     .doc(info.data().jobId)
-        //     .get()
+      .then(ownerRecord => {
+        console.log("sending email to", ownerRecord);
 
-        //     .then(job => {
-        //       return job.data();
-        //     })
-        .then(ownerRecord => {
-          console.log("sending email to", ownerRecord);
-
-          const msg = {
-            to: ownerRecord.email,
-            from: "admin@yaybour.com",
-            subject: `Quote for ${jobTitle}`,
-            //templateId: "d-77320f6599ed4c57acf755099d7c6c6e", //NewJob
-            reply_to: "admin@yaybour.com",
-            content: [
-              {
-                type: "text/html",
-                value: `<html><body> ${renderQuoteDescription(
-                  quotedBy,
-                  taskName,
-                  jobTitle,
-                  total,
-                  quoteId,
-                  jobId
-                )}
+        const msg = {
+          to: ownerRecord.email,
+          from: "admin@yaybour.com",
+          subject: `Quote for ${jobTitle}`,
+          //templateId: "d-77320f6599ed4c57acf755099d7c6c6e", //NewJob
+          reply_to: "admin@yaybour.com",
+          content: [
+            {
+              type: "text/html",
+              value: `<html><body> ${renderQuoteDescription(
+                quotedBy,
+                taskName,
+                jobTitle,
+                total,
+                quoteId,
+                jobId
+              )}
                   
                      
                   
                   </body></html>`
-              }
-            ],
-            // html: ' ',
-
-            //   dynamic_template_data: {"body":"<html><body> -name- </body></html>", "title": info.data().description, "name": userRecord.displayName},
-
-            substitutionWrappers: ["{{", "}}"],
-            substitutions: {
-              title: "Test Title", //info.data().description,
-              photoURL: info.data().photoURL,
-              name: "Test Name" //userRecord.displayName
             }
-          };
+          ],
+          // html: ' ',
 
-          return sgMail
-            .send(msg)
-            .then(() => console.log("email sent"))
-            .catch(err => {
-              const { message, code, response } = error;
-              const { headers, body } = response;
-              console.log({ body });
-              console.log(err.toString());
-            });
-        })
-        .catch(err => {
-          return console.log("Error adding notification", err);
-        })
-    );
+          //   dynamic_template_data: {"body":"<html><body> -name- </body></html>", "title": info.data().description, "name": userRecord.displayName},
+
+          substitutionWrappers: ["{{", "}}"],
+          substitutions: {
+            title: "Test Title", //info.data().description,
+            photoURL: info.data().photoURL,
+            name: "Test Name" //userRecord.displayName
+          }
+        };
+
+        return sgMail
+          .send(msg)
+          .then(() => console.log("email sent"))
+          .catch(err => {
+            const { message, code, response } = error;
+            const { headers, body } = response;
+            console.log({ body });
+            console.log(err.toString());
+          });
+      })
+      .catch(err => {
+        return console.log("Error adding notification", err);
+      });
+  
   });

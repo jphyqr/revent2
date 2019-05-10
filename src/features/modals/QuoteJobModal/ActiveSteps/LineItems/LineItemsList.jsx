@@ -22,13 +22,17 @@ class LineItemsList extends Component {
 
 componentDidMount()
 {
-  const {quote} = this.props || {}
+  const {quote, phases} = this.props || {}
   const {lineItems} = quote ||{}
   console.log('COMP DID MOUNT', lineItems)
 let subtotal=0;
 let total=0;
 let calculatedTax = 0;
 
+
+ if(phases&&phases.length>0){
+   this.setState({selectedItemIndex:0})
+ }
   lineItems&&Object.keys(lineItems).forEach((e) => {
     console.log(e)
     let item = lineItems[e]

@@ -1,15 +1,22 @@
-import React, { Component } from 'react'
-import ContractItem from './ContractItem'
- class ContractSlider extends Component {
+import React, { Component } from "react";
+import ContractItem from "./ContractItem";
+class ContractSlider extends Component {
   render() {
-      const {myContracts} = this.props
+    const {
+      myContracts,
+      REGULAR_ITEM_HEIGHT,
+      REGULAR_ITEM_WIDTH,
+      COMPACT_ITEM_HEIGHT,
+      COMPACT_ITEM_WIDTH,
+      compactDisplayMode
+    } = this.props;
     return (
-        <div
+      <div
         class="list"
-      //  onMouseEnter={this.props.onMouseEnterHandler}
-      //  onMouseLeave={this.props.onMouseLeaveHandler}
+        //  onMouseEnter={this.props.onMouseEnterHandler}
+        //  onMouseLeave={this.props.onMouseLeaveHandler}
         style={{
-          height: 160,
+          height: compactDisplayMode? (COMPACT_ITEM_HEIGHT+10):(REGULAR_ITEM_HEIGHT+10),
           marginBottom: 1,
           width: "100%",
           // backgroundColor: "blue",
@@ -28,29 +35,34 @@ import ContractItem from './ContractItem'
           myContracts.map((myContract, i) => (
             <ContractItem
               index={i}
-           //   category={this.props.category}
+              //   category={this.props.category}
               myContract={myContract}
-           //   selectDraftToEdit={selectDraftToEdit}
-            //   scrollRightClicked={this.state.scrollRightClicked}
-               scrollToMyRef={this.props.scrollToMyRef}
-            //   showExpanded={this.props.showExpanded}
-               handleShowExpanded={this.props.handleShowExpanded}
-               toggleLockInHover={this.props.toggleLockInHover}
-            //   lockHover={this.props.lockInHover}
-            //   handleChildExpanding={this.props.handleChildExpanding}
-            //   handleChildCompressing={this.props.handleChildCompressing}
-            //   handleSubscribe={this.props.handleSubscribe}
-            //   handleUnsubscribe={this.props.handleUnsubscribe}
-            //   auth={this.props.auth}
-            //   loading={this.props.loading}
-            //   selectedJobId={this.props.selectedJobId}
-            //   subscribeButtonLoading={this.props.subscribeButtonLoading}
-            //   expandedLoading={this.props.expandedLoading}
+              compactDisplayMode={compactDisplayMode}
+              REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
+              REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
+              COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
+              COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
+              //   selectDraftToEdit={selectDraftToEdit}
+              //   scrollRightClicked={this.state.scrollRightClicked}
+              scrollToMyRef={this.props.scrollToMyRef}
+              //   showExpanded={this.props.showExpanded}
+              handleShowExpanded={this.props.handleShowExpanded}
+              toggleLockInHover={this.props.toggleLockInHover}
+              //   lockHover={this.props.lockInHover}
+              //   handleChildExpanding={this.props.handleChildExpanding}
+              //   handleChildCompressing={this.props.handleChildCompressing}
+              //   handleSubscribe={this.props.handleSubscribe}
+              //   handleUnsubscribe={this.props.handleUnsubscribe}
+              //   auth={this.props.auth}
+              //   loading={this.props.loading}
+              //   selectedJobId={this.props.selectedJobId}
+              //   subscribeButtonLoading={this.props.subscribeButtonLoading}
+              //   expandedLoading={this.props.expandedLoading}
             />
           ))}
       </div>
-    )
+    );
   }
 }
 
-export default ContractSlider
+export default ContractSlider;

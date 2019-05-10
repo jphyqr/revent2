@@ -10,7 +10,7 @@ import MyJobsCarousel from "./MyJobsCarousel/MyJobsCarousel";
 import ExclusiveJobsCarousel from "./ExclusiveJobsCarousel/ExclusiveJobsCarousel";
 import { selectDraftToEdit, postToggle } from "../../draftActions";
 import { selectQuoteToEdit } from "../../../modals/QuoteJobModal/quoteActions";
-import { newChat, contractsClicked } from "../../../user/userActions";
+import { newChat, contractsClicked, handleNewQuoteSelected } from "../../../user/userActions";
 import { openModal } from "../../../modals/modalActions";
 
 const query = ({ auth }) => {
@@ -62,7 +62,8 @@ const actions = {
   openModal,
   selectQuoteToEdit,
   newChat,
-  contractsClicked
+  contractsClicked,
+  handleNewQuoteSelected
 };
 
 const mapState = state => {
@@ -84,13 +85,18 @@ class BuildDetail extends Component {
   async componentDidMount() {
     const { firestore } = this.props;
     await firestore.setListener(`categories`);
-    this.setState({notifications: this.props.notifications})
+    if(this.props.notifications!==this.state.notifications){
+    this.setState({notifications: this.props.notifications})}
   }
 
   componentWillReceiveProps = nextProps => {
     if (nextProps.draft !== this.state.draft) {
-      this.setState({ draft: nextProps.draft, notifications:nextProps.notifications });
+      this.setState({ draft: nextProps.draft, });
       console.log("updated draft State");
+    }
+
+    if(nextProps.notifications!==this.state.notifications){
+      this.setState({notifications:nextProps.notifications})
     }
   };
 
@@ -180,6 +186,7 @@ class BuildDetail extends Component {
             REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}
             COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}
             COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
+            handleNewQuoteSelected={this.props.handleNewQuoteSelected}
           />
         )}
         <ExclusiveJobsCarousel

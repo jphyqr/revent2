@@ -46,7 +46,17 @@ class MyJobItem extends Component {
       COMPACT_ITEM_HEIGHT,
       COMPACT_ITEM_WIDTH,
       REGULAR_ITEM_HEIGHT,
-      REGULAR_ITEM_WIDTH} = this.props;
+      REGULAR_ITEM_WIDTH, notifications} = this.props||{};
+
+      const {newQuotes} = notifications || []
+      const {jobQuotes} = this.state || []
+      const {jobId, quoteCount: totalQuotes} = myJob || {}
+      let quoteCount=0
+      for(var i=0; i<(newQuotes&&newQuotes.length); i++){
+        if(newQuotes[i]===jobId)
+        quoteCount +=1
+
+      }
     return (
       <div
         ref={index}
@@ -124,8 +134,40 @@ class MyJobItem extends Component {
 
           }}
         >
-          {myJob.taskName}
+          {myJob.title}
         </div>
+
+      {(quoteCount>0)&& <div
+            style={{
+              position: "absolute",
+              top: "35%",
+              width:"100%",
+              textAlign: "center",
+              opacity: 1,
+              color: "white",
+              background:"green"
+            }}
+          >
+            {`NEW QUOTE(${quoteCount})`}
+          </div>}
+
+
+          {(totalQuotes>0)&& <div
+            style={{
+              position: "absolute",
+              top: "55%",
+              width:"100%",
+              textAlign: "center",
+              opacity: 1,
+              color: "white",
+              background:"grey"
+            }}
+          >
+            {`Quotes - (${totalQuotes})`}
+          </div>}
+
+
+
         <div
           style={{
             //     backgroundColor: "black",

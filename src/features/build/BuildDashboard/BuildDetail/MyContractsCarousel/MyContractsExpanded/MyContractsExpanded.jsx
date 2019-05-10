@@ -80,24 +80,50 @@ class MyContractsExpanded extends Component {
   };
 
   render() {
- 
+ const {compactDisplayMode} = this.props || {}
 
     const { selectedTab, currentContract } = this.state;
-    const { displayURL } = currentContract || {};
+    const { displayURL, paymentType } = currentContract || {};
     const { jobData } = currentContract || {};
     const {lineItems} = currentContract || {}
+    const {jobPhotoURL} = jobData || {}
 
     return (
       <div
         container
         style={{
-          height: 475,
-          // width: "100%",
+          height: compactDisplayMode ? 350 : 475,
+           width: "100%",
           backgroundColor: "black",
           position: "relative"
         }}
       >
 
+
+<div
+              style={{
+                position: "absolute",
+                right: 0,
+                width: compactDisplayMode ? "100%" : "85%",
+                height: compactDisplayMode ? 350 : 475,
+
+                background: `url(${jobPhotoURL}) center center no-repeat `,
+                backgroundSize: "cover"
+              }}
+            />
+            <div
+              style={{
+                height: compactDisplayMode ? 350 : 475,
+                position: "absolute",
+                width: compactDisplayMode ? "100%" : "85%",
+                right: 0,
+                //   maxWidth: "85%",
+                backgroundImage: compactDisplayMode
+                  ? "linear-gradient(to top, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)"
+                  : "linear-gradient(to left, rgba(255,255,255, 0) 0%, rgba(0,0,0, 1) 100%)"
+                //  zIndex: "5"
+              }}
+            />
 
         {this.props.expandedLoading ? (
           <Dimmer active>
@@ -113,13 +139,13 @@ class MyContractsExpanded extends Component {
                 style={{
                   cursor: "pointer",
                   color: "white",
-                  zIndex: "5",
+                  zIndex: 50,
                   position: "absolute",
                   right: "0",
 
-                  fontSize: 40,
-                  marginRight: "25px",
-                  marginTop: "15px",
+                  fontSize: compactDisplayMode? 20: 40,
+                  marginRight: compactDisplayMode? 15: "25px",
+                  marginTop: compactDisplayMode? 5: "15px",
                   textAlign: "right"
                 }}
                 onClick={() => {
@@ -137,11 +163,11 @@ class MyContractsExpanded extends Component {
                     fontSize: 30,
                    
                     width: "100%",
-               
+                    top:20,
                     zIndex: "5"
                   }}
                 >
-                 <PaymentsTab lineItems={lineItems}/>
+                 <PaymentsTab paymentType={paymentType} compactDisplayMode={compactDisplayMode} lineItems={lineItems}/>
                 </div>
               )}
 
@@ -154,7 +180,7 @@ class MyContractsExpanded extends Component {
                   className="contractors"
                   style={{
                     position: "absolute",
-                    fontSize: 30,
+                    fontSize: compactDisplayMode? 20:30,
                     top: "50%",
                     color: "white",
                     height: 100,
@@ -173,7 +199,7 @@ class MyContractsExpanded extends Component {
                   className="contractors"
                   style={{
                     position: "absolute",
-                    fontSize: 30,
+                    fontSize: compactDisplayMode? 20:30,
                     top: "50%",
                     color: "white",
                     height: 100,
@@ -191,7 +217,7 @@ class MyContractsExpanded extends Component {
                 className="title"
                 style={{
                   position: "absolute",
-                  fontSize: 50,
+                  fontSize: compactDisplayMode? 20:30,
                   top: "20px",
                   color: "white",
                   height: 100,
@@ -209,7 +235,7 @@ class MyContractsExpanded extends Component {
                 style={{
                   className: "bottomDiv",
                   position: "absolute",
-                  fontSize: 20,
+                  fontSize: compactDisplayMode? 20:30,
                 //  minWidth: 100,
                 width:"100%",
                   bottom: 0,
@@ -220,7 +246,7 @@ class MyContractsExpanded extends Component {
                 }}
               >
                 <NavBar
-                
+              compactDisplayMode={compactDisplayMode}
               navShow={this.state.selectedTab}
               handleSelectTab={this.handleSelectTab}
             />

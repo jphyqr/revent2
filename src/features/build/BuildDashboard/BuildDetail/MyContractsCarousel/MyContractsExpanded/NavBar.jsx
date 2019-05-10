@@ -2,16 +2,16 @@ import React, { Component } from "react";
 import { Grid, Header } from "semantic-ui-react";
 class NavBar extends Component {
   render() {
-    const { handleSelectTab, navShow } = this.props;
+    const { handleSelectTab, navShow, compactDisplayMode } = this.props;
     return (
       
-         <Grid centered columns={5} style={{  width:"600px", marginLeft:"auto", marginBottom:"2px", marginRight:"auto", display:"block",}}>
+         <Grid centered columns={5} style={{  width:compactDisplayMode?"auto": "600px", marginLeft:"auto", marginBottom:"2px", marginRight:"auto", display:"block",}}>
 
             <Grid.Column
              
               style={{ textAlign: "center", cursor: "pointer" }}
             >
-              <Header as="h3" style={{color: (navShow==="payments") ? "orange": "grey"}} onClick={() => handleSelectTab("payments")}>
+              <Header as={compactDisplayMode?"h6":"h3"} style={{color: (navShow==="payments") ? "orange": "grey"}} onClick={() => handleSelectTab("payments")}>
                 Payments
               </Header>
             </Grid.Column>
@@ -19,7 +19,7 @@ class NavBar extends Component {
              
               style={{ textAlign: "center", cursor: "pointer" }}
             >
-              <Header as="h3" style={{color: (navShow==="journal") ? "orange": "grey"}}onClick={() => handleSelectTab("journal")}>
+              <Header as={compactDisplayMode?"h6":"h3"} style={{color: (navShow==="journal") ? "orange": "grey"}}onClick={() => handleSelectTab("journal")}>
                 Journal
               </Header>
             </Grid.Column>
@@ -27,7 +27,7 @@ class NavBar extends Component {
              
               style={{ textAlign: "center", cursor: "pointer" }}
             >
-              <Header as="h3" style={{color: (navShow==="expenses") ? "orange": "grey"}} onClick={() => handleSelectTab("expenses")}>
+              <Header as={compactDisplayMode?"h6":"h3"} style={{color: (navShow==="expenses") ? "orange": "grey"}} onClick={() => handleSelectTab("expenses")}>
                 Expenses
               </Header>
             </Grid.Column>
@@ -35,7 +35,7 @@ class NavBar extends Component {
              
               style={{ textAlign: "center", cursor: "pointer" }}
             >
-              <Header as="h3"style={{color: (navShow==="contract") ? "orange": "grey"}} onClick={() => handleSelectTab("contract")}>
+              <Header as={compactDisplayMode?"h6":"h3"}style={{color: (navShow==="contract") ? "orange": "grey"}} onClick={() => handleSelectTab("contract")}>
                 Contract
               </Header>
             </Grid.Column>
@@ -44,7 +44,7 @@ class NavBar extends Component {
              
               style={{ textAlign: "center", cursor: "pointer" }}
             >
-              <Header as="h3" style={{color: (navShow==="supplies") ? "orange": "grey"}} onClick={() => handleSelectTab("supplies")}>
+              <Header as={compactDisplayMode?"h6":"h3"} style={{color: (navShow==="supplies") ? "orange": "grey"}} onClick={() => handleSelectTab("supplies")}>
                 Supplies
               </Header>
             </Grid.Column>

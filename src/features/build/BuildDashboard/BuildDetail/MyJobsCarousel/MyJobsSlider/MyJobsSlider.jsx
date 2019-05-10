@@ -8,7 +8,9 @@ import MyJobItem from './MyJobItem'
         COMPACT_ITEM_HEIGHT,
         COMPACT_ITEM_WIDTH,
         REGULAR_ITEM_HEIGHT,
-        REGULAR_ITEM_WIDTH
+        REGULAR_ITEM_WIDTH,
+        newQuotes,
+        notifications
       
       } = this.props
     return (
@@ -35,7 +37,8 @@ import MyJobItem from './MyJobItem'
         {myJobs &&
           myJobs.map((myJob, i) => (
             <MyJobItem
-
+            notifications={notifications}
+            newQuotes={newQuotes}
             compactDisplayMode={compactDisplayMode}
 REGULAR_ITEM_WIDTH={REGULAR_ITEM_WIDTH}
 REGULAR_ITEM_HEIGHT={REGULAR_ITEM_HEIGHT}

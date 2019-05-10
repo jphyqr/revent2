@@ -49,11 +49,12 @@ const mapState = state => {
         state.firestore.ordered.user_profile[0] &&
         state.firestore.ordered.user_profile[0].newContract) ||
       false,
-    newQuote:
+    newQuotes:
       (state.firestore.ordered.user_profile &&
         state.firestore.ordered.user_profile[0] &&
-        state.firestore.ordered.user_profile[0].newQuote) ||
-      false,
+        state.firestore.ordered.user_profile[0].newQuotes) ||
+      [],
+
     newMessage:
       (state.firestore.ordered.user_profile &&
         state.firestore.ordered.user_profile[0] &&
@@ -91,8 +92,7 @@ const actions = {
   clearTask,
   setRole,
   clearRole,
-  setNotifications,
-  
+  setNotifications
 };
 
 const messaging = firebase.messaging();
@@ -104,6 +104,13 @@ messaging.onMessage(payload => {
 });
 
 class SignedInMenu extends Component {
+  state = {
+    notifications: {},
+    stateContract: false,
+    stateMessage: false,
+    stateQuotes: {},
+    stateNotification: false
+  };
   handleCreateCategory = () => {
     this.props.openModal("CategoryModal");
   };
@@ -125,6 +132,17 @@ class SignedInMenu extends Component {
 
   async componentDidMount() {
     console.log("cdp auth");
+    const {
+      newContract,
+      newMessage,
+      newNotification,
+      isAdmin,
+      isOnboarder,
+      isAlpha,
+      verified
+    } = this.props 
+
+    console.log('CDM Quotes', this.props.newQuotes)
     await this.props.storeDeviceToken();
     await this.props.setRole(
       this.props.isAdmin,
@@ -132,29 +150,94 @@ class SignedInMenu extends Component {
       this.props.isAlpha,
       this.props.verified
     );
+
+    await this.setState({
+      stateContract: newContract,
+      stateMessage: newMessage,
+      stateQuotes: this.props.newQuotes,
+      stateNotification: newNotification
+    });
     await this.props.setNotifications(
-      this.props.newContract,
-      this.props.newQuote,
-      this.props.newMessage,
-      this.props.newNotification
+      this.state.stateContract,
+      this.state.stateMessage,
+
+      this.state.stateQuotes,
+      this.state.stateNotification
     );
   }
 
-  async componentWillReceiveProps(nextProps) {
-    await this.props.setRole(
-      nextProps.isAdmin,
-      nextProps.isOnboarder,
-      nextProps.isAlpha,
-      this.props.verified
-    );
+  componentWillReceiveProps = async nextProps => {
+    const {
+      newContract,
+     
+      newMessage,
+      newNotification,
+      isAdmin,
+      isOnboarder,
+      isAlpha
+    } = nextProps || {};
 
-    await this.props.setNotifications(
-      nextProps.newContract,
-      nextProps.newQuote,
-      nextProps.newMessage,
-      nextProps.newNotification
-    );
-  }
+    if (
+      isAdmin !== this.props.isAdmin ||
+      isOnboarder !== this.props.isOnboarder ||
+      isAlpha !== this.props.isAlpha
+    ) {
+      console.log("SETTING ROLE");
+      await this.props.setRole(
+        nextProps.isAdmin,
+        nextProps.isOnboarder,
+        nextProps.isAlpha,
+        this.props.verified
+      );
+    }
+
+    if (
+      !(
+        newContract === this.state.stateContract &&
+        (this.props.newQuotes&&this.props.newQuotes.length) === this.state.stateQuotes.length &&
+        newMessage === this.state.stateMessage &&
+        newNotification === this.state.stateNotification
+      )
+    ) {
+
+      if(newContract!==this.state.stateContract)
+        console.log("contracts dont match")
+        
+      if(this.props.newQuotes&&this.props.newQuotes.length!==this.state.stateQuotes.length)
+      console.log("quotes dont match")
+      
+      if(newMessage!==this.state.stateMessage)
+        console.log("message dont match")
+        
+      if(newNotification!==this.state.stateNotification)
+      console.log("notifications dont match")
+
+
+
+      console.log("SETTING NOTIFICATIONS");
+      console.log("newContract", newContract);
+      console.log("stateContract", this.state.stateContract);
+      console.log("newQuotes", this.props.newQuotes);
+      console.log("stateQuotes", this.state.stateQuotes);
+      console.log("newMessage", newMessage);
+      console.log("stateMessage", this.state.stateMessage);
+      console.log("newNotification", newNotification);
+      console.log("stateNotification", this.state.stateNotification);
+      await this.setState({
+        stateContract: newContract,
+        stateQuotes: this.props.newQuotes,
+        stateMessage: newMessage,
+        stateNotification: newNotification
+      });
+
+      await this.props.setNotifications(
+        this.state.stateContract,
+        this.state.stateQuotes,
+        this.state.stateMessage,
+        this.state.stateNotification
+      );
+    }
+  };
 
   render() {
     const {

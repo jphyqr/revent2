@@ -23,7 +23,11 @@ class ContractItem extends Component {
   };
 
   render() {
-    const { myContract , index } = this.props;
+    const { myContract , index ,compactDisplayMode,
+      COMPACT_ITEM_HEIGHT,
+      COMPACT_ITEM_WIDTH,
+      REGULAR_ITEM_HEIGHT,
+      REGULAR_ITEM_WIDTH,} = this.props;
     const {jobData, ownerData} = myContract ||{}
     const {ownerPhotoURL} = ownerData || {}
     const {jobPhotoURL} = jobData||{}
@@ -39,8 +43,8 @@ class ContractItem extends Component {
           boxShadow:
             "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
           display: "inline-block",
-          height: 150, // this.state.hovered ? 200 : 150,
-          width: 300, //: 400,
+          height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT ,
+          width: compactDisplayMode ? COMPACT_ITEM_WIDTH*2:REGULAR_ITEM_WIDTH*2 ,
           marginLeft: 15,
           //left: this.state.hovered ? -30: 0,
           //    opacity: (this.state.hovered||this.state.isSelected) ? 1 : 0.8,
@@ -175,31 +179,46 @@ class ContractItem extends Component {
         >
           <Icon color="white" size="huge" name="arrow down" />
         </div>
-        {myContract.inDraft ? (
-          <div
-            style={{
-              position: "absolute",
-              top: 5,
-              right: 5,
-              opacity: 0.6,
-              color: "white"
-            }}
-          >
-            In Draft
-          </div>
-        ) : (
-          <div
-            style={{
-              position: "absolute",
-              top: 5,
-              right: 5,
-              opacity: 0.6,
-              color: "white"
-            }}
-          >
-            LIVE
-          </div>
-        )}
+
+
+
+        <div
+          style={{
+            backgroundColor: "black",
+            color: "white",
+            fontSize: compactDisplayMode? 12: 16,
+            position: "absolute",
+            bottom: "0",
+
+            //right: "100",
+            textAlign: "center",
+            width: "100%",
+            height: "auto",
+
+
+            textOverflow: "ellipsis",
+            whiteSpace: compactDisplayMode? "normal" : "nowrap",
+            overflow: "hidden"
+
+
+
+
+
+
+
+
+
+
+
+
+
+          }}
+        >
+          {jobData.jobTitle}
+        </div>
+
+
+
 
         <div
           style={{

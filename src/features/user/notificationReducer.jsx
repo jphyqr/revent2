@@ -3,7 +3,7 @@ import { createReducer } from '../../app/common/util/reducerUtil';
 
 const initialState = {
   newContract:false,
-  newQuote:false,
+  newQuotes:[],
   newMessage:false,
   newNotification:false,
 
@@ -14,7 +14,7 @@ export const setNotifications = (state, payload) => {
     ...state,
 
     newContract:payload.notifications.newContract,
-    newQuote:payload.notifications.newQuote,
+    newQuotes:payload.notifications.newQuotes,
     newMessage:payload.notifications.newMessage,
     newNotification:payload.notifications.newNotification,
       
@@ -25,7 +25,7 @@ export const clearNotifications = (state, payload) => {
   return {
     ...state,
     newContract:false,
-    newQuote:false,
+    newQuotes:[],
     newMessage:false,
     newNotification:false,
   }

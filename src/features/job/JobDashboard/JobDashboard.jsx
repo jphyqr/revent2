@@ -143,7 +143,7 @@ class JobDashboard extends Component {
 
   componentWillReceiveProps = async (nextProps)=> {
  console.log('DASHBOARD RECEIVED PROPS')
-    if (this.props.jobs !== nextProps.jobs) {
+    if (this.state.jobs !== nextProps.jobs) {
       console.log('JOBS NOT EQUAL')
       this.setState({ quotesLoading: true, ownerProfileLoading: true, jobs: nextProps.jobs });
       this.setState({

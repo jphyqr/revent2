@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { newChat } from "../../user/userActions";
 import { firestoreConnect, isLoaded, isEmpty } from "react-redux-firebase"; //even though we using firestore this gives our binding
 import {
   Card,
@@ -13,6 +14,8 @@ import {
   Header,
   Transition
 } from "semantic-ui-react";
+
+const actions = { newChat };
 
 const query = ({ ownerUid }) => {
   return [
@@ -42,6 +45,11 @@ class OwnerProfile extends Component {
     this.setState({ profileLoading: false });
   };
 
+  handleNewChat = async () => {
+    this.setState({ messageButtonLoading: true });
+    await this.props.newChat(this.props.selectedQuote);
+    this.setState({ messageButtonLoading: false });
+  };
   render() {
     console.log(this.props.ownerUid);
     console.log(this.props.profile);
@@ -119,23 +127,37 @@ class OwnerProfile extends Component {
 
     //    const {displayName, isContractor, photoURL, rating, verificationLevel, volume, createdAt} = profile
     return (
-      <Card>
+      <div style={{width:"100%", }}>
+      <Card style={{display:"block",  marginRight:"auto", marginLeft:"auto",}}>
         <Card.Content>
           <Card.Header>
-            {!isLoaded(this.props.profile) ? (
-              <Dimmer active inverted>
-                <Loader size="mini">Loading</Loader>
-              </Dimmer>
-            ) : (
-              <Image
-                size="mini"
-                circular
-                style={{ marginRight: 10 }}
-                src={(profile && profile.photoURL) || "/assets/user.png"}
-              />
-            )}
-
-            {profile && profile.displayName}
+            <Grid>
+              <Grid.Column width={4}>
+                {!isLoaded(this.props.profile) ? (
+                  <Dimmer active inverted>
+                    <Loader size="mini">Loading</Loader>
+                  </Dimmer>
+                ) : (
+                  <Image
+                    size="small"
+                    circular
+                    style={{ marginRight: 10 }}
+                    src={(profile && profile.photoURL) || "/assets/user.png"}
+                  />
+                )}
+              </Grid.Column>
+              <Grid.Column width={9}>
+                {profile && profile.displayName}
+              </Grid.Column>
+              <Grid.Column width={2}>
+                <Button
+                  loading={this.state.messageButtonLoading}
+                  onClick={this.handleNewChat}
+                  icon="mail"
+                  secondary
+                />
+              </Grid.Column>
+            </Grid>
           </Card.Header>
         </Card.Content>
         <Card.Content extra>
@@ -170,67 +192,67 @@ class OwnerProfile extends Component {
         </Card.Content>
         <Card.Content extra>
           <Grid>
+            <Grid.Row style={{margin:0, padding:0}}>
+              <Grid.Column  style={{textAlign:"center"}} width={5}>Rating</Grid.Column>
+              <Grid.Column  style={{textAlign:"center"}} width={6}>Jobs(Done)</Grid.Column>
+              <Grid.Column  style={{textAlign:"center"}} width={3}>Volume</Grid.Column>
+            </Grid.Row>
             <Grid.Column
               onClick={
                 showRatingDetail
                   ? this.setState({ showRatingDetail: false })
                   : () => this.setState({ showRatingDetail: true })
               }
-              style={{ fontSize: "18px", color: "gold" }}
-              width={6}
+              style={{ fontSize: "18px", color: "gold",textAlign:"center" }}
+              width={5}
             >
               {specificAverageRating}{" "}
-             
-                <Icon name={showRatingDetail ? "arrow up" : "arrow down" }/>
-               
+              <Icon name={showRatingDetail ? "arrow up" : "arrow down"} />
             </Grid.Column>
-            <Grid.Column style={{ fontSize: "18px", color: "grey" }} width={6}>
+            <Grid.Column style={{ fontSize: "18px", color: "grey",textAlign:"center" }} width={6}>
               {`${jobsStarted} (${jobsCompleted}) `}
             </Grid.Column>
 
-            <Grid.Column style={{ fontSize: "18px", color: "green" }} width={4}>
+            <Grid.Column style={{ fontSize: "18px", color: "green",textAlign:"center" }} width={3}>
               {`${totalVolumeString}`}
-            </Grid.Column>
-            <Grid.Column width={4}>
-              <Icon size="large" name="mail" />
             </Grid.Column>
           </Grid>
 
           <Transition.Group animation="slide down" duration={300}>
             {showRatingDetail && (
-              <Grid style={{ marginBottom: "30px" }}>
-                <Grid.Row>
-                  <Grid.Column width={3}>
+              <Grid style={{  }}>
+                <Grid.Row style={{paddingBottom:0}}>
+                  <Grid.Column style={{textAlign:"center"}} width={3}>
                     <Header as="h6">Clean</Header>
                   </Grid.Column>
-                  <Grid.Column width={3}>
+                  <Grid.Column style={{textAlign:"center"}}width={3}>
                     <Header as="h6">Comms</Header>
                   </Grid.Column>
-                  <Grid.Column width={3}>
+                  <Grid.Column style={{textAlign:"center"}}width={3}>
                     <Header as="h6">Craft</Header>
                   </Grid.Column>
-                  <Grid.Column width={4}>
+                  <Grid.Column style={{textAlign:"center"}}width={4}>
                     <Header as="h6">On Time</Header>
                   </Grid.Column>
-                  <Grid.Column width={3}>
+                  <Grid.Column style={{textAlign:"center"}}width={3}>
                     <Header as="h6">Prof</Header>
                   </Grid.Column>
                 </Grid.Row>
 
                 <Grid.Row>
-                  <Grid.Column width={2}>
+                  <Grid.Column style={{textAlign:"center"}}style={{textAlign:"center"}} width={3}>
                     <Header as="h6">{specificRating.clean}</Header>
                   </Grid.Column>
-                  <Grid.Column width={4}>
+                  <Grid.Column style={{textAlign:"center"}}width={3}>
                     <Header as="h6">{specificRating.communication}</Header>
                   </Grid.Column>
-                  <Grid.Column width={4}>
+                  <Grid.Column style={{textAlign:"center"}}width={3}>
                     <Header as="h6">{specificRating.craftsmanship}</Header>
                   </Grid.Column>
-                  <Grid.Column width={2}>
+                  <Grid.Column style={{textAlign:"center"}}width={4}>
                     <Header as="h6">{specificRating.punctuality}</Header>
                   </Grid.Column>
-                  <Grid.Column width={4}>
+                  <Grid.Column style={{textAlign:"center"}}width={3}>
                     <Header as="h6">{specificRating.professionalism}</Header>
                   </Grid.Column>
                 </Grid.Row>
@@ -240,11 +262,12 @@ class OwnerProfile extends Component {
         </Card.Content>
         <Card.Content extra />
       </Card>
+      </div>
     );
   }
 }
 
 export default connect(
   mapState,
-  null
+  actions
 )(firestoreConnect(props => query(props))(OwnerProfile));

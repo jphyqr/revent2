@@ -19,9 +19,14 @@ class Schedule extends Component {
   };
 
 componentDidMount(){
-  const {schedule} = this.props ||{}
+  const {schedule, timesSelected} = this.props ||{}
   const {completionDate, startDate, startHour} =schedule ||{}
   this.setState({completionDate: completionDate, selectedDate: startDate, selectedHour: startHour})
+
+  // if(timesSelected&&timesSelected.length>0){
+  //   this.handleSelectTime(timesSelected[0].day.timeStamp, timesSelected[0].hour.label)
+                     
+  // }
 }
 
 

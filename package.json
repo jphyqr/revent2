@@ -37,6 +37,7 @@
     "react-scripts": "1.1.2",
     "react-scroll-into-view": "^1.5.0",
     "react-scroll-to-component": "^1.0.2",
+    "react-signature-canvas": "^1.0.1",
     "react-slick": "^0.23.2",
     "react-stripe-elements": "^2.0.1",
     "redux": "^3.7.2",

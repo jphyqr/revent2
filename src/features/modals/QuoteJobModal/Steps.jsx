@@ -11,7 +11,7 @@ import format from "date-fns/format";
     return (
         <Step.Group vertical>
         <Step onClick={()=>handleGoBackToStep("showBidType")}completed={ !(bidType==null)}  active={showBidType} disabled={submitted}>
-          <Icon loading={this.props.loading} name='truck' />
+          <Icon name='truck' />
           <Step.Content>
             <Step.Title>Bid Type</Step.Title>
             <Step.Description>{bidType|| "Choose from available bidding types"}</Step.Description>

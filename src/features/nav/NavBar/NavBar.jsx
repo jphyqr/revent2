@@ -116,7 +116,7 @@ this.props.clearAccount()
 
        
           <Responsive minWidth={ isAlpha? 300:400}>
-        <Menu.Item  as={Link} to="/" header>
+        <Menu.Item  as={Link} to="/build" header>
             <img src="/assets/white on orange logo.png" alt="logo" />
            
             <Responsive   minWidth={600}> yAYbour</Responsive>

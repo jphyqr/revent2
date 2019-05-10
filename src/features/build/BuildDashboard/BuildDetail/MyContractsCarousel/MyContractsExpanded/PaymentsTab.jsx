@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { Grid, Header, Button } from "semantic-ui-react";
+import { Grid, Header, Button, Label } from "semantic-ui-react";
 import { objectToArray } from "../../../../../../app/common/util/helpers";
 
 class PaymentsTab extends Component {
   render() {
-    const { lineItems } = this.props;
+    const { lineItems, compactDisplayMode, paymentType } = this.props;
     const lineItemsArray = objectToArray(lineItems) || [];
     console.log({ lineItemsArray });
 
@@ -53,29 +53,29 @@ class PaymentsTab extends Component {
     console.log({ payments });
 
     return (
-      <div style={{ width: "100%" }}>
+      <div style={{ width: "100%", }}>
         <div
           style={{
-            width: "600px",
-            height: "400px",
+            width: compactDisplayMode ? "auto" : 600,
+            height: compactDisplayMode? 300: "400px",
             marginLeft: "auto",
             marginTop: "30px",
             marginRight: "auto",
             display: "block",
-            backgroundColor: "lightgrey"
+           
           }}
         >
           <Grid>
-            <Grid.Column width={10}>
-            <div style={{maxHeight: 350, minHeight:350}}>
-            <Header as="h3">Payment Items</Header>
+            <Grid.Column width={compactDisplayMode? 16: 10}>
+            <div style={{height: compactDisplayMode? 200 : 350}}>
+            <Header style={{color:"white"}} as= {compactDisplayMode? "h4":"h3"}>Payment Items</Header>
               <div
                 style={{
                   width: "100%",
                   overflowX: "hidden",
                   overflowY: "auto",
-                  minHeight: "300px",
-                  maxHeight: "300px",
+                  minHeight: compactDisplayMode? 200 : "300px",
+                  maxHeight: compactDisplayMode? 200:"300px",
                  // backgroundColor: "white"
                 }}
               >
@@ -84,10 +84,10 @@ class PaymentsTab extends Component {
                   payments.map(payment => (
                     <div
                       style={{
-                        fontSize: "14px",
+                        fontSize: compactDisplayMode? 12: "14px",
                         height: "30px",
-                        margin: "5px",
-                        padding:"5px",
+                        margin:  compactDisplayMode? 3: 5,
+                        padding: compactDisplayMode? 3: "5px",
                         width: "100%",
                         backgroundColor:"white"
                       }}
@@ -111,7 +111,7 @@ class PaymentsTab extends Component {
                     </div>
                   ))}
               </div>
-              <Button positive style={{width:"100%"}}>FUND NEXT PAYMENT OF $1100</Button>
+              {paymentType==='offApp'?<Label size='huge' color='green'>PAYMENTS OFF APP</Label> : <Button positive  disabled style={{width:"100%"}}>FUND NEXT PAYMENT</Button>}
               </div>
             </Grid.Column>
             <Grid.Column width={6} />

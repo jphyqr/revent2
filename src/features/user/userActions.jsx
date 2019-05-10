@@ -811,7 +811,7 @@ export const newChat = receiver => async (
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
   try {
-    dispatch(asyncActionStart());
+  
     await firestore.set(
       {
         collection: "users",
@@ -851,7 +851,7 @@ export const newChat = receiver => async (
     });
 
     console.log({ message });
-    dispatch(asyncActionFinish());
+ 
   } catch (error) {
     console.log(error);
     dispatch(asyncActionError());
@@ -1356,7 +1356,8 @@ export const joinAlpha = values => async (
 
 export const setNotifications = (
   newContract,
-  newQuote,
+  newQuotes,
+
   newMessage,
   newNotification
 ) => {
@@ -1364,7 +1365,8 @@ export const setNotifications = (
     try {
       let notifications = {
         newContract: newContract,
-        newQuote: newQuote,
+        newQuotes: newQuotes,
+       
         newMessage: newMessage,
         newNotification: newNotification
       };
@@ -1377,6 +1379,45 @@ export const setNotifications = (
     }
   };
 };
+
+
+
+
+
+
+export const handleNewQuoteSelected = (jobId) => {
+  return async (dispatch, getState, { getFirestore }) => {
+    const firestore = getFirestore();
+    const user = firebase.auth().currentUser;
+  
+
+
+    let userDoc = await firestore.get(`users/${user.uid}`);
+    //check if user has photo , if not update profile w new image
+     let newQuotesArray = []
+
+     newQuotesArray = (userDoc.data().newQuotes) || []
+    console.log('handleNewQuoteSelected', userDoc.data())
+    let filteredArray = newQuotesArray&&newQuotesArray.filter(quote=>{
+      return quote!==jobId
+    })
+    console.log("newQuotesSelected:");
+    try {
+      await firestore.update(
+        {
+          collection: "users",
+          doc: user.uid
+        },
+        {
+          newQuotes: filteredArray
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+};
+
 
 export const contractsClicked = () => {
   return async (dispatch, getState, { getFirestore }) => {

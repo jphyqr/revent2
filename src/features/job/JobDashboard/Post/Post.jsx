@@ -68,6 +68,7 @@ class Post extends Component {
         });
     }
   }
+  
   handleScriptLoaded = () => this.setState({ scriptLoaded: true });
   handleCitySelect = selectedCity => {
     geocodeByAddress(selectedCity)
