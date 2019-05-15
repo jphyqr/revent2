@@ -27,6 +27,7 @@ import RadioInput from "../../../../app/common/form/RadioInput";
 import TextArea from "../../../../app/common/form/TextArea";
 import PlaceInput from "../../../../app/common/form/PlaceInput";
 import DateInput from "../../../../app/common/form/DateInput";
+import DropdownInput from '../../../../app/common/form/DropdownInput'
 const validate = combineValidators({
   label: isRequired({ message: "Pleaes provide a label" }),
   component: isRequired({ message: "Please provide a component type" }),
@@ -147,6 +148,8 @@ class FormDraft extends Component {
                               ? PlaceInput
                               : component.component === "DateInput"
                               ? DateInput
+                              : component.component === "DropdownInput"
+                              ? DropdownInput
                               : null
                           }
                         />

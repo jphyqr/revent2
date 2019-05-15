@@ -13,7 +13,7 @@ import JobConfirmForm from "./JobConfirmForm";
 import JobContractForm from "./JobContractForm";
 import JobPhotos from "./JobPhotos";
 import JobProgress from "./JobProgress";
-import { Button } from "semantic-ui-react";
+import { Button, Message } from "semantic-ui-react";
 import {postToggle} from '../../build/draftActions'
 import { getAllJobsForDashboard, dispatchJob, uploadJobPhoto, updateJobCustom, updateJobPhotosPage, updateJobSchedule ,updateJobBasic, updateJobContract} from "../../job/jobActions";
 const actions = {
@@ -76,23 +76,38 @@ class CreateJobModal extends Component {
 
     const { showState } = draftValue ||{};
 
+    const CUSTOM_TABLET_CUTOFF = 800;
+    const compactDisplayMode = width >= CUSTOM_TABLET_CUTOFF ? false : true;
     const modalSize = width >= Responsive.onlyComputer.minWidth ? 'small' : width >= Responsive.onlyTablet.minWidth ? 'large' : 'fullscreen'
     return (
       <Responsive as={Modal} size={modalSize} style={{ maxHeight: 800, overflowY: "auto", overflowX:"hidden" }}
-      closeIcon="close"
+      closeIcon onClose={()=>this.props.closeModal()}
       open={this.state.showModal}  fireOnMount onUpdate={this.handleOnUpdate}>
    
         <Modal.Header>
           {draft.value.name}
-          <Button onClick={closeModal}>x</Button>
+        
         </Modal.Header>
         {job}
-        {this.state.jobSuccess ? <div>Job Posted!</div> : 
-<div>
-        <JobProgress showState={showState} />
+        {this.state.jobSuccess ? <div>
+          
+          
+          <Message
+    success
+    header='Your job is now dispatched!'
+    content='You will be e-mailed quotes from contractors'
+  />
+  
+  <Button disabled>Turn on SMS</Button>
+  <Button disabled>Download App</Button>
+  <Button disabled>How To Manage Job</Button>
+  
+  </div> : 
+<div style={{margin:5}}>
+        <JobProgress compactDisplayMode={compactDisplayMode} showState={showState} />
         <Modal.Content>
           <Modal.Description>
-            <div style={{ minHeight: 500}}>
+            <div style={{ minHeight: 350}}>
               {loading ? (
                 <Dimmer active inverted>
                   <Loader content="Updating Job" />

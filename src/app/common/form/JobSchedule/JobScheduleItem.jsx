@@ -12,6 +12,7 @@ class JobScheduleItem extends Component {
       currentTimesSelected
     } = this.props;
     console.log({ currentTimesSelected });
+  
     return (
       <div
         container
@@ -20,7 +21,6 @@ class JobScheduleItem extends Component {
           width: "100px",
           position: "relative",
           height: 160,
-          backgroundColor: "yellow",
           marginRight: "10px"
         }}
       >
@@ -29,7 +29,11 @@ class JobScheduleItem extends Component {
             overflowY: "auto",
             overflowX: "hidden",
             whiteSpace: "nowrap",
-            backgroundColor: "red",
+            backgroundColor: "green",
+            color:"white",
+            fontSize:'14px',
+            width:"100%",
+            textAlign: "center",
             height: "auto"
           }}
         >
@@ -42,11 +46,18 @@ class JobScheduleItem extends Component {
           day.timeSlots.map((timeSlot, index) => (
             <div
               style={{
+                marginTop:5,
+                marginBottom:5,
+                width:"100%",
+                fontSize:14,
+                textAlign:"center",
+                borderRadius:5,
                 backgroundColor:
-                  currentTimesSelected &&currentTimesSelected[dayIndex]&&
+                
+                  currentTimesSelected && currentTimesSelected[dayIndex]&&
                   currentTimesSelected[dayIndex].timeSlots[index].selected === true
                     ? "green"
-                    : "blue"
+                    : "lightgrey"
               }}
               onClick={() =>
                 this.props.handleTimeSelected(day.timeStamp, index)

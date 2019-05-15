@@ -8,8 +8,9 @@ import RadioInput from "../../../app/common/form/RadioInput";
 import TextArea from "../../../app/common/form/TextArea";
 import PlaceInput from "../../../app/common/form/PlaceInput";
 import BlankInput from "../../../app/common/form/BlankInput";
+import DropdownInput from '../../../app/common/form/DropdownInput'
 import DateInput from "../../../app/common/form/DateInput";
-import {Form, Grid, Image, Label, Button} from 'semantic-ui-react'
+import {Form, Message, Header, Grid, Image, Label, Button} from 'semantic-ui-react'
 import {
   composeValidators,
   combineValidators,
@@ -60,6 +61,12 @@ class JobCustomForm extends Component {
  
     return (
       <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
+
+<Header> Custom Fields </Header>
+      {(!fields)&&
+      
+      <Message info>There are no custom fields for this job</Message>
+      }
       {fields &&
         fields.map(
           (
@@ -116,6 +123,9 @@ class JobCustomForm extends Component {
                         ? PlaceInput
                         : component.component === "DateInput"
                         ? DateInput
+                        :
+                        component.component==="DropdownInput"
+                        ? DropdownInput
                         : null
                     }
                   />
@@ -133,8 +143,13 @@ class JobCustomForm extends Component {
              
           )
         )}
-
-
+<Header> Job Details </Header>
+<Field 
+        name='jobDetails'
+        type='text'
+        component={TextArea}
+        rows={3}
+        />
 
 <Button
            //  disabled={(invalid || submitting || (pristine&&!fieldChanged))}

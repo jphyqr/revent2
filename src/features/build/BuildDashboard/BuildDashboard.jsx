@@ -105,6 +105,8 @@ class BuildDashboard extends Component {
                   />
                 )}
               </div>
+
+
               <BuildDetail
                 REGULAR_EXCLUSIVE_HEIGHT={REGULAR_EXCLUSIVE_HEIGHT}
                 REGULAR_EXCLUSIVE_WIDTH={REGULAR_EXCLUSIVE_WIDTH}

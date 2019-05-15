@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Segment, Button, Label, Feed } from "semantic-ui-react";
+import { Container, Segment, Button, Label, Feed, Responsive } from "semantic-ui-react";
 import { Route, Switch } from "react-router-dom";
 import NavBar from "../../features/nav/NavBar/NavBar";
 import SettingsDashboard from "../../features/user/Settings/SettingsDashboard";
@@ -48,6 +48,7 @@ class App extends Component {
     this.setState({ valuePropositionActive: false, pricingActive: true });
   };
 
+  handleOnUpdate = (e, { width }) => this.setState({ width });
   handleSelectValueProposition = () => {
     this.setState({ valuePropositionActive: true, pricingActive: false });
   };
@@ -77,8 +78,12 @@ class App extends Component {
   };
   render() {
     const { closeMessage, openMessages } = this.props;
+    const {width} = this.state
+    const CUSTOM_TABLET_CUTOFF = 800;
+    const compactDisplayMode = width >= CUSTOM_TABLET_CUTOFF ? false : true;
     return (
       <div>
+        <Responsive fireOnMount onUpdate={this.handleOnUpdate}>
         <ModalManager />
         <Switch>
       
@@ -95,7 +100,7 @@ class App extends Component {
               <NavBar />
 
               <div
-                style={{ width: "100%", marginTop: 50, marginLeft:0, marginRight:0, padding:0, background: "DimGrey" }}
+                style={{ width: "100%", marginTop:  50, marginLeft:0, marginRight:0, padding:0, background: "DimGrey" }}
                 className="main"
               >
                 <Switch>
@@ -127,6 +132,7 @@ class App extends Component {
             </div>
           )}
         />
+        </Responsive>
       </div>
     );
   }

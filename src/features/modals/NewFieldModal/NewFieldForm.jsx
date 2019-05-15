@@ -9,7 +9,8 @@ import {
   Header,
   Image,
   Icon,
-  Label
+  Label,
+  Dropdown
 } from "semantic-ui-react";
 import {
   composeValidators,
@@ -31,7 +32,7 @@ import RadioInput from "../../../app/common/form/RadioInput";
 import { withFirestore } from "react-redux-firebase";
 import { icons } from "../../../app/data/icons";
 import IconSlider from "./IconSlider";
-import ExamplePhotoItem from './ExamplePhotoItem'
+import ExamplePhotoItem from "./ExamplePhotoItem";
 import { keyframes } from "popmotion";
 const mapState = state => {
   let field = {};
@@ -56,6 +57,45 @@ const actions = {
 const types = [
   { key: "text", text: "text", value: "text" },
   { key: "submit", text: "submit", value: "submit" }
+];
+
+const renderLabel = label => ({
+  color: "blue",
+  content: `Customized label - ${label.text}`,
+  icon: "check"
+});
+
+const dropdownItem = (name, price, notes, image) => {
+  return (
+    <div>
+      <Grid>
+        <Grid.Column width={4}>
+          <Image
+            style={{ height: "200px", maxWidth: "200px" }}
+            src={image}
+          />
+        </Grid.Column>
+        <Grid.Column width={12}>
+          <Grid.Row>
+            <Header>{name}</Header>
+          </Grid.Row>
+          <Grid.Row>
+            <Header>{price}</Header>
+          </Grid.Row>
+          <Grid.Row> {notes} </Grid.Row>
+        </Grid.Column>
+      </Grid>
+    </div>
+  );
+};
+
+const test = [
+  {
+    key: "tin",
+    text: "Tin $19.50/lf",
+    value: "tin",
+    content: dropdownItem("Tin", "$19.50/lf")
+  }
 ];
 
 const components = [
@@ -98,6 +138,11 @@ const components = [
     key: "PhotoInput",
     text: "PhotoInput",
     value: { component: "PhotoInput", type: "text" }
+  },
+  {
+    key: "DropownInput",
+    text: "DropdownInput",
+    value: { component: "DropdownInput", type: "text" }
   }
 ];
 
@@ -136,6 +181,13 @@ class NewFieldForm extends Component {
     selectText: "",
     selectValue: "",
     selectItems: [],
+    dropdownKey: "",
+    dropdownText: "",
+    dropdownValue: "",
+    dropdownPrice: "",
+    dropdownImage: "",
+    dropdownNotes: "",
+
     radioValue: "",
     radioItems: [],
     fieldChanged: false
@@ -164,6 +216,7 @@ class NewFieldForm extends Component {
         selectItems:
           (nextProps.selectedField && nextProps.selectedField.selectItems) ||
           [],
+    
         radioItems:
           (nextProps.radioedField && nextProps.radioedField.radioItems) || [],
         selectedComponent:
@@ -187,6 +240,7 @@ class NewFieldForm extends Component {
       selectItems:
         (this.props.selectedField && this.props.selectedField.selectItems) ||
         [],
+   
       radioItems:
         (this.props.radioedField && this.props.radioedField.radioItems) || [],
       selectedComponent:
@@ -197,20 +251,19 @@ class NewFieldForm extends Component {
   resetComponent = () =>
     this.setState({ isLoading: false, results: icons, value: "" });
 
+  handleUpdatePhotoDescription = (index, description) => {
+    let photos = this.state.examplePhotos;
+    photos[index].description = description;
+    this.setState({ examplePhotos: photos, fieldChanged: true });
+  };
 
-handleUpdatePhotoDescription = (index, description) => {
-  let photos = this.state.examplePhotos
-  photos[index].description = description
-  this.setState({examplePhotos:photos, fieldChanged:true})
-}
-
-handleUpdatePhotoTitle = (index, title) => {
-  console.log('handleUpdatePhotoTitle index', index)
-  console.log('handleUpdatePhotoTitle title', title)
-  let photos = this.state.examplePhotos
-  photos[index].title = title
-  this.setState({examplePhotos:photos, fieldChanged:true})
-}
+  handleUpdatePhotoTitle = (index, title) => {
+    console.log("handleUpdatePhotoTitle index", index);
+    console.log("handleUpdatePhotoTitle title", title);
+    let photos = this.state.examplePhotos;
+    photos[index].title = title;
+    this.setState({ examplePhotos: photos, fieldChanged: true });
+  };
 
   handleComponentSelect = (e, { value }) => {
     this.setState({ selectedComponent: e.component });
@@ -243,6 +296,39 @@ handleUpdatePhotoTitle = (index, title) => {
     });
   };
 
+  handleDropdownSubmit = () => {
+    const {
+      dropdownKey,
+      dropdownText,
+      selectItems,
+      dropdownValue,
+    
+      dropdownImage,
+      dropdownNotes,
+      dropdownPrice
+    } = this.state;
+    let newItem = {
+      key: dropdownKey,
+      text: dropdownText,
+      value: dropdownValue,
+      price: dropdownPrice, 
+      notes: dropdownNotes, 
+      image: dropdownImage
+
+    };
+    let items = selectItems;
+    items.push(newItem);
+    this.setState({
+      selectItems: items,
+      dropdownKey: "",
+      dropdownText: "",
+      dropdownValue: "",
+      dropdownNotes: "",
+      dropdownImage: "",
+      dropdownPrice: ""
+    });
+  };
+
   handleRadioSubmit = () => {
     const { radioValue, radioItems } = this.state;
     let items = radioItems;
@@ -250,10 +336,9 @@ handleUpdatePhotoTitle = (index, title) => {
     this.setState({ radioItems: items, radioValue: "" });
   };
 
-
-  handleUnitsChanged = e =>{
-    this.setState({units: !this.state.units})
-  }
+  handleUnitsChanged = e => {
+    this.setState({ units: !this.state.units });
+  };
 
   handleExampleChange = e => {
     this.setState({ example: !this.state.example });
@@ -267,11 +352,12 @@ handleUpdatePhotoTitle = (index, title) => {
         selectedIcon,
         this.props.field.payload.key,
         example,
-        selectItems
+        selectItems,
+        
       );
     } else {
       console.log("created");
-      this.props.createField(values, selectedIcon, example, selectItems);
+      this.props.createField(values, selectedIcon, example, selectItems,);
     }
 
     this.setState({
@@ -304,7 +390,7 @@ handleUpdatePhotoTitle = (index, title) => {
 
   render() {
     const { invalid, submitting, pristine, loading, field } = this.props;
-const {fieldChanged} = this.state
+    const { fieldChanged } = this.state;
     return (
       <div>
         <Button positive onClick={() => this.props.toggleEdit(false)}>
@@ -430,6 +516,91 @@ const {fieldChanged} = this.state
               </Grid>
             )}
 
+            {this.state.selectedComponent === "DropdownInput" && (
+              <Grid>
+                <Grid.Column width={8}>
+                  <div>
+                    key
+                    <input
+                      value={this.state.dropdownKey}
+                      onChange={e =>
+                        this.setState({ dropdownKey: e.target.value })
+                      }
+                    />
+                    text
+                    <input
+                      value={this.state.dropdownText}
+                      onChange={e =>
+                        this.setState({ dropdownText: e.target.value })
+                      }
+                    />
+                    value
+                    <input
+                      value={this.state.dropdownValue}
+                      onChange={e =>
+                        this.setState({ dropdownValue: e.target.value })
+                      }
+                    />
+                    image
+                    <input
+                      value={this.state.dropdownImage}
+                      onChange={e =>
+                        this.setState({ dropdownImage: e.target.value })
+                      }
+                    />
+                    price
+                    <input
+                      value={this.state.dropdownPrice}
+                      onChange={e =>
+                        this.setState({ dropdownPrice: e.target.value })
+                      }
+                    />
+                    notes
+                    <input
+                      value={this.state.dropdownNotes}
+                      onChange={e =>
+                        this.setState({ dropdownNotes: e.target.value })
+                      }
+                    />
+                    <Icon
+                      name="add"
+                      onClick={() => this.handleDropdownSubmit()}
+                    />
+                  </div>
+                </Grid.Column>
+                <Grid.Column width={8}>
+                  <div
+                    style={{
+                      height: 200,
+                      backgroundColor: "grey",
+                      overflowX: "hidden",
+                      overflowY: "auto",
+                      position: "relative"
+                    }}
+                  >
+                    {this.state.selectItems &&
+                      this.state.selectItems.map(item => (
+                        <div>
+                          <label>KEY </label> {item.key}
+                          <label> TEXT </label> {item.text}
+                          <label> VALUE </label>
+                          {item.value}
+                          <label> IMAGE </label>
+                          <image
+                            style={{ height: 50, width: 50 }}
+                            src={item.image}
+                          />
+                          <label> NOTES </label>
+                          {item.notes}
+                          <label> PRICE </label>
+                          {item.price}
+                        </div>
+                      ))}
+                  </div>
+                </Grid.Column>
+              </Grid>
+            )}
+
             {this.state.selectedComponent === "SelectInput" && (
               <Grid>
                 <Grid.Column width={8}>
@@ -540,7 +711,7 @@ const {fieldChanged} = this.state
               component={Checkbox}
             />
 
-<Field
+            <Field
               name="includeUnits"
               type="checkbox"
               //   checked={this.state.example}
@@ -551,12 +722,14 @@ const {fieldChanged} = this.state
             />
           </Form.Group>
 
-                {this.state.units &&                <Field
-                  name="units"
-                  type="text"
-                  component={TextInput}
-                  placeholder="Units"
-                /> }
+          {this.state.units && (
+            <Field
+              name="units"
+              type="text"
+              component={TextInput}
+              placeholder="Units"
+            />
+          )}
 
           {this.state.example && (
             <PhotoUpload
@@ -564,37 +737,41 @@ const {fieldChanged} = this.state
               handlePhotoUploaded={this.props.handlePhotoUploaded}
             />
           )}
-    
-  {this.state.examplePhotos&&this.state.examplePhotos.length>0 &&  <div
-   
-   style={{
-     height: 300,
-     marginBottom: 1,
-     marginTop:5,
-     padding:5,
-     width: "auto",
-    backgroundColor: "WhiteSmoke",
-     overflowX: "auto",
-     overflowY: "hidden",
 
-     whiteSpace: "nowrap",
-     position: "relative",
-   }}
-   >
-   <Header>Example Photos</Header>
-          {this.state.examplePhotos &&
-            this.state.examplePhotos.map((photo,index) => (
-            
-              <div style={{display: "inline-block", marginRight:"15px"}}>
-                
-                
-                <ExamplePhotoItem index={index} handleUpdatePhotoDescription={this.handleUpdatePhotoDescription} handleUpdatePhotoTitle={this.handleUpdatePhotoTitle} photo={photo}/>
-               
+          {this.state.examplePhotos && this.state.examplePhotos.length > 0 && (
+            <div
+              style={{
+                height: 300,
+                marginBottom: 1,
+                marginTop: 5,
+                padding: 5,
+                width: "auto",
+                backgroundColor: "WhiteSmoke",
+                overflowX: "auto",
+                overflowY: "hidden",
+
+                whiteSpace: "nowrap",
+                position: "relative"
+              }}
+            >
+              <Header>Example Photos</Header>
+              {this.state.examplePhotos &&
+                this.state.examplePhotos.map((photo, index) => (
+                  <div style={{ display: "inline-block", marginRight: "15px" }}>
+                    <ExamplePhotoItem
+                      index={index}
+                      handleUpdatePhotoDescription={
+                        this.handleUpdatePhotoDescription
+                      }
+                      handleUpdatePhotoTitle={this.handleUpdatePhotoTitle}
+                      photo={photo}
+                    />
+                  </div>
+                ))}
             </div>
-            ))}
-</div>}
+          )}
           <Button
-             disabled={(invalid || submitting || (pristine&&!fieldChanged))}
+            disabled={invalid || submitting || (pristine && !fieldChanged)}
             positive
             loading={loading}
             type="submit"

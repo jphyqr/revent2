@@ -497,14 +497,14 @@ class Post extends Component {
             </div>
           ) : (
             <div>
-              <Message color="green">
+              {/* <Message color="green">
                 <Message.Header>Start your project</Message.Header>
                 <Message.List>
                   <Message.Item>
                     We come to you and help post your first job
                   </Message.Item>
                 </Message.List>
-              </Message>
+              </Message> */}
 
               {this.state.scriptLoaded && (
                 <Field

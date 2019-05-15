@@ -6,6 +6,7 @@ const initialState = {
   newQuotes:[],
   newMessage:false,
   newNotification:false,
+  hideHowToPost: false,
 
 }
 
@@ -17,6 +18,7 @@ export const setNotifications = (state, payload) => {
     newQuotes:payload.notifications.newQuotes,
     newMessage:payload.notifications.newMessage,
     newNotification:payload.notifications.newNotification,
+    hideHowToPost: payload.notifications.hideHowToPost
       
   }
 }
@@ -28,6 +30,7 @@ export const clearNotifications = (state, payload) => {
     newQuotes:[],
     newMessage:false,
     newNotification:false,
+    hideHowToPost: false
   }
 }
 

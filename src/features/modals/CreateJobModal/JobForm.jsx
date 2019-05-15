@@ -164,11 +164,23 @@ class JobForm extends Component {
           onLoad={this.handleScriptLoaded}
         />
         <Grid.Column width={14}>
-          <Header sub color="teal" content="Job Details" />
+          <Header sub color="teal" content="Job Title" />
           <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
 
+<Form.Group inline>
+<Field name="title" type="text" 
+            maxlength='40'
+            component={TextInput} />
 
-            <Field name="title" type="text" component={TextInput} />
+<Field
+                  name="testJob"
+                  type="checkbox"
+                  label="Test"
+                  component={Checkbox}
+                />
+
+</Form.Group>
+
             <Header sub color="teal" content="Accept Bids as" />
             <Form.Group inline>
               {draftValues && draftValues.hourlyOwner && (

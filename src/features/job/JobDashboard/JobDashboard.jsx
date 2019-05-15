@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Grid, Responsive, Sticky, Segment, Container , Image, Loader,Popup, Transition} from "semantic-ui-react";
+import { Grid, Responsive, Sticky, Button, Segment, Container , Image, Loader,Popup, Transition} from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
@@ -7,7 +7,7 @@ import JobMap from "./JobMap";
 import RightSidebar from './RightSidebar/RightSidebar'
 import JobList from "../JobList/JobList";
 import { getJobsForDashboard, getAllJobsForDashboard } from "../jobActions";
-import { deleteJobDraft } from "../../user/userActions";
+import { deleteJobDraft, hideHowToPost } from "../../user/userActions";
 import { selectDraftToEdit } from "../../build/draftActions";
 import { selectQuoteToEdit } from "../../modals/QuoteJobModal/quoteActions";
 import { firestoreConnect, isLoaded } from "react-redux-firebase"; //even though we using firestore this gives our binding
@@ -55,6 +55,7 @@ const mapState = state => ({
   loading: state.async.loading,
   auth: state.firebase.auth,
   role: state.role,
+  notifications: state.notifications,
   myJobs: state.firestore.ordered.jobs_attended || {},
   selectedJob: state.draft && state.draft.value,
   myQuotes: state.firestore.ordered.my_quotes ||{},
@@ -67,7 +68,8 @@ const actions = {
   selectDraftToEdit,
   openModal,
   selectQuoteToEdit,
-  getAllJobsForDashboard
+  getAllJobsForDashboard,
+  hideHowToPost
 };
 
 class JobDashboard extends Component {
@@ -184,10 +186,10 @@ class JobDashboard extends Component {
     
 
   render() {
-    const { role,compactDisplayMode, CUSTOM_TABLET_CUTOFF, COMPACT_ITEM_HEIGHT,COMPACT_ITEM_WIDTH,REGULAR_ITEM_HEIGHT,REGULAR_ITEM_WIDTH, loading, selectQuoteToEdit, auth,  authenticated, } = this.props;
+    const { role, notifications, compactDisplayMode, CUSTOM_TABLET_CUTOFF, COMPACT_ITEM_HEIGHT,COMPACT_ITEM_WIDTH,REGULAR_ITEM_HEIGHT,REGULAR_ITEM_WIDTH, loading, selectQuoteToEdit, auth,  authenticated, } = this.props ||{};
     const { moreJobs, loadedJobs, myQuotes, jobs } = this.state;
 
-    
+    const {hideHowToPost} = notifications || {}
 
 
     return (
@@ -213,6 +215,12 @@ class JobDashboard extends Component {
 
 
 <Responsive   minWidth={1} >
+
+
+
+
+
+
           
 <div style={{ minHeight: compactDisplayMode? "300px":  "500px" }}>
           <Grid style={{margin:0}}>
@@ -226,7 +234,25 @@ class JobDashboard extends Component {
               </Grid.Column>
              
               <Grid.Column style={{padding:0}}mobile={16} tablet={16} computer={10} >
-              
+              <div style={{ paddingTop:10, width:'100%',}}>
+            {(!this.props.authenticated || (!this.props.notifications.hideHowToPost)) && 
+           <div> {this.props.authenticated&&<Button onClick={()=>this.props.hideHowToPost()}>Hide</Button>}
+            <video controls
+            style={{ display:'block', marginLeft:"auto", marginRight:"auto", width: compactDisplayMode? "100%": "50%", padding:0, }}
+            // autoPlay
+             poster={'https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/IMG-0384.JPG?alt=media&token=7557d850-71cb-417b-8518-1badb8e732ab'}
+             id="myVideo"
+            
+             
+           >
+             <source src={'https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/IMG-0296.TRIM.MOV?alt=media&token=0950949d-9d48-4279-b622-85f91084c46d'} type="video/mp4" />
+           </video>
+           </div>
+           }
+
+           </div>
+
+
               <NavBar compactDisplayMode={compactDisplayMode} role={role} handleSelectTab={this.handleSelectTab} navShow={this.state.navShow}/>
            {this.state.loading ?  <Loader active inline='centered' /> :
                 this.state.showExpanded ? (

@@ -136,7 +136,7 @@ class BuildExpanded extends Component {
     const { selectedTab, isManager, isSubscribed, currentJob } = this.state;
     const { compactDisplayMode, role } = this.props;
     const {isAdmin} = role || {}
-    const { displayURL } = currentJob || "";
+    const { displayURL, description } = currentJob || "";
 
     return (
       <div
@@ -215,7 +215,7 @@ class BuildExpanded extends Component {
                   }}
                 >
                   {" "}
-                  <p>Desription Content</p>
+                  <p>{description}</p>
                 </div>
               )}
 

@@ -1359,7 +1359,8 @@ export const setNotifications = (
   newQuotes,
 
   newMessage,
-  newNotification
+  newNotification,
+  hideHowToPost
 ) => {
   return async (dispatch, getState, { getFirebase }) => {
     try {
@@ -1368,7 +1369,8 @@ export const setNotifications = (
         newQuotes: newQuotes,
        
         newMessage: newMessage,
-        newNotification: newNotification
+        newNotification: newNotification,
+        hideHowToPost: hideHowToPost
       };
       dispatch({
         type: SET_NOTIFICATIONS,
@@ -1433,6 +1435,37 @@ export const contractsClicked = () => {
         },
         {
           newContract: false
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+};
+
+
+export const hideHowToPost = () => {
+  return async (dispatch, getState, { getFirestore, getFirebase }) => {
+
+
+    const firebase = getFirebase();
+    //const { isLoaded, isEmpty, ...updatedSkills } = skills;
+ 
+    const user = firebase.auth().currentUser;
+
+
+    const firestore = getFirestore();
+ //   const user = firestore.auth().currentUser;
+    console.log({user})
+    console.log("contractsClicked:");
+    try {
+      await firestore.update(
+        {
+          collection: "users",
+          doc: user.uid
+        },
+        {
+          hideHowToPost: true
         }
       );
     } catch (error) {

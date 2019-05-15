@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ExamplePhotoSlider from "../../../app/common/form/PhotoUpload/ExamplePhotoSlider";
-import { Form, Grid, Image, Label, Button } from "semantic-ui-react";
+import { Form, Header, Grid, Image, Label, Button , Message} from "semantic-ui-react";
 import PhotoUpload from "../../../app/common/form/PhotoUpload/PhotoUpload";
 class JobPhotos extends Component {
   state = {
@@ -26,19 +26,31 @@ class JobPhotos extends Component {
 
     return (
       <div>
+
+        {examplePhotosCombined&&examplePhotosCombined.length>0 ?
+        
+        
         <Grid>
-          <Grid.Row>
-            <Grid.Column width={3}>Photos Requested</Grid.Column>
-            <Grid.Column width={13}>
-              {examplePhotosCombined && (
-                <ExamplePhotoSlider
-                  photos={examplePhotosCombined}
-                  label="Recommended"
-                />
-              )}
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
+        <Grid.Row>
+          <Grid.Column width={3}><Header>Photos Requested</Header></Grid.Column>
+          <Grid.Column width={13}>
+            {examplePhotosCombined && (
+              <ExamplePhotoSlider
+                photos={examplePhotosCombined}
+                label="Recommended"
+              />
+            )}
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
+      : 
+        
+        <Message info>No job photos are required.  Upload photos if necessary</Message>
+        
+        
+        
+        }
+
         {showUploadPhoto ? (
         <div> <Button  onClick={() => this.setState({ showUploadPhoto: false })}>Cancel Upload</Button>
           <PhotoUpload
@@ -49,7 +61,7 @@ class JobPhotos extends Component {
           <Grid>
             <Grid.Row>
               <Grid.Column width={3}>
-                Photos Uploaded
+              <Header>Photos Uploaded </Header>  
                 <Button
                   onClick={() => this.setState({ showUploadPhoto: true })}
                 >
@@ -68,7 +80,7 @@ class JobPhotos extends Component {
           </Grid>
         )}
 
-        <Button onClick={()=>this.props.updateJobPhotosPage(draft)}>Next</Button>
+        <Button primary floated="right" style = {{marginTop:150, marginBottom:5}} onClick={()=>this.props.updateJobPhotosPage(draft)}>Next</Button>
       </div>
     );
   }

@@ -44,6 +44,11 @@ const query = ({ auth }) => {
 const mapState = state => {
   return {
     auth: state.firebase.auth,
+    hideHowToPost:
+    (state.firestore.ordered.user_profile &&
+      state.firestore.ordered.user_profile[0] &&
+      state.firestore.ordered.user_profile[0].hideHowToPost) ||
+    false,
     newContract:
       (state.firestore.ordered.user_profile &&
         state.firestore.ordered.user_profile[0] &&
@@ -109,7 +114,8 @@ class SignedInMenu extends Component {
     stateContract: false,
     stateMessage: false,
     stateQuotes: {},
-    stateNotification: false
+    stateNotification: false,
+    stateHideHowToPost: false
   };
   handleCreateCategory = () => {
     this.props.openModal("CategoryModal");
@@ -139,7 +145,8 @@ class SignedInMenu extends Component {
       isAdmin,
       isOnboarder,
       isAlpha,
-      verified
+      verified,
+      hideHowToPost
     } = this.props 
 
     console.log('CDM Quotes', this.props.newQuotes)
@@ -155,14 +162,16 @@ class SignedInMenu extends Component {
       stateContract: newContract,
       stateMessage: newMessage,
       stateQuotes: this.props.newQuotes,
-      stateNotification: newNotification
+      stateNotification: newNotification,
+      stateHideHowToPost:hideHowToPost
     });
     await this.props.setNotifications(
       this.state.stateContract,
       this.state.stateMessage,
 
       this.state.stateQuotes,
-      this.state.stateNotification
+      this.state.stateNotification,
+      this.state.stateHideHowToPost
     );
   }
 
@@ -174,7 +183,7 @@ class SignedInMenu extends Component {
       newNotification,
       isAdmin,
       isOnboarder,
-      isAlpha
+      isAlpha, hideHowToPost
     } = nextProps || {};
 
     if (
@@ -227,14 +236,16 @@ class SignedInMenu extends Component {
         stateContract: newContract,
         stateQuotes: this.props.newQuotes,
         stateMessage: newMessage,
-        stateNotification: newNotification
+        stateNotification: newNotification,
+        stateHideHowToPost: hideHowToPost
       });
 
       await this.props.setNotifications(
         this.state.stateContract,
         this.state.stateQuotes,
         this.state.stateMessage,
-        this.state.stateNotification
+        this.state.stateNotification,
+        this.state.stateHideHowToPost
       );
     }
   };

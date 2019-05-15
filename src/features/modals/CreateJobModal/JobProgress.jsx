@@ -7,7 +7,7 @@ class JobProgress extends Component {
 
   handleOnUpdate = (e, { width }) => this.setState({ width })
   render() {
-    const { showState } = this.props;
+    const { showState , compactDisplayMode} = this.props;
     const {
       showSchedule,
       showPhotos,
@@ -21,7 +21,99 @@ class JobProgress extends Component {
     const {width} = this.state
     const fluid = (width <= 768) ? true : false
     return (
-      <Responsive as={Step}   fireOnMount onUpdate={this.handleOnUpdate}>
+<div>
+{compactDisplayMode ? <div>
+
+<Step.Group  fluid size='mini' style={{marginTop:5, marginBottom:2}} unstackable>
+<Step
+          completed={
+            showCustom ||
+            showSchedule ||
+            showContract ||
+            showConfirm ||
+            showPhotos
+          }
+          active={showBasic}
+          disabled={!showBasic}
+        >       
+      <Step.Content>
+        <Step.Title>Basic</Step.Title>
+      </Step.Content>
+    </Step>
+              <Step
+          completed={showConfirm || showSchedule || showContract || showPhotos}
+          active={showCustom}
+          disabled={!showCustom}
+        >
+          <Responsive as={Icon} {...Responsive.onlyComputer}>
+            <Icon name="credit card" />
+          </Responsive>
+          <Step.Content>
+            <Step.Title>Job Specific</Step.Title>
+          </Step.Content>
+        </Step>
+
+        <Step
+          completed={showConfirm || showSchedule || showContract}
+          active={showPhotos}
+          disabled={!showPhotos}
+        >
+
+          <Step.Content>
+            <Step.Title>Job Photos</Step.Title>
+          </Step.Content>
+        </Step>
+
+
+</Step.Group>
+
+
+<Step.Group fluid size='mini' style={{marginTop:0}} unstackable>
+
+
+
+<Step
+          completed={showConfirm || showContract}
+          active={showSchedule}
+          disabled={!showSchedule}
+        >
+   
+
+          <Step.Content>
+            <Step.Title>Schedule</Step.Title>
+          </Step.Content>
+        </Step>
+        <Step
+          completed={showConfirm}
+          active={showContract}
+          disabled={!showContract}
+        >
+       
+
+          <Step.Content>
+            <Step.Title>Contract</Step.Title>
+          </Step.Content>
+        </Step>
+        <Step active={showConfirm} disabled={!showConfirm}>
+     
+
+          <Step.Content>
+            <Step.Title>Confirm</Step.Title>
+          </Step.Content>
+        </Step>
+    
+
+
+</Step.Group>
+
+
+
+
+
+
+</div>: <div>
+
+<Responsive as={Step}   fireOnMount onUpdate={this.handleOnUpdate}>
   <Step.Group  fluid={fluid} size='mini'>
         {/* <Step completed={showContract||showConfirm||showBasic||showSchedule||showCustom} active={showOverview} disabled={!showOverview}>
           <Icon name='globe' />
@@ -110,6 +202,10 @@ class JobProgress extends Component {
       </Step.Group>
       </Responsive>
 
+
+</div>}
+</div>
+  
     
     );
   }

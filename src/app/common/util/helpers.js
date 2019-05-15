@@ -116,12 +116,13 @@ export const createNewJournalEntry  = (user,photoURL,entry) => {
 
 
 
-export const createNewField  = (field, icon, example, selectItems) => {
+export const createNewField  = (field, icon, example, selectItems, ) => {
   return {
     ...field,
     icon:icon,
     example:example,
     selectItems: selectItems,
+    
     created: Date.now(),
 
   };
