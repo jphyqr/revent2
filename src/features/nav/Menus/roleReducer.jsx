@@ -15,7 +15,8 @@ export const setRole = (state, payload) => {
     isAdmin: payload.role.isAdmin ,
     isOnboarder: payload.role.isOnboarder,
     isAlpha: payload.role.isAlpha,
-    verified: payload.role.verified
+    verified: payload.role.verified,
+    isSupplier: payload.role.isSupplier
   }
 }
 
@@ -26,7 +27,8 @@ export const clearRole = (state, payload) => {
     isAdmin: false,
     isOnboarder: false,
     isAlpha: false,
-    verified: false
+    verified: false,
+    isSupplier: false
   }
 }
 

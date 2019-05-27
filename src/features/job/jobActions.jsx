@@ -11,7 +11,7 @@ import moment from "moment";
 import { createNewJob } from "../../app/common/util/helpers";
 import firebase from "../../app/config/firebase";
 import compareAsc from "date-fns/compare_asc";
-
+import cuid from "cuid"
 import { addMinutes } from "date-fns";
 
 export const dispatchJob = jobId => async (
@@ -136,20 +136,43 @@ export const createJob = job => {
   };
 };
 
-export const uploadJobPhoto = (key, jobPhotoURL) => {
+export const uploadJobPhoto = (key, file) => {
   return async (dispatch, getState, { getFirebase, getFirestore }) => {
     dispatch(asyncActionStart());
 
     console.log("upload job photo key", key);
-    console.log("upload job photo url", jobPhotoURL);
+    console.log("upload job photo url", file);
 
     const firestore = getFirestore();
+    const firebase = getFirebase();
+
+    const user = firebase.auth().currentUser;
+
+      const imageName = cuid();
+    
+  
+    
+      const path = `${user.uid}/user_images`;
+      const options = {
+        name: imageName
+      };
 
     try {
+
+      let uploadedFile = await firebase.uploadFile(path, file, null, options);
+      //get url of image
+      let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
+  
+
+
+
+
+
+
       let job = await firestore.get(`jobs/${key}`);
       let jobData = job.data();
       let jobPhotos = jobData.jobPhotos || [];
-      jobPhotos.push({ url: jobPhotoURL });
+      jobPhotos.push({ url: downloadURL });
       jobData.jobPhotos = jobPhotos;
 
       await firestore.set(`jobs/${key}`, jobData);

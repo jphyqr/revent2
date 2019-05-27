@@ -3,7 +3,7 @@ import { Grid, Header } from "semantic-ui-react";
 class NavBar extends Component {
   render() {
     const { role, handleSelectTab, navShow , compactDisplayMode} = this.props;
-   const{ isAdmin, authenticated} = role
+   const{ isAdmin, isSupplier, authenticated} = role
     return (
       <div style={{ margin: 15 }}>
         <Grid columns='equal' centered relaxed>
@@ -60,15 +60,22 @@ class NavBar extends Component {
                 Deals
               </Header>
             </Grid.Column>}
-          {isAdmin&&(!compactDisplayMode)&&  <Grid.Column
+          {/* {isAdmin&&(!compactDisplayMode)&&  <Grid.Column
               
               style={{ textAlign: "center", cursor: "pointer" }}
             >
               <Header as={compactDisplayMode?"h5":"h3"} style={{color: (navShow==="stats") ? "orange": "grey"}} onClick={() => handleSelectTab("stats")}>
                 Stats
               </Header>
+            </Grid.Column>} */}
+                   {isSupplier&&  <Grid.Column
+              
+              style={{ textAlign: "center", cursor: "pointer" }}
+            >
+              <Header as={compactDisplayMode?"h5":"h3"} style={{color: (navShow==="supplier") ? "orange": "grey"}} onClick={() => handleSelectTab("supplier")}>
+                Supplier
+              </Header>
             </Grid.Column>}
-         
           {isAdmin&&(!compactDisplayMode)&&  <Grid.Column
               
               style={{ textAlign: "center", cursor: "pointer" }}

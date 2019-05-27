@@ -67,12 +67,11 @@ handleWatchVideo =  async () =>{
             <video controls
             style={{width:"100%", padding:0, margin:0}}
             // autoPlay
-             poster={'https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/IMG-0383.JPG?alt=media&token=ff9be06e-3766-4cea-bb15-f6a0de924827'}
              id="myVideo"
             
              
            >
-             <source src={'https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/IMG-0296.TRIM.MOV?alt=media&token=0950949d-9d48-4279-b622-85f91084c46d'} type="video/mp4" />
+             <source src={'https://firebasestorage.googleapis.com/v0/b/revents-99d5b.appspot.com/o/yaybourintro.mp4?alt=media&token=93ffecea-0ff2-405d-b6d3-44d5987a800e'} type="video/mp4" />
            </video>
           }
 

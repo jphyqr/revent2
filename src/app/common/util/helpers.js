@@ -37,6 +37,9 @@ export const createSchedule = scheduleStartDate => {
   return days;
 };
 
+
+
+
 export const createNewQuote  =  (user, photoURL, jobValues, jobId) => {
   jobValues.date = moment(jobValues.date).toDate();
   const {jobPhotoURL, ownerPhotoURL, owneredBy, ownerUid, title, name} = jobValues || {}
@@ -59,6 +62,20 @@ console.log({showState})
     ownerData: ownerData,
     quotedBy: user.displayName,
     quotedByPhotoURL: photoURL || "/assets/user.png",
+    created: Date.now(),
+
+  };
+};
+
+
+
+export const createNewItem  =  (fieldData, fieldId, user) => {
+
+  return {
+    ...fieldData,
+    fieldId,
+    supplierEmail: user.email,
+    supplierUid: user.uid,
     created: Date.now(),
 
   };
@@ -116,10 +133,9 @@ export const createNewJournalEntry  = (user,photoURL,entry) => {
 
 
 
-export const createNewField  = (field, icon, example, selectItems, ) => {
+export const createNewField  = (field,  example, selectItems, ) => {
   return {
     ...field,
-    icon:icon,
     example:example,
     selectItems: selectItems,
     

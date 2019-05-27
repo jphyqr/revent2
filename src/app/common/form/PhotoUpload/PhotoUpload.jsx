@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Dropzone from "react-dropzone";
 import { connect } from "react-redux";
 import { uploadPhoto } from "./photoActions";
-import Cropper from "react-cropper";
+
 import { firebaseConnect } from "react-redux-firebase";
 import { Button, Header, Icon, Image, Message, Grid, Segment } from "semantic-ui-react";
 
@@ -18,16 +18,11 @@ class PhotoUpload extends Component {
   state = {
     files: [],
     fileName: "",
-    cropResult: null,
+
     image: {}
   };
 
-  cancelCrop = () => {
-    this.setState({
-      files: [],
-      image: {}
-    });
-  };
+
 
   uploadImage = async () => {
     try {
@@ -45,11 +40,20 @@ class PhotoUpload extends Component {
     }
   };
 
-  onDrop = files => {
+  onDrop = async files => {
     console.log({ files });
     this.setState({
       files,
       fileName: files[0].name
+    });
+    await this.props.handlePhotoUploaded(
+      
+      files[0]
+    );
+
+    this.setState({
+      files: {},
+      fileName: {}
     });
   };
 
@@ -72,67 +76,28 @@ class PhotoUpload extends Component {
     const { loading } = this.props;
 
     return (
-    <Segment fluid>
 
-
-
-        <Grid>
-          <Grid.Row />
-          <Grid.Column width={4}>
-            <Header color="teal" sub content="Step 1 - Add Photo" />
-            <Dropzone onDrop={this.onDrop} multiple={false}>
-            <div style={{ paddingTop: "30px", textAlign: "center" }}>
-              <Icon name="upload" size="huge" />
-              <Header content="Drop image here or click to add" />
-            </div>
-          </Dropzone>
-          </Grid.Column>
-   
-
-          <Grid.Column width={1} />
-          <Grid.Column width={4}>
-            <Header sub color="teal" content="Step 2 - Resize image" />
-            {this.state.files[0] && (
-              <Cropper
-                style={{ height: 200, width: "100%" }}
-                ref="cropper"
-                src={this.state.files[0].preview}
-             //   aspectRatio={1}
-                viewMode={0}
-                dragMode="move"
-                guides={false}
-                scalable={true}
-                cropHeight={this.props.height||100}
-                cropWidth={this.props.width||100}
-                cropBoxMovable={true}
-                
-                cropBoxResizable={false}
-                crop={this.cropImage}
-              />
-            )}
-          </Grid.Column>
-          <Grid.Column width={1} />
-          <Grid.Column width={4}>
-            <Header sub color="teal" content="Step 3 - Preview and Upload" />
-            {this.state.files[0] && (
-              <div>
-                <Image
-                  style={{ minHeight: "200px", minWidth: "200px" }}
-                  src={this.state.cropResult}
-                />
-
-                <Button
-                  loading={loading}
-                  onClick={this.uploadImage}
-                  style={{ width: "100px" }}
-                  positive
-                  icon="check"
-                />
-              </div>
-            )}
-          </Grid.Column>
-        </Grid>
-        </Segment>
+      <Dropzone
+      style={{
+        width: "100%",
+        marginTop: 10,
+        marginLeft: "auto",
+        marginRight: "auto",
+        borderRadius: "20px",
+        display: "block",
+        height: 30,
+        backgroundColor: "orange"
+      }}
+      onDrop={this.onDrop}
+      multiple={false}
+      acceptedFiles={"image/jpeg,image/png,image/gif"}
+    >
+      <div style={{ textAlign: "center" }}>
+        <Header style={{ paddingTop: 4 }} content="+Add Photo" />
+      </div>
+    </Dropzone>
+     
+    
     );
   }
 }

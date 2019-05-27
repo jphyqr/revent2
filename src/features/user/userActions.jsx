@@ -22,27 +22,25 @@ export const storeDeviceToken = () => async (
   getState,
   { getFirestore }
 ) => {
-  console.log("storeDeviceToken Code Reached");
+
   dispatch(asyncActionStart);
 
   const messaging = firebase.messaging();
   messaging
     .requestPermission()
     .then(() => {
-      console.log("Have Permission");
+ 
       return messaging.getToken();
     })
     .then(token => {
-      console.log("FCM Token:", token);
+    
       //you probably want to send your new found FCM token to the
       //application server so that they can send any push
       //notification to you.
-      console.log("initialize push code reached, about to storeDeviceToken");
-      // storeDeviceToken(token)
+     // storeDeviceToken(token)
       const firestore = getFirestore();
       const userUID = firestore.auth().currentUser.uid;
       const tokenUID = cuid();
-      console.log("sdt uid", userUID);
       firestore.set(
         {
           collection: "users",
@@ -287,7 +285,6 @@ export const bidJob = job => async (dispatch, getState) => {
 export const subscribeToTask = task2 => async (dispatch, getState) => {
   dispatch(asyncActionStart());
 
-  console.log("subscribeToTask", task2);
   const firestore = firebase.firestore();
   const user = firebase.auth().currentUser;
   const photoURL = getState().firebase.profile.photoURL;
@@ -321,17 +318,17 @@ export const subscribeToTask = task2 => async (dispatch, getState) => {
         created: Date.now()
       });
     });
-    console.log("test UPDATED");
+ 
     const key = task2.key;
     let taslSnap = await firestore
       .collection("tasks")
       .doc(key)
       .get();
-    console.log({ taslSnap });
+
     let task = taslSnap.data();
-    console.log({ task });
+
     const payload = { key: task2.key, value: task };
-    console.log({ payload });
+
     dispatch({
       type: FETCH_TASK,
       payload: { payload }
@@ -353,7 +350,6 @@ export const unsubscribeToTask = task2 => async (
 ) => {
   const firestore = getFirestore();
   const user = firestore.auth().currentUser;
-  console.log("unsubscribe from", task2);
   try {
     //remove attendee from object map
     await firestore.update(`tasks/${task2.key}`, {
@@ -366,11 +362,11 @@ export const unsubscribeToTask = task2 => async (
     //let taskSnap = await firestore.getcollection("tasks").doc(key).get()
 
     let taskSnap = await firestore.get(`tasks/${key}`);
-    console.log({ taskSnap });
+  
     let task = taskSnap.data();
-    console.log({ task });
+ 
     const payload = { key: task2.key, value: task };
-    console.log({ payload });
+   
     dispatch({
       type: FETCH_TASK,
       payload: { payload }
@@ -581,7 +577,7 @@ export const deleteJobDraft = job => async (
   getState,
   { getFirebase, getFirestore }
 ) => {
-  console.log("delete action", job);
+ 
 
   const firebase = getFirebase();
   const firestore = getFirestore();
@@ -660,8 +656,7 @@ export const messageUser = userToMessage => async (
 ) => {
   const firestore = getFirestore();
   const user = firestore.auth().currentUser;
-  console.log("userActions/messageUser");
-  console.log({ userToMessage });
+
   const messaging = {
     id: userToMessage.id,
     photoURL: userToMessage.photoURL || "/assets/user.png",
@@ -714,8 +709,7 @@ export const selectLastMessage = lastRecipient => async (
 ) => {
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
-  console.log("selectLastMessage:");
-  console.log({ lastRecipient });
+
   try {
     await firestore.set(
       {
@@ -751,7 +745,7 @@ export const newChatLabourer = labourer => async (
   getState,
   { getFirestore }
 ) => {
-  console.log("userActions/newChat,", labourer);
+
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
   try {
@@ -794,7 +788,6 @@ export const newChatLabourer = labourer => async (
       payload: { message }
     });
 
-    console.log({ message });
     dispatch(asyncActionFinish());
   } catch (error) {
     console.log(error);
@@ -807,7 +800,6 @@ export const newChat = receiver => async (
   getState,
   { getFirestore }
 ) => {
-  console.log("userActions/newChat,", receiver);
   const firestore = getFirestore();
   const user = firebase.auth().currentUser;
   try {
@@ -850,7 +842,7 @@ export const newChat = receiver => async (
       payload: { message }
     });
 
-    console.log({ message });
+  
  
   } catch (error) {
     console.log(error);
@@ -863,7 +855,6 @@ export const addDirectMessage = (receiverId, values) => async (
   getState,
   { getFirebase }
 ) => {
-  console.log("userActions/addDirectMessage");
   const firebase = getFirebase();
   const profile = getState().firebase.profile;
   const user = firebase.auth().currentUser;
@@ -911,9 +902,7 @@ export const getLastMessage = () => async (
     let data;
     if (nextMessage) {
       data = nextMessage.data();
-      console.log("userActions/getLastMessage");
-      console.log({ data });
-      console.log({ user });
+
     }
 
     dispatch(asyncActionFinish());
@@ -931,9 +920,7 @@ export const addPaymentCard = token => async (
 ) => {
   const firebase = getFirebase();
   const user = firebase.auth().currentUser;
-  console.log({ user });
-  console.log("addPaymentCard:");
-  console.log({ token });
+
   try {
     dispatch(asyncActionStart());
 
@@ -958,10 +945,7 @@ export const chargeCard = token => async (
   const firebase = getFirebase();
   const user = firebase.auth().currentUser;
   const pushId = cuid();
-  console.log("addPaymentCard:");
   const id = token.token.id;
-  console.log({ id });
-  console.log({ pushId });
   try {
     await firebase.push(`stripe_customers/${user.uid}/charges/`, token);
   } catch (error) {
@@ -997,7 +981,7 @@ export const createLabourProfile = (profile, profileListed) => async (
 ) => {
   const firebase = getFirebase();
   //const { isLoaded, isEmpty, ...updatedSkills } = skills;
-  console.log({ profile });
+  
   const { labourProfile, updatedSkills } = profile || {};
   const { jobsCompleted, jobsStarted, rating } = labourProfile || {};
 
@@ -1018,7 +1002,6 @@ export const createLabourProfile = (profile, profileListed) => async (
     updatedSkills: updatedSkills || {}
   };
 
-  console.log({ updatedProfile });
   const firestore = getFirestore();
 
   try {
@@ -1028,7 +1011,6 @@ export const createLabourProfile = (profile, profileListed) => async (
     const labourRef = firestoreDirect.collection("labour_profiles");
     let query = labourRef.where("profileListed", "==", true);
     let querySnap = await query.get();
-    console.log("GET LABOUR FOR LIST", querySnap);
     if (querySnap.docs.length === 0) {
       dispatch(asyncActionFinish());
       return querySnap;
@@ -1083,7 +1065,7 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
   try {
     dispatch(asyncActionStart());
     //upload the file to firebase storage
-    console.log({ file });
+    
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
     //get url of image
     let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
@@ -1101,7 +1083,7 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
 
     updatedLabourPhotos.unshift(downloadURL);
     updatedLabourProfile.labourPhotos = updatedLabourPhotos;
-    console.log({ updatedLabourProfile });
+    
     await firestore.update(`labour_profiles/${user.uid}`, {
       labourPhotos: updatedLabourPhotos
     });
@@ -1110,7 +1092,7 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
     const labourRef = firestoreDirect.collection("labour_profiles");
     let query = labourRef.where("profileListed", "==", true);
     let querySnap = await query.get();
-    console.log("GET LABOUR FOR LIST", querySnap);
+    
     if (querySnap.docs.length === 0) {
       dispatch(asyncActionFinish());
       return querySnap;
@@ -1163,7 +1145,7 @@ export const uploadContractorPhoto = (contractorProfile, file) => async (
   try {
     dispatch(asyncActionStart());
     //upload the file to firebase storage
-    console.log({ file });
+    
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
     //get url of image
     let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
@@ -1221,7 +1203,7 @@ export const uploadBuilderPhoto = (builderProfile, file) => async (
   try {
     dispatch(asyncActionStart());
     //upload the file to firebase storage
-    console.log({ file });
+   
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
     //get url of image
     let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
@@ -1255,18 +1237,18 @@ export const joinBeta = values => async (
   getState,
   { getFirebase, getFirestore }
 ) => {
-  console.log({ values });
+ 
 
   const firestore = getFirestore();
 
   let userDoc = await firestore.get(`sales_team/${values.salesperson}`);
   const userDocData = userDoc.data();
-  console.log({ userDocData });
+  
   let email_list = userDocData.email_list;
   email_list.push(values.email);
   let count = userDocData.count;
   let newcount = count + 1;
-  console.log({ newcount });
+  
   userDocData.email_list = email_list;
   userDocData.count = newcount;
 
@@ -1323,7 +1305,7 @@ export const joinAlpha = values => async (
   getState,
   { getFirebase, getFirestore }
 ) => {
-  console.log({ values });
+  
 
   const firestore = getFirestore();
 
@@ -1399,11 +1381,11 @@ export const handleNewQuoteSelected = (jobId) => {
      let newQuotesArray = []
 
      newQuotesArray = (userDoc.data().newQuotes) || []
-    console.log('handleNewQuoteSelected', userDoc.data())
+   
     let filteredArray = newQuotesArray&&newQuotesArray.filter(quote=>{
       return quote!==jobId
     })
-    console.log("newQuotesSelected:");
+    
     try {
       await firestore.update(
         {
@@ -1426,7 +1408,7 @@ export const contractsClicked = () => {
     const firestore = getFirestore();
     const user = firebase.auth().currentUser;
     user.newContract = false;
-    console.log("contractsClicked:");
+    
     try {
       await firestore.update(
         {
@@ -1456,8 +1438,7 @@ export const hideHowToPost = () => {
 
     const firestore = getFirestore();
  //   const user = firestore.auth().currentUser;
-    console.log({user})
-    console.log("contractsClicked:");
+ 
     try {
       await firestore.update(
         {
@@ -1473,3 +1454,92 @@ export const hideHowToPost = () => {
     }
   };
 };
+
+
+
+
+
+export const updateSupplierProfile = supplier => async (
+  dispatch,
+  getState,
+  { getFirebase, getFirestore }
+) => {
+  const firebase = getFirebase();
+  //const { isLoaded, isEmpty, ...updatedSkills } = skills;
+
+ 
+
+  const firestore = getFirestore();
+   const user = firestore.auth().currentUser;
+
+  try {
+    await firestore.update(
+      {
+        collection: "supplier_users",
+        doc: user.uid
+      },
+      {
+        ...supplier
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+
+
+export const updateSupplierPhoto = (file) => {
+  return async (dispatch, getState, { getFirebase, getFirestore }) => {
+    dispatch(asyncActionStart());
+
+
+    const firestore = getFirestore();
+    const firebase = getFirebase();
+
+    const user = firebase.auth().currentUser;
+
+      const imageName = cuid();
+    
+  
+    
+      const path = `${user.uid}/user_images`;
+      const options = {
+        name: imageName
+      };
+
+    try {
+
+      let uploadedFile = await firebase.uploadFile(path, file, null, options);
+      //get url of image
+      let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
+  
+
+
+      await firestore.update(
+        {
+          collection: "supplier_users",
+          doc: user.uid
+        },
+        {
+         storePhotoUrl: downloadURL
+        }
+      );
+
+
+
+     
+
+      dispatch(asyncActionFinish());
+      toastr.success("Success", "Example store photo uploaded");
+    } catch (error) {
+      dispatch(asyncActionError());
+      toastr.error("Oops", "Something went wrong uploading store photo");
+      console.log(error);
+    }
+  };
+};
+
+

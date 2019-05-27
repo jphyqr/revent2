@@ -10,7 +10,8 @@ import {
   Image,
   Icon,
   Label,
-  Dropdown
+  Dropdown,
+  Transition
 } from "semantic-ui-react";
 import {
   composeValidators,
@@ -21,13 +22,21 @@ import {
   isNumeric,
   isAlphabetic
 } from "revalidate";
-import { updateField, createField } from "./fieldActions";
+import {
+  updateField,
+  createField,
+  addSpec,
+  updateSpecItems,
+  deleteItemFromSpec,
+  deleteSpec
+} from "./fieldActions";
 import TextInput from "../../../app/common/form/TextInput";
 import PhotoUpload from "../../../app/common/form/PhotoUpload/PhotoUpload";
 
 import SelectInput from "../../../app/common/form/SelectInput";
 import _ from "lodash";
 import Checkbox from "../../../app/common/form/Checkbox";
+import SelectManager from "./SelectManager";
 import RadioInput from "../../../app/common/form/RadioInput";
 import { withFirestore } from "react-redux-firebase";
 import { icons } from "../../../app/data/icons";
@@ -45,13 +54,18 @@ const mapState = state => {
     initialValues:
       state.field && state.field.payload && state.field.payload.value, //&&state.field.values,
     field: state.field,
-    loading: state.async.loading
+    loading: state.async.loading,
+    isles: state.firestore.ordered.isles,
   };
 };
 
 const actions = {
   updateField,
-  createField
+  createField,
+  addSpec,
+  updateSpecItems,
+  deleteItemFromSpec,
+  deleteSpec
 };
 
 const types = [
@@ -70,10 +84,7 @@ const dropdownItem = (name, price, notes, image) => {
     <div>
       <Grid>
         <Grid.Column width={4}>
-          <Image
-            style={{ height: "200px", maxWidth: "200px" }}
-            src={image}
-          />
+          <Image style={{ height: "200px", maxWidth: "200px" }} src={image} />
         </Grid.Column>
         <Grid.Column width={12}>
           <Grid.Row>
@@ -88,6 +99,31 @@ const dropdownItem = (name, price, notes, image) => {
     </div>
   );
 };
+
+const isles = [
+  { key: "lumber", text: "lumber", value: "lumber" },
+  { key: "concrete", text: "concrete", value: "concrete" },
+  { key: "fasteners", text: "fasteners", value: "fasteners" },
+  { key: "drywall", text: "drywall", value: "drywall" },
+  { key: "insulation", text: "insulation", value: "insulation" },
+  { key: "exterior", text: "exterior", value: "exterior" },
+  { key: "plumbing", text: "plumbing", value: "plumbing" },
+  { key: "electrical", text: "electrical", value: "electrical" },
+  { key: "tools", text: "tools", value: "tools" },
+  { key: "doors", text: "doors", value: "doors" },
+  { key: "windows", text: "windows", value: "windows" },
+  { key: "tile", text: "tile", value: "tile" },
+  { key: "flooring", text: "flooring", value: "flooring" }
+];
+
+const pricedBy = [
+  { key: "unit", text: "unit", value: "unit" },
+  { key: "square ft", text: "square ft", value: "square ft" },
+  { key: "linear ft", text: "linear ft", value: "linear ft" },
+  { key: "cubic ft", text: "cubic ft", value: "cubic ft" },
+  { key: "lb", text: "lb", value: "lb" },
+  { key: "board ft", text: "board ft", value: "board ft" },
+]
 
 const test = [
   {
@@ -147,7 +183,6 @@ const components = [
 ];
 
 const validate = combineValidators({
-  label: isRequired({ message: "Pleaes provide a label" }),
   component: isRequired({ message: "Please provide a component type" }),
   format: isRequired({ message: "Please select a format" }),
   minLength: composeValidators(
@@ -158,11 +193,7 @@ const validate = combineValidators({
     isRequired({ message: "Max Length is Required" }),
     isNumeric({ message: "Should be Numeric" })
   )(),
-  name: composeValidators(
-    isRequired({ message: "A short name is required" }),
-
-    hasLengthLessThan(10)({ message: "Should be less than 10 characters" })
-  )(),
+  name: composeValidators(isRequired({ message: "A name is required" }))(),
   rows: composeValidators(
     isRequired({ message: "Rows Required" }),
     isNumeric({ message: "Should be Numeric" })
@@ -171,12 +202,14 @@ const validate = combineValidators({
 
 class NewFieldForm extends Component {
   state = {
+    selectedSpecIndex: 0,
     results: icons,
     value: "",
     currentField: {},
+    customSpecs: 0,
     example: false,
     examplePhotos: [],
-
+    isMaterial: false,
     selectKey: "",
     selectText: "",
     selectValue: "",
@@ -190,14 +223,15 @@ class NewFieldForm extends Component {
 
     radioValue: "",
     radioItems: [],
-    fieldChanged: false
+    fieldChanged: false,
+    isleId: ""
     // selectedIcon: field&&field.icon
   };
 
   componentWillReceiveProps = nextProps => {
     if (nextProps.examplePhotoHasUpdated) {
       console.log("example photo Updated", nextProps);
-      this.setState({ examplePhotos: nextProps.examplePhotos });
+      this.setState({ examplePhotos: nextProps.examplePhotos, });
       this.props.handleUpdatedExamplePhoto();
       this.setState({ showExampleUploaded: false });
     }
@@ -216,23 +250,38 @@ class NewFieldForm extends Component {
         selectItems:
           (nextProps.selectedField && nextProps.selectedField.selectItems) ||
           [],
-    
+
         radioItems:
           (nextProps.radioedField && nextProps.radioedField.radioItems) || [],
         selectedComponent:
           (nextProps.selectedField &&
             nextProps.selectedField.component &&
             nextProps.selectedField.component.component) ||
-          "TextInput"
+          "TextInput",
+
+        isMaterial:
+          (nextProps.selectedField && nextProps.selectedField.isMaterial) ||
+          false,
+          isleId: nextProps.selectedField.isleId||"",
+        customSpecs:
+          (nextProps.selectedField && nextProps.selectedField.customSpecs) || 0
       });
 
       this.forceUpdate();
     }
-  };
+  }; 
+  
+  async componentWillUnmount() {
+    const { firestore } = this.props;
+    await firestore.unsetListener(`isles`);
+  }
 
-  componentDidMount() {
+  async componentDidMount() {
+    const { firestore } = this.props ||{};
+    await firestore.setListener(`isles`);
     this.setState({
       currentField: this.props.selectedField,
+
       value: this.props.selectedField.icon,
       example: this.props.selectedField.example || false,
       examplePhotos: this.props.selectedField.examplePhotos || [],
@@ -240,14 +289,39 @@ class NewFieldForm extends Component {
       selectItems:
         (this.props.selectedField && this.props.selectedField.selectItems) ||
         [],
-   
+
       radioItems:
         (this.props.radioedField && this.props.radioedField.radioItems) || [],
       selectedComponent:
         (this.props.selectedField && this.props.selectedField.component) ||
-        "TextInput"
+        "TextInput",
+
+      isMaterial:
+        (this.props.selectedField && this.props.selectedField.isMaterial) ||
+        false,
+        isleId: this.props.field.payload.value.isleId||"",
+      customSpecs:
+        (this.props.selectedField && this.props.selectedField.isMaterial) || 0
     });
   }
+
+
+
+
+  handleRenderList = isles => {
+    let item;
+    let list = [];
+    isles &&
+      isles.map(isle =>
+        list.push({
+          key: isle.id,
+          text: isle.name,
+          value: isle.id
+        })
+      );
+
+      return list;
+  };
   resetComponent = () =>
     this.setState({ isLoading: false, results: icons, value: "" });
 
@@ -263,6 +337,10 @@ class NewFieldForm extends Component {
     let photos = this.state.examplePhotos;
     photos[index].title = title;
     this.setState({ examplePhotos: photos, fieldChanged: true });
+  };
+
+  handleSelectSpecToExpand = index => {
+    this.setState({ selectedSpecIndex: index });
   };
 
   handleComponentSelect = (e, { value }) => {
@@ -296,13 +374,47 @@ class NewFieldForm extends Component {
     });
   };
 
+  handleSpecSubmit = async values => {
+    await this.props.addSpec(
+      this.state.currentField,
+      this.props.field.payload.key,
+      values
+    );
+  };
+
+  handleDeleteSpec = async (index) =>{
+    await this.props.deleteSpec(
+      this.state.currentField,
+      this.props.field.payload.key,
+      index
+    ); 
+  }
+
+  handleDeleteItemFromSpec = async (specIndex, itemIndex) => {
+    await this.props.deleteItemFromSpec(
+      this.state.currentField,
+      this.props.field.payload.key,
+      specIndex,
+      itemIndex
+    );
+  };
+
+  handleUpdateSpecItems = async (index, items) => {
+    await this.props.updateSpecItems(
+      this.state.currentField,
+      this.props.field.payload.key,
+      index,
+      items
+    );
+  };
+
   handleDropdownSubmit = () => {
     const {
       dropdownKey,
       dropdownText,
       selectItems,
       dropdownValue,
-    
+
       dropdownImage,
       dropdownNotes,
       dropdownPrice
@@ -311,10 +423,9 @@ class NewFieldForm extends Component {
       key: dropdownKey,
       text: dropdownText,
       value: dropdownValue,
-      price: dropdownPrice, 
-      notes: dropdownNotes, 
+      price: dropdownPrice,
+      notes: dropdownNotes,
       image: dropdownImage
-
     };
     let items = selectItems;
     items.push(newItem);
@@ -327,6 +438,12 @@ class NewFieldForm extends Component {
       dropdownImage: "",
       dropdownPrice: ""
     });
+  };
+
+  toggleMaterial = () => {
+    this.setState({ isMaterial: !this.state.isMaterial });
+
+    
   };
 
   handleRadioSubmit = () => {
@@ -344,20 +461,21 @@ class NewFieldForm extends Component {
     this.setState({ example: !this.state.example });
   };
   onFormSubmit = async values => {
+
+
     const { selectedIcon, example, selectItems } = this.state;
     if (this.props.initialValues) {
+      
       console.log("updated");
       await this.props.updateField(
         values,
-        selectedIcon,
         this.props.field.payload.key,
         example,
-        selectItems,
-        
+        selectItems
       );
     } else {
       console.log("created");
-      this.props.createField(values, selectedIcon, example, selectItems,);
+      this.props.createField(values, selectedIcon, example, selectItems);
     }
 
     this.setState({
@@ -388,15 +506,23 @@ class NewFieldForm extends Component {
     this.setState({ hoveredIcon: icon });
   };
 
+handleIsleSelect = e => {
+  this.setState({isleId: e.target.value})
+}
+
   render() {
-    const { invalid, submitting, pristine, loading, field } = this.props;
-    const { fieldChanged } = this.state;
+    const { invalid, submitting, pristine, loading, field , isles} = this.props || {};
+
+    const { fieldChanged, currentField } = this.state;
+    const { specs } = currentField || [];
+
+    const list = this.handleRenderList(isles);
     return (
       <div>
         <Button positive onClick={() => this.props.toggleEdit(false)}>
           BACK TO TASK
         </Button>
-
+        {/* 
         <IconSlider
           icons={this.state.results}
           currentField={this.state.currentField}
@@ -407,7 +533,7 @@ class NewFieldForm extends Component {
           selectedIcon={this.state.selectedIcon}
           value={this.state.value}
           handleSearchChange={this.handleSearchChange}
-        />
+        /> */}
 
         <Header sub color="teal" content="Field Details" />
 
@@ -417,281 +543,326 @@ class NewFieldForm extends Component {
               name="name"
               type="text"
               component={TextInput}
-              placeholder="Short Name"
-              maxlength="10"
+              placeholder="Name"
             />
-            <Field
-              name="label"
-              type="text"
-              component={TextInput}
-              placeholder="Display Label"
-            />
-            <Field
-              name="aboveMessage"
-              type="text"
-              component={TextInput}
-              placeholder="Above Message"
-            />
+
             <Field
               name="errorMessage"
               type="text"
               component={TextInput}
               placeholder="Error Message"
             />
-          </Form.Group>
 
-          <Form.Group inline>
             <Field
-              name="component"
-              type="text"
-              component={SelectInput}
-              onChange={this.handleComponentSelect}
-              options={components}
-              placeholder="Select Component Type"
+              name="isMaterial"
+              type="checkbox"
+              //   checked={this.state.example}
+              //    value={this.state.example}
+              onClick={this.toggleMaterial}
+              label="Is material"
+              component={Checkbox}
             />
-
-            {this.state.selectedComponent === "TextBox" && (
-              <label>
-                <Field
-                  name="rows"
-                  type="text"
-                  component={TextInput}
-                  placeholder="Enter Number of Rows"
-                />
-              </label>
-            )}
-
-            {this.state.selectedComponent === "TextInput" && (
-              <Form.Group inline>
-                min:{" "}
-                <Field
-                  name="minLength"
-                  type="text"
-                  component={TextInput}
-                  placeholder="Min Length"
-                />
-                max:{" "}
-                <Field
-                  name="maxLength"
-                  type="text"
-                  component={TextInput}
-                  placeholder="Max Length"
-                />
-              </Form.Group>
-            )}
-
-            {this.state.selectedComponent === "RadioInput" && (
-              <Grid>
-                <Grid.Column width={8}>
-                  <div>
-                    value
-                    <input
-                      value={this.state.radioValue}
-                      onChange={e =>
-                        this.setState({ radioValue: e.target.value })
-                      }
-                    />
-                    <Icon name="add" onClick={() => this.handleRadioSubmit()} />
-                  </div>
-                </Grid.Column>
-                <Grid.Column width={8}>
-                  <div
-                    style={{
-                      height: 100,
-                      backgroundColor: "grey",
-                      overflowX: "hidden",
-                      overflowY: "auto",
-                      position: "relative"
-                    }}
-                  >
-                    {this.state.radioItems &&
-                      this.state.radioItems.map(item => (
-                        <div>
-                          <label> VALUE </label>
-                          {item}
-                        </div>
-                      ))}
-                  </div>
-                </Grid.Column>
-              </Grid>
-            )}
-
-            {this.state.selectedComponent === "DropdownInput" && (
-              <Grid>
-                <Grid.Column width={8}>
-                  <div>
-                    key
-                    <input
-                      value={this.state.dropdownKey}
-                      onChange={e =>
-                        this.setState({ dropdownKey: e.target.value })
-                      }
-                    />
-                    text
-                    <input
-                      value={this.state.dropdownText}
-                      onChange={e =>
-                        this.setState({ dropdownText: e.target.value })
-                      }
-                    />
-                    value
-                    <input
-                      value={this.state.dropdownValue}
-                      onChange={e =>
-                        this.setState({ dropdownValue: e.target.value })
-                      }
-                    />
-                    image
-                    <input
-                      value={this.state.dropdownImage}
-                      onChange={e =>
-                        this.setState({ dropdownImage: e.target.value })
-                      }
-                    />
-                    price
-                    <input
-                      value={this.state.dropdownPrice}
-                      onChange={e =>
-                        this.setState({ dropdownPrice: e.target.value })
-                      }
-                    />
-                    notes
-                    <input
-                      value={this.state.dropdownNotes}
-                      onChange={e =>
-                        this.setState({ dropdownNotes: e.target.value })
-                      }
-                    />
-                    <Icon
-                      name="add"
-                      onClick={() => this.handleDropdownSubmit()}
-                    />
-                  </div>
-                </Grid.Column>
-                <Grid.Column width={8}>
-                  <div
-                    style={{
-                      height: 200,
-                      backgroundColor: "grey",
-                      overflowX: "hidden",
-                      overflowY: "auto",
-                      position: "relative"
-                    }}
-                  >
-                    {this.state.selectItems &&
-                      this.state.selectItems.map(item => (
-                        <div>
-                          <label>KEY </label> {item.key}
-                          <label> TEXT </label> {item.text}
-                          <label> VALUE </label>
-                          {item.value}
-                          <label> IMAGE </label>
-                          <image
-                            style={{ height: 50, width: 50 }}
-                            src={item.image}
-                          />
-                          <label> NOTES </label>
-                          {item.notes}
-                          <label> PRICE </label>
-                          {item.price}
-                        </div>
-                      ))}
-                  </div>
-                </Grid.Column>
-              </Grid>
-            )}
-
-            {this.state.selectedComponent === "SelectInput" && (
-              <Grid>
-                <Grid.Column width={8}>
-                  <div>
-                    key
-                    <input
-                      value={this.state.selectKey}
-                      onChange={e =>
-                        this.setState({ selectKey: e.target.value })
-                      }
-                    />
-                    text
-                    <input
-                      value={this.state.selectText}
-                      onChange={e =>
-                        this.setState({ selectText: e.target.value })
-                      }
-                    />
-                    value
-                    <input
-                      value={this.state.selectValue}
-                      onChange={e =>
-                        this.setState({ selectValue: e.target.value })
-                      }
-                    />
-                    <Icon
-                      name="add"
-                      onClick={() => this.handleSelectSubmit()}
-                    />
-                  </div>
-                </Grid.Column>
-                <Grid.Column width={8}>
-                  <div
-                    style={{
-                      height: 200,
-                      backgroundColor: "grey",
-                      overflowX: "hidden",
-                      overflowY: "auto",
-                      position: "relative"
-                    }}
-                  >
-                    {this.state.selectItems &&
-                      this.state.selectItems.map(item => (
-                        <div>
-                          <label>KEY </label> {item.key}
-                          <label> TEXT </label> {item.text}
-                          <label> VALUE </label>
-                          {item.value}
-                        </div>
-                      ))}
-                  </div>
-                </Grid.Column>
-              </Grid>
-            )}
           </Form.Group>
 
-          {(this.state.selectedComponent === "TextInput" ||
-            this.state.selectedComponent === "TextBox") && (
-            <Form.Group inline>
-              <Field
-                name="format"
-                type="radio"
-                value="none"
-                label="No Format"
-                component={RadioInput}
-              />
-              <Field
-                name="format"
-                type="radio"
-                value="numeric"
-                label="Numeric"
-                component={RadioInput}
-              />
-              <Field
-                name="format"
-                type="radio"
-                value="alphabetic"
-                label="Alphabetic"
-                component={RadioInput}
-              />
-              <Field
-                name="format"
-                type="radio"
-                value="alphanumeric"
-                label="Alphanumeric"
-                component={RadioInput}
-              />
-            </Form.Group>
-          )}
+          <Transition.Group animation="slide down" duration={300}>
+            {this.state.isMaterial ? (
+              <div>
+                <Form.Group inline>
+                  <Field
+                    name="isleId"
+                    type="text"
+                    component={SelectInput}
+                    options={list}
+                    placeholder="Isle"
+                  />
 
-          <Form.Group inline>
+
+<Field
+                    name="pricingUnit"
+                    type="text"
+                    component={SelectInput}
+                    onChange={this.handleComponentSelect}
+                    options={pricedBy}
+                    placeholder="Priced By"
+                  />
+            
+          <Button
+            disabled={invalid || submitting || (pristine && !fieldChanged)}
+            positive
+            loading={loading}
+            type="submit"
+          >
+            Update
+          </Button>
+                </Form.Group>
+
+                <SelectManager
+                handleDeleteSpec={this.handleDeleteSpec}
+                  specs={specs}
+                  selectedSpecIndex={this.state.selectedSpecIndex}
+                  handleSelectSpecToExpand={this.handleSelectSpecToExpand}
+                  handleDeleteItemFromSpec={this.handleDeleteItemFromSpec}
+                  handleUpdateSpecItems={this.handleUpdateSpecItems}
+                  handleSpecSubmit={this.handleSpecSubmit}
+                />
+              </div>
+            ) : (
+              <div>
+                <Form.Group inline>
+                  <Field
+                    name="component"
+                    type="text"
+                    component={SelectInput}
+                    onChange={this.handleComponentSelect}
+                    options={components}
+                    placeholder="Select Component Type"
+                  />
+
+                  {this.state.selectedComponent === "TextBox" && (
+                    <label>
+                      <Field
+                        name="rows"
+                        type="text"
+                        component={TextInput}
+                        placeholder="Enter Number of Rows"
+                      />
+                    </label>
+                  )}
+
+                  {this.state.selectedComponent === "TextInput" && (
+                    <Form.Group inline>
+                      min:{" "}
+                      <Field
+                        name="minLength"
+                        type="text"
+                        component={TextInput}
+                        placeholder="Min Length"
+                      />
+                      max:{" "}
+                      <Field
+                        name="maxLength"
+                        type="text"
+                        component={TextInput}
+                        placeholder="Max Length"
+                      />
+                    </Form.Group>
+                  )}
+
+                  {this.state.selectedComponent === "RadioInput" && (
+                    <Grid>
+                      <Grid.Column width={8}>
+                        <div>
+                          value
+                          <input
+                            value={this.state.radioValue}
+                            onChange={e =>
+                              this.setState({ radioValue: e.target.value })
+                            }
+                          />
+                          <Icon
+                            name="add"
+                            onClick={() => this.handleRadioSubmit()}
+                          />
+                        </div>
+                      </Grid.Column>
+                      <Grid.Column width={8}>
+                        <div
+                          style={{
+                            height: 100,
+                            backgroundColor: "grey",
+                            overflowX: "hidden",
+                            overflowY: "auto",
+                            position: "relative"
+                          }}
+                        >
+                          {this.state.radioItems &&
+                            this.state.radioItems.map(item => (
+                              <div>
+                                <label> VALUE </label>
+                                {item}
+                              </div>
+                            ))}
+                        </div>
+                      </Grid.Column>
+                    </Grid>
+                  )}
+
+                  {this.state.selectedComponent === "DropdownInput" && (
+                    <Grid>
+                      <Grid.Column width={8}>
+                        <div>
+                          key
+                          <input
+                            value={this.state.dropdownKey}
+                            onChange={e =>
+                              this.setState({ dropdownKey: e.target.value })
+                            }
+                          />
+                          text
+                          <input
+                            value={this.state.dropdownText}
+                            onChange={e =>
+                              this.setState({ dropdownText: e.target.value })
+                            }
+                          />
+                          value
+                          <input
+                            value={this.state.dropdownValue}
+                            onChange={e =>
+                              this.setState({ dropdownValue: e.target.value })
+                            }
+                          />
+                          image
+                          <input
+                            value={this.state.dropdownImage}
+                            onChange={e =>
+                              this.setState({ dropdownImage: e.target.value })
+                            }
+                          />
+                          price
+                          <input
+                            value={this.state.dropdownPrice}
+                            onChange={e =>
+                              this.setState({ dropdownPrice: e.target.value })
+                            }
+                          />
+                          notes
+                          <input
+                            value={this.state.dropdownNotes}
+                            onChange={e =>
+                              this.setState({ dropdownNotes: e.target.value })
+                            }
+                          />
+                          <Icon
+                            name="add"
+                            onClick={() => this.handleDropdownSubmit()}
+                          />
+                        </div>
+                      </Grid.Column>
+                      <Grid.Column width={8}>
+                        <div
+                          style={{
+                            height: 200,
+                            backgroundColor: "grey",
+                            overflowX: "hidden",
+                            overflowY: "auto",
+                            position: "relative"
+                          }}
+                        >
+                          {this.state.selectItems &&
+                            this.state.selectItems.map(item => (
+                              <div>
+                                <label>KEY </label> {item.key}
+                                <label> TEXT </label> {item.text}
+                                <label> VALUE </label>
+                                {item.value}
+                                <label> IMAGE </label>
+                                <image
+                                  style={{ height: 50, width: 50 }}
+                                  src={item.image}
+                                />
+                                <label> NOTES </label>
+                                {item.notes}
+                                <label> PRICE </label>
+                                {item.price}
+                              </div>
+                            ))}
+                        </div>
+                      </Grid.Column>
+                    </Grid>
+                  )}
+
+                  {this.state.selectedComponent === "SelectInput" && (
+                    <Grid>
+                      <Grid.Column width={8}>
+                        <div>
+                          key
+                          <input
+                            value={this.state.selectKey}
+                            onChange={e =>
+                              this.setState({ selectKey: e.target.value })
+                            }
+                          />
+                          text
+                          <input
+                            value={this.state.selectText}
+                            onChange={e =>
+                              this.setState({ selectText: e.target.value })
+                            }
+                          />
+                          value
+                          <input
+                            value={this.state.selectValue}
+                            onChange={e =>
+                              this.setState({ selectValue: e.target.value })
+                            }
+                          />
+                          <Icon
+                            name="add"
+                            onClick={() => this.handleSelectSubmit()}
+                          />
+                        </div>
+                      </Grid.Column>
+                      <Grid.Column width={8}>
+                        <div
+                          style={{
+                            height: 200,
+                            backgroundColor: "grey",
+                            overflowX: "hidden",
+                            overflowY: "auto",
+                            position: "relative"
+                          }}
+                        >
+                          {this.state.selectItems &&
+                            this.state.selectItems.map(item => (
+                              <div>
+                                <label>KEY </label> {item.key}
+                                <label> TEXT </label> {item.text}
+                                <label> VALUE </label>
+                                {item.value}
+                              </div>
+                            ))}
+                        </div>
+                      </Grid.Column>
+                    </Grid>
+                  )}
+                </Form.Group>
+
+                {(this.state.selectedComponent === "TextInput" ||
+                  this.state.selectedComponent === "TextBox") && (
+                  <Form.Group inline>
+                    <Field
+                      name="format"
+                      type="radio"
+                      value="none"
+                      label="No Format"
+                      component={RadioInput}
+                    />
+                    <Field
+                      name="format"
+                      type="radio"
+                      value="numeric"
+                      label="Numeric"
+                      component={RadioInput}
+                    />
+                    <Field
+                      name="format"
+                      type="radio"
+                      value="alphabetic"
+                      label="Alphabetic"
+                      component={RadioInput}
+                    />
+                    <Field
+                      name="format"
+                      type="radio"
+                      value="alphanumeric"
+                      label="Alphanumeric"
+                      component={RadioInput}
+                    />
+                  </Form.Group>
+                )}
+
+<Form.Group inline>
             <Field
               name="required"
               type="checkbox"
@@ -722,6 +893,11 @@ class NewFieldForm extends Component {
             />
           </Form.Group>
 
+              </div>
+            )}
+          </Transition.Group>
+
+      
           {this.state.units && (
             <Field
               name="units"
@@ -770,6 +946,7 @@ class NewFieldForm extends Component {
                 ))}
             </div>
           )}
+          {!this.state.isMaterial&&
           <Button
             disabled={invalid || submitting || (pristine && !fieldChanged)}
             positive
@@ -777,7 +954,7 @@ class NewFieldForm extends Component {
             type="submit"
           >
             Submit
-          </Button>
+          </Button>}
         </Form>
       </div>
     );

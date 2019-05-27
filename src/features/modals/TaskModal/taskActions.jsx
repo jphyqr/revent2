@@ -11,7 +11,7 @@ import {
 
   import { createNewTask} from "../../../app/common/util/helpers";
 
-
+import cuid from 'cuid'
   export const clearTask = () => async (dispatch, getState) =>{
 
     console.log('clearing task')
@@ -397,14 +397,26 @@ import {
 
 
 
-      export const uploadTaskPhoto = (key,displayURL) => {
+      export const uploadTaskPhoto = (key,file) => {
         return async (dispatch, getState, {getFirebase, getFirestore} )=> {
           dispatch(asyncActionStart());
           const firebase = getFirebase();
           const firestore = getFirestore();
-          
-          try {   
+          const userProfile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
 
+  const imageName = cuid();
+
+
+
+  const path = `${user.uid}/user_images`;
+  const options = {
+    name: imageName
+  };
+          try {   
+            let uploadedFile = await firebase.uploadFile(path, file, null, options);
+            //get url of image
+            let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
 
             let taskDoc = await firestore.get(`tasks/${key}`);
 
@@ -421,16 +433,16 @@ import {
                 subcollections: [{ collection: "taskPhotos" }]
               },
               {
-                url: displayURL
+                url: downloadURL
               }
             );
 
-            await firestore.update(`tasks/${key}`, { displayURL: displayURL });
+            await firestore.update(`tasks/${key}`, { displayURL: downloadURL });
       
 
             dispatch(asyncActionFinish());
             toastr.success("Success", "Task photo has been uploaded");
-            return displayURL
+            return downloadURL
           } catch (error) {
             dispatch(asyncActionError());
             toastr.error("Oops", "Something went wrong");

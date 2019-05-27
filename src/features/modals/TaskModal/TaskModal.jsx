@@ -90,9 +90,9 @@ class TaskModal extends Component {
 
 
 
-  handlePhotoUploaded = async url => {
-    console.log("photo uploaded url", url);
-    let displayURL = await this.props.uploadTaskPhoto(this.props.task.key, url);
+  handlePhotoUploaded = async file => {
+    console.log("photo uploaded file", file);
+    let displayURL = await this.props.uploadTaskPhoto(this.props.task.key, file);
     this.setState({ displayURL: displayURL });
     this.setState({ displayPhotoHasUpdated: true });
   };

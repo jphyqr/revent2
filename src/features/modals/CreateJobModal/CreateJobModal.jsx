@@ -53,9 +53,9 @@ class CreateJobModal extends Component {
 
  handleOnUpdate = (e, { width }) => this.setState({ width })
 
-  handlePhotoUploaded = async url => {
-    console.log("Create JobModal photo uploaded url", url);
-    await this.props.uploadJobPhoto(this.props.draft.key, url);
+  handlePhotoUploaded = async file => {
+    console.log("Create JobModal photo uploaded file", file);
+    await this.props.uploadJobPhoto(this.props.draft.key, file);
     //this.setState({ exampleURL: exampleURL });
     //this.setState({ examplePhotoHasUpdated: true });
   };

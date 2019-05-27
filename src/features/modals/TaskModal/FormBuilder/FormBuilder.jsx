@@ -4,7 +4,8 @@ import { connect } from "react-redux";
 import {
   selectFieldToEdit,
   updateExamplePhoto,
-  uploadExamplePhoto
+  uploadExamplePhoto,
+  deleteField
 } from "../../NewFieldModal/fieldActions";
 import FieldsPalette from "../../NewFieldModal/FieldsPalette/FieldsPalette";
 import FieldsSlider from "../../NewFieldModal/FieldsSlider/FieldsSlider";
@@ -23,7 +24,8 @@ const actions = {
   selectFieldToEdit,
   updateFormDraft,
   updateExamplePhoto,
-  uploadExamplePhoto
+  uploadExamplePhoto,
+  deleteField
 };
 
 class FormBuilder extends Component {
@@ -52,17 +54,25 @@ class FormBuilder extends Component {
     this.props.updateFormDraft(this.props.task, this.state.selectedFields);
   };
 
+
+handleDeleteField = async id => {
+  console.log('handleDeleteField')
+  await this.props.deleteField(id)
+}
+
+
+handleNewField = async () => {
+  this.setState({ fieldLoading: true, editField: true });
+  let newField = await this.props.selectFieldToEdit({});
+  console.log({ newField });
+  this.setState({ selectedField: newField });
+  this.setState({ fieldLoading: false });
+  this.props.toggleEdit(true);
+
+}
+
   handleSelectField = async field => {
-    console.log({ field });
-    if (field.label === "New Field") {
-      this.setState({ fieldLoading: true, editField: true });
-      let newField = await this.props.selectFieldToEdit({});
-      console.log({ newField });
-      this.setState({ selectedField: field });
-      this.setState({ fieldLoading: false });
-      this.props.toggleEdit(true);
-      //    this.forceUpdate()
-    } else {
+
       this.setState({ fieldLoading: true });
       let newField = await this.props.selectFieldToEdit(field);
       console.log({ newField });
@@ -71,7 +81,7 @@ class FormBuilder extends Component {
       this.setState({ fieldLoading: false });
       this.props.toggleEdit(true);
       //this.forceUpdate()
-    }
+    
   };
 
   onDrop = async (ev, index) => {
@@ -135,13 +145,20 @@ class FormBuilder extends Component {
     const { task } = this.props;
     const { selectedFields, editField } = this.state;
     return (
-      <div>
+      <Grid>
+
+        <Grid.Column width={4}>
+
         <FieldsSlider
           fields={this.props.fields}
           onDragStart={this.onDragStart}
           handleSelectField={this.handleSelectField}
+          handleNewField = {this.handleNewField}
+          handleDeleteField={this.handleDeleteField}
         />
 
+        </Grid.Column>
+        <Grid.Column width={12}>
         {this.props.showEdit ? (
           <NewFieldForm
             toggleEdit={this.props.toggleEdit}
@@ -159,7 +176,12 @@ class FormBuilder extends Component {
             selectedFields={this.state.selectedFields}
           />
         )}
-      </div>
+
+        </Grid.Column>
+      </Grid>
+        
+
+
     );
   }
 }

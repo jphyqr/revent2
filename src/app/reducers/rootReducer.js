@@ -12,6 +12,7 @@ import authReducer from '../../features/auth/authReducer';
 import fieldReducer from '../../features/modals/NewFieldModal/fieldReducer'
 import asyncReducer from '../../features/async/asyncReducer'
 import videoReducer from '../../features/modals/VideoModal/videoReducer'
+import itemReducer from '../../features/job/JobDashboard/SupplierDashboard/itemReducer'
 import notificationReducer from '../../features/user/notificationReducer'
 import {firebaseReducer} from 'react-redux-firebase'
 import {firestoreReducer} from 'redux-firestore'
@@ -44,7 +45,8 @@ const rootReducer = combineReducers({
   contract: contractReducer,
   role: roleReducer,
   notifications: notificationReducer,
-  video:videoReducer
+  video:videoReducer,
+  item:itemReducer
 })
 
 export default rootReducer

@@ -26,6 +26,11 @@ const query = ({ auth }) => {
         storeAs: "onboarder_user_profile"
       },
       {
+        collection: "supplier_users",
+        doc: auth.uid,
+        storeAs: "supplier_user_profile"
+      },
+      {
         collection: "join_alpha",
         doc: auth.uid,
         storeAs: "alpha_profile"
@@ -81,6 +86,12 @@ const mapState = state => {
       (state.firestore.ordered.onboarder_user_profile &&
         state.firestore.ordered.onboarder_user_profile[0] &&
         state.firestore.ordered.onboarder_user_profile[0].isOnboarder) ||
+      false,
+
+      isSupplier:
+      (state.firestore.ordered.supplier_user_profile &&
+        state.firestore.ordered.supplier_user_profile[0] &&
+        state.firestore.ordered.supplier_user_profile[0].isSupplier) ||
       false,
 
     isAlpha:
@@ -144,6 +155,7 @@ class SignedInMenu extends Component {
       newNotification,
       isAdmin,
       isOnboarder,
+      isSupplier,
       isAlpha,
       verified,
       hideHowToPost
@@ -155,7 +167,8 @@ class SignedInMenu extends Component {
       this.props.isAdmin,
       this.props.isOnboarder,
       this.props.isAlpha,
-      this.props.verified
+      this.props.verified,
+      this.props.isSupplier
     );
 
     await this.setState({
@@ -183,6 +196,7 @@ class SignedInMenu extends Component {
       newNotification,
       isAdmin,
       isOnboarder,
+      isSupplier,
       isAlpha, hideHowToPost
     } = nextProps || {};
 
@@ -196,7 +210,8 @@ class SignedInMenu extends Component {
         nextProps.isAdmin,
         nextProps.isOnboarder,
         nextProps.isAlpha,
-        this.props.verified
+        this.props.verified,
+        nextProps.isSupplier
       );
     }
 

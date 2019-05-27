@@ -29,7 +29,6 @@ import PlaceInput from "../../../../app/common/form/PlaceInput";
 import DateInput from "../../../../app/common/form/DateInput";
 import DropdownInput from '../../../../app/common/form/DropdownInput'
 const validate = combineValidators({
-  label: isRequired({ message: "Pleaes provide a label" }),
   component: isRequired({ message: "Please provide a component type" }),
   format: isRequired({ message: "Please select a format" }),
   minLength: composeValidators(
@@ -41,7 +40,7 @@ const validate = combineValidators({
     isNumeric({ message: "Should be Numeric" })
   )(),
   name: composeValidators(
-    isRequired({ message: "Max Length is Required" }),
+    isRequired({ message: "Name is Required" }),
     isAlphabetic({ message: "Should be Alphabetic" })
   )(),
   rows: composeValidators(
@@ -79,10 +78,10 @@ class FormDraft extends Component {
       <div
   
         style={{
-          height: 300,
+          height: 500,
           marginBottom: 1,
           marginTop: 5,
-          width: "1000px",
+          width: "100%",
           backgroundColor: "snowwhite",
           overflowX: "hidden",
           overflowY: "auto",
@@ -115,24 +114,30 @@ class FormDraft extends Component {
                   index
                 ) => (
                   <div
-                    onClick={() => this.props.onDelete(id)}
+                    
                     style={{  backgroundColor: "snowwhite" }}
                   >
-                <div  onDragOver={e => this.onDragOver(e)} onDrop={e => this.props.onDrop(e, index)} style={{ marginBottom:10, marginTop:10, border:'dashed 2px lightgrey', backgroundColor:"WhiteSmoke", height:'20px'}}></div>
-                    <Label>{aboveMessage}</Label>
+                <div  onDragOver={e => this.onDragOver(e)} onDrop={e => this.props.onDrop(e, index)} style={{ marginBottom:10, marginTop:10, border:'dashed 2px lightgrey', backgroundColor:"WhiteSmoke", height:'40px'}}></div>
+                
 
-                    <Grid>
-                      <Grid.Column width={12}>
+                    <Grid style={{backgroundColor:"green"}}>
+                    <Grid.Column width={3}>
+                        <Button onClick={() => this.props.onDelete(id)}>X</Button>
+                      </Grid.Column>
+                      <Grid.Column width={3}>
+                      <Label>{name}</Label>
+                      </Grid.Column>
+                      <Grid.Column width={6}>
                         {" "}
                         <Field
                           key={index}
                           name={name}
                           type={type}
-                          placeholder={label}
+                          placeholder={name}
                           options={selectItems}
                           //      value={this.state.required}
                           //   onClick={this.handleChange}
-                          label={label}
+                          label={name}
                           component={
                             component.component === "TextInput"
                               ? TextInput

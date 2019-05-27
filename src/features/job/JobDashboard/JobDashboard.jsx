@@ -3,7 +3,7 @@ import { Grid, Responsive, Sticky, Button, Segment, Container , Image, Loader,Po
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { connect } from "react-redux";
 import JobMap from "./JobMap";
-
+import SupplierDashboard from './SupplierDashboard/SupplierDashboard'
 import RightSidebar from './RightSidebar/RightSidebar'
 import JobList from "../JobList/JobList";
 import { getJobsForDashboard, getAllJobsForDashboard } from "../jobActions";
@@ -298,6 +298,13 @@ class JobDashboard extends Component {
                 <LabourList compactDisplayMode/>
              </Transition.Group>
                 :
+
+                (this.state.navShow==="supplier") ?
+                <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="supplier")}>
+                <SupplierDashboard compactDisplayMode={compactDisplayMode}/>
+             </Transition.Group>
+                :
+                
                 (this.state.navShow==="supporters") ? 
                 <Transition.Group animation='scale' duration={2000} visible={(this.state.navShow==="supporters")}>
                 <SupportersContainer/>

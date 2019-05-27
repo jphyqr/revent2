@@ -32,15 +32,8 @@ state={
   selectedField: {}
 }
   handleSelectField  = async field => {
-    if(field.icon==='add'){
-      this.setState({fieldLoading:true})
-      let newField = await this.props.selectFieldToEdit({})
-      console.log('newFieldModal' ,newField)
-      this.setState({ selectedField: this.props.field.payload.value });
-      this.setState({fieldLoading:false})
-      this.forceUpdate()
-    }
-    else{
+
+  
       this.setState({fieldLoading:true})
       let newField = await this.props.selectFieldToEdit(field)
       console.log({newField})
@@ -48,9 +41,21 @@ state={
       this.setState({fieldLoading:false})
       this.forceUpdate()
 
-    }
+    
 
   };
+
+
+  handleNewField = async () => {
+   
+      this.setState({fieldLoading:true})
+      let newField = await this.props.selectFieldToEdit({})
+      console.log('newFieldModal' ,newField)
+      this.setState({ selectedField: this.props.field.payload.value });
+      this.setState({fieldLoading:false})
+      this.forceUpdate()
+    
+  }
 
   async componentDidMount() {
     const { firestore } = this.props;
@@ -74,7 +79,7 @@ state={
           <Grid><Grid.Column width={10}>  <NewFieldForm selectedField={this.state.selectedField} /></Grid.Column>
           <Grid.Column width={1}>
     <Divider vertical>Edit</Divider></Grid.Column>
-          <Grid.Column width={5}><FieldsPalette  handleSelectField={this.handleSelectField} fields={fields}/></Grid.Column>
+          <Grid.Column width={5}><FieldsPalette  handleNewField={this.handleNewField} handleSelectField={this.handleSelectField} fields={fields}/></Grid.Column>
           </Grid>
         
         </Modal.Description>

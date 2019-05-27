@@ -16,8 +16,10 @@ import ProfileModal from './ProfileModal/ProfileModal'
 import LabourProfileModal from './LabourProfileModal/LabourProfileModal'
 import JoinBetaModal from './JoinBetaModal/JoinBetaModal'
 import BuildModal from './MobileModals/BuildModal/BuildModal'
+import SupplierProfileModal from './SupplierProfileModal/SupplierProfileModal'
 import OnboardingModal from './OnboardingModal/OnboardingModal'
 import VideoModal from './VideoModal/VideoModal'
+import ManageItemModal from './ManageItemModal/ManageItemModal'
 const modalLookup = {
   TestModal,
   LoginModal,
@@ -36,7 +38,9 @@ const modalLookup = {
   JoinBetaModal,
   BuildModal,
   OnboardingModal,
-  VideoModal
+  VideoModal,
+  SupplierProfileModal,
+  ManageItemModal
 }
 
 const mapState = (state) => ({

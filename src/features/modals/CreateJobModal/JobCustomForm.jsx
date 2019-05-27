@@ -99,7 +99,7 @@ class JobCustomForm extends Component {
                   {" "}
                   <Field
                     key={index}
-                    name={name}
+                    name={label}
                     type={component.type}
                     placeholder={label}
                     options={selectItems}
