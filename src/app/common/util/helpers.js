@@ -69,7 +69,7 @@ console.log({showState})
 
 
 
-export const createNewItem  =  (fieldData, fieldId, user) => {
+export const createNewItem  =  (fieldData, fieldId, user, supplierData) => {
 
   return {
     ...fieldData,
@@ -77,6 +77,7 @@ export const createNewItem  =  (fieldData, fieldId, user) => {
     supplierEmail: user.email,
     supplierUid: user.uid,
     created: Date.now(),
+    supplierData: supplierData
 
   };
 };

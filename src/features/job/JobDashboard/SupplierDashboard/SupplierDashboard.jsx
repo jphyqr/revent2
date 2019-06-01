@@ -41,7 +41,7 @@ const mapState = state => {
     auth: state.firebase.auth,
     role: state.role,
     loading: state.async.loading,
-
+    
     supplierProfile:
       (state.firestore.ordered.supplier_profile &&
         state.firestore.ordered.supplier_profile[0]) ||
@@ -51,7 +51,7 @@ const mapState = state => {
 
 const actions = { createItem, openModal, deleteItem, editItem };
 class SupplierDashboard extends Component {
-  state = { selectedIsle: "", navShow: "profile" };
+  state = { selectedIsle: "", navShow: "markets", createItemLoader:false, isleListLoader:false };
 
   async componentWillUnmount() {
     const { firestore } = this.props;
@@ -64,8 +64,11 @@ class SupplierDashboard extends Component {
   }
 
   handleCreateItem = async id => {
+    this.setState({createItemLoader:true, clickedItemId:id})
     await this.props.createItem(id);
+    
     this.props.openModal("ManageItemModal");
+    this.setState({createItemLoader:false, clickedItemId:""})
   };
 
   handleEditItem = async item => {
@@ -105,7 +108,11 @@ class SupplierDashboard extends Component {
     return list;
   };
 
+  cancelItemListLoader = () =>{
+    this.setState({isleListLoader:false})
+  }
   handleChange = (e, { value }) => {
+    this.setState({isleListLoader:true})
     this.setState({ selectedIsle: value });
   };
   render() {
@@ -113,10 +120,11 @@ class SupplierDashboard extends Component {
       compactDisplayMode,
       isles,
       auth,
-      role,
+      
       supplierProfile,
-      openModal
-    } = this.props;
+      openModal, requesting
+    } = this.props || {};
+    const {isSupplier} = supplierProfile || false 
     const { navShow } = this.state;
     const list = this.handleRenderList(isles);
     return (
@@ -133,9 +141,10 @@ class SupplierDashboard extends Component {
       >
         <NavBar
           compactDisplayMode={compactDisplayMode}
-          role={role}
+          isSupplier={isSupplier}
           handleSelectTab={this.handleSelectTab}
           navShow={this.state.navShow}
+          role={this.props.role}
         />
         {this.state.loading ? (
           <Loader active inline="centered" />
@@ -153,18 +162,32 @@ class SupplierDashboard extends Component {
               selection
               options={list}
               onChange={this.handleChange}
+              value={this.state.selectedIsle}
             />
-
-            <IsleList
-              handleCreateItem={this.handleCreateItem}
-              selectedIsle={this.state.selectedIsle}
-            />
+   {(!isLoaded(isles)  || requesting) ?  <Loader inverted={true} /> : 
+  
+  <IsleList
+  cancelItemListLoader ={this.cancelItemListLoader}
+  isleListLoader={this.state.isleListLoader}
+  createItemLoader = {this.state.createItemLoader}
+  clickedItemId={this.state.clickedItemId}
+  handleCreateItem={this.handleCreateItem}
+  selectedIsle={this.state.selectedIsle}
+  isSupplier={isSupplier}
+  supplierProfile={supplierProfile}
+  openModal = {this.props.openModal}
+  
+/>
+  }
+     
+           
           </div>
         ) : navShow === "listings" ? (
           <div>
             <MyItems
               selectedIsle={this.state.selectedIsle}
               auth={auth}
+              compactDisplayMode
               handleDeleteItem={this.handleDeleteItem}
               handleEditItem={this.handleEditItem}
             />

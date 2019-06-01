@@ -48,7 +48,7 @@ class ManageItemModal extends Component {
     return (
       <Modal closeIcon="close" open={true} onClose={closeModal}>
         <Modal.Header>{name}</Modal.Header>
-        <Modal.Content style={{width:400}}>
+        <Modal.Content style={{width:"auto"}}>
           <Modal.Description>
             <Form onSubmit={this.props.handleSubmit(this.handleSubmit)}>
             <Form.Group inline> 
@@ -76,10 +76,17 @@ class ManageItemModal extends Component {
                             />
 
             ))}
-           
+
+<Field
+                    name="productName"
+                    type="text"
+                    
+                    component={TextInput}
+                    placeholder="Product Name"
+                  />            
            
             <Field
-                    name="description"
+                    name="productDescription"
                     type="text"
                     
                     component={TextArea}
@@ -94,7 +101,15 @@ class ManageItemModal extends Component {
                     component={TextInput}
                     
                     placeholder="Product Website"
-                  />            
+                  />
+
+                  <Field
+                    name="productInventory"
+                    type="text"
+                    
+                    component={TextInput}
+                    placeholder="Inventory"
+                  />              
               <PhotoUpload handlePhotoUploaded={this.handlePhotoUploaded} />
               {itemPhotoUrl && (
                 <Image size="small" src={itemPhotoUrl || "/assets/user.png"} />

@@ -28,13 +28,22 @@ import Cropper from "react-cropper";
 import { compose } from "redux";
 import { Field, reduxForm } from "redux-form";
 import PhotoUpload from "../../../app/common/form/PhotoUpload/PhotoUpload";
+import {
+  composeValidators,
+  combineValidators,
+  isRequired,
+  hasLengthGreaterThan,
+  isNumeric,
+  hasLengthBetween
+} from "revalidate";
 //import { clearQuote, hireContractor } from "../QuoteJobModal/quoteActions";
 import {
   uploadProfileImage,
   deletePhoto,
   setMainPhoto,
   updateSupplierProfile,
-  updateSupplierPhoto
+  updateSupplierPhoto,
+  createSupplierProfile
 } from "../../user/userActions";
 import { isEmpty, isLoaded } from "react-redux-firebase";
 import moment from "moment";
@@ -51,7 +60,8 @@ const actions = {
   deletePhoto,
   setMainPhoto,
   updateSupplierProfile,
-  updateSupplierPhoto
+  updateSupplierPhoto,
+  createSupplierProfile
 };
 
 const query = ({ auth }) => {
@@ -71,6 +81,7 @@ const mapState = state => {
     auth: state.firebase.auth,
     isles: state.firestore.ordered.isles,
     profile: state.firebase.profile,
+    role: state.role,
     supplierProfile:
       (state.firestore.ordered.supplier_profile &&
         state.firestore.ordered.supplier_profile[0]) ||
@@ -82,6 +93,19 @@ const mapState = state => {
   };
 };
 
+const validate = combineValidators({
+  storeName: isRequired({ message: "Store name required" }),
+  storePhoneNumber: composeValidators(
+    isRequired({ message: "Store name required" }),
+    isNumeric({ message: "Should be Numeric" }),
+    hasLengthBetween(10, 10)({
+      message: "Phone number is 10 digits long"
+    })
+  )(),
+  city: isRequired("city"),
+  venue: isRequired("venue")
+});
+
 class SupplierProfileModal extends Component {
   state = {
     files: [],
@@ -92,7 +116,7 @@ class SupplierProfileModal extends Component {
     cityLatLng: {},
     venueLatLng: {},
     selectedCity: "",
-    scriptLoaded: false,
+    scriptLoaded: false
   };
 
   cancelCrop = () => {
@@ -135,12 +159,9 @@ class SupplierProfileModal extends Component {
 
   handleScriptLoaded = () => this.setState({ scriptLoaded: true });
 
-
   async componentWillUnmount() {
     const { firestore } = this.props;
     await firestore.unsetListener(`isles`);
-
-
   }
 
   async componentDidMount() {
@@ -148,11 +169,12 @@ class SupplierProfileModal extends Component {
     await firestore.setListener(`isles`);
 
     if (this.props.initialValues) {
-        this.handleVenueSelect(this.props.initialValues.venue);
-        this.setState({selectedIsles: this.props.supplierProfile.selectedIsles || []})
-      }
+      this.handleVenueSelect(this.props.initialValues.venue);
+      this.setState({
+        selectedIsles: this.props.supplierProfile.selectedIsles || []
+      });
+    }
   }
-
 
   handleCitySelect = selectedCity => {
     geocodeByAddress(selectedCity)
@@ -180,16 +202,16 @@ class SupplierProfileModal extends Component {
       });
   };
 
-   renderLabel = label => ({
-    color: 'blue',
+  renderLabel = label => ({
+    color: "blue",
     content: `Customized label - ${label.text}`,
-    icon: 'check',
-  })
+    icon: "check"
+  });
 
   handlePhotoUploaded = async file => {
     await this.props.updateSupplierPhoto(file);
     //this.setState({ exampleURL: exampleURL });
-    //this.setState({ examplePhotoHasUpdated: true });
+    this.setState({ photoChanged: true });
   };
 
   uploadImage = async () => {
@@ -207,37 +229,39 @@ class SupplierProfileModal extends Component {
   };
 
   handleChange = (e, { value }) => {
-      console.log({value})
+    console.log({ value });
     this.setState({ selectedIsles: value });
   };
 
-
   handleSubmit = async values => {
+    values.venueLatLng = this.state.venueLatLng;
+    values.selectedIsles = this.state.selectedIsles;
 
+    const { role } = this.props || {};
+    const { isSupplier } = role || false;
 
-        values.venueLatLng = this.state.venueLatLng;
-        values.selectedIsles  = this.state.selectedIsles
-        await this.props.updateSupplierProfile(values);
-    
-
-
-  
-    
+    if (isSupplier) {
+      await this.props.updateSupplierProfile(values);
+    } else {
+      await this.props.createSupplierProfile(values);
+    }
   };
-
-
 
   render() {
     const {
+      invalid,
+      submitting,
+      pristine,
       photos,
       profile,
       loading,
       updateSupplierProfile,
-      pristine,
-      submitting,
+      role,
       supplierProfile,
       isles
     } = this.props;
+
+    const { isSupplier } = supplierProfile || false;
     const list = this.handleRenderList(isles);
     const { storePhotoUrl } = supplierProfile || {};
     let filteredPhotos;
@@ -259,10 +283,10 @@ class SupplierProfileModal extends Component {
             style={{ overflowY: "auto", overflowX: "hidden", height: "1200px" }}
           >
             <Segment>
-            <Form
-                  style={{ margin: "10px" }}
-                  onSubmit={this.props.handleSubmit(this.handleSubmit)}
-                >
+              <Form
+                style={{ margin: "10px" }}
+                onSubmit={this.props.handleSubmit(this.handleSubmit)}
+              >
                 <Form.Group inline>
                   <Field
                     width={8}
@@ -281,7 +305,7 @@ class SupplierProfileModal extends Component {
                     component={TextInput}
                     placeholder="Store Website URL"
                   />
-                              <Field
+                  <Field
                     width={8}
                     name="storePhoneNumber"
                     type="text"
@@ -331,33 +355,43 @@ class SupplierProfileModal extends Component {
                   />
                 </Form.Group>
 
+                <Dropdown
+                  placeholder="Select Isle"
+                  fluid
+                  multiple
+                  selection
+                  options={list}
+                  onChange={this.handleChange}
+                  value={this.state.selectedIsles}
+                  renderLabel={this.renderLabel}
+                />
                 <Divider />
+
+                {isSupplier && (
+                  <div>
+                    <Header sub color="teal" content="Store Photo" />
+                    <PhotoUpload
+                      handlePhotoUploaded={this.handlePhotoUploaded}
+                    />
+                    {storePhotoUrl && (
+                      <Image
+                        size="small"
+                        src={storePhotoUrl || "/assets/user.png"}
+                      />
+                    )}
+                  </div>
+                )}
                 <Button
-                  disabled={pristine || submitting}
+                  disabled={
+                    invalid ||
+                    submitting ||
+                    (pristine && !this.state.photoChanged)
+                  }
                   size="large"
                   positive
                   content="Update Profile"
                 />
-
-<Dropdown
-              placeholder="Select Isle"
-              fluid
-              multiple
-              selection
-              options={list}
-              onChange={this.handleChange}
-              value={this.state.selectedIsles}
-              renderLabel={this.renderLabel}
-            />
-
               </Form>
-
-              <Divider />
-              <Header sub color="teal" content="Store Photo" />
-              <PhotoUpload handlePhotoUploaded={this.handlePhotoUploaded} />
-              {storePhotoUrl && (
-                <Image size="small" src={storePhotoUrl || "/assets/user.png"} />
-              )}
             </Segment>
           </div>
         </Modal.Content>
@@ -375,6 +409,7 @@ export default compose(
   reduxForm({
     form: "supplierProfile",
     enableReinitialize: true,
-    destroyOnUnmount: false
+    destroyOnUnmount: false,
+    validate
   })
 )(SupplierProfileModal);

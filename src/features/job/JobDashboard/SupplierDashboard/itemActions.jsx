@@ -62,7 +62,9 @@ import {
         console.log({ fieldDoc });
         let fieldData = fieldDoc.data();
 
-        let newItemInDraft = createNewItem(fieldData, fieldId, user)
+        let supplierDoc = await firestore.get(`supplier_users/${user.uid}`)
+        let supplierData = supplierDoc.data()
+        let newItemInDraft = createNewItem(fieldData, fieldId, user, supplierData)
 
 
         let createdItem = await firestore.add(`items`, newItemInDraft);

@@ -1,9 +1,21 @@
 import React, { Component } from 'react'
 import OpenJobItem from './OpenJobItem'
 class OpenJobsSlider extends Component {
+
+state={jobsLoading:true}
+
+  componentWillReceiveProps(nextProps){
+
+
+
+      console.log('newJobsLoading:', nextProps.jobsLoading)
+      this.setState({jobsLoading:nextProps.jobsLoading})
+    
+  }
   render() {
       const {jobs, compactDisplayMode, COMPACT_ITEM_HEIGHT,COMPACT_ITEM_WIDTH,REGULAR_ITEM_HEIGHT,REGULAR_ITEM_WIDTH,} = this.props
-    return (
+      
+      return (
         <div
         class="list"
       //  onMouseEnter={this.props.onMouseEnterHandler}
@@ -26,7 +38,34 @@ class OpenJobsSlider extends Component {
       >
         {jobs &&
           jobs.map((job, i) => (
+
+            false? //(this.props.jobsLoading||this.props.quotesLoading)?
+            <div
+           
+            style={{
+              boxShadow:
+                "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+              display: "inline-block",
+              height: compactDisplayMode ? COMPACT_ITEM_HEIGHT:REGULAR_ITEM_HEIGHT , // this.state.hovered ? 200 : 150,
+              width: compactDisplayMode ? COMPACT_ITEM_WIDTH:REGULAR_ITEM_WIDTH ,
+              marginLeft: 5,
+              //left: this.state.hovered ? -30: 0,
+              opacity: 0.8,
+              
+              // transition: "opacity 1500ms, height 1500ms , width 1500ms ",
+              //   transform: this.state.hovered ? "scaleY(1.5)" : this.props.scrollRightClicked ? "translateX(-500%)" : "scaleY(1)" ,
+              //transform: this.state.clicked ? "translateX(-100%)" : "translateX(0%)",
+              // transformOrigin: "50% 50%",
+              boxSizing: "border-box",
+              transition: "0.15s all ease",
+              //  transitionDelay: "100ms"
+            }}
+          />
+            
+
+            :
             <OpenJobItem
+      
             compactDisplayMode={compactDisplayMode}
             COMPACT_ITEM_HEIGHT={COMPACT_ITEM_HEIGHT}
             COMPACT_ITEM_WIDTH={COMPACT_ITEM_WIDTH}

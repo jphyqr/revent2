@@ -200,7 +200,8 @@ class BuildDetail extends Component {
           compactDisplayMode={compactDisplayMode}
           role={this.props.role}
         />
-        {!isLoaded(categories) ? (
+        {/* turned off loader !isLoaded(categories) */}
+        {false ? (
           <LoadingComponent />
         ) : (
           categories &&

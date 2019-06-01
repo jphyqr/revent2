@@ -6,6 +6,7 @@ import {
   CLEAR_NOTIFICATIONS
 } from "./notificationConstants";
 import { FETCH_TASK } from "../modals/TaskModal/taskConstants";
+import {SET_SUPPLIER} from '../nav/Menus/roleConstants'
 import { FETCH_LABOUR } from "../job/JobDashboard/Labour/LabourList/labourConstants";
 import cuid from "cuid";
 import firebase from "../../app/config/firebase";
@@ -1068,6 +1069,7 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
     
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
     //get url of image
+    console.log({uploadedFile})
     let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
     //get userdoc from firestore
     let userDoc = await firestore.get(`users/${user.uid}`);
@@ -1117,6 +1119,81 @@ export const uploadLabourPhoto = (labourProfile, file) => async (
     dispatch(asyncActionError());
   }
 };
+
+
+
+
+export const uploadContractorVideo = (profile, file) => async (
+  dispatch,
+  getState,
+  { getFirebase, getFirestore }
+) => {
+  const firebase = getFirebase();
+  //const { isLoaded, isEmpty, ...updatedSkills } = skills;
+const {contractorProfile} = profile || {}
+
+ const userProfile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+
+  const imageName = cuid();
+
+  const firestore = getFirestore();
+
+  const path = `${user.uid}/user_images`;
+  const options = {
+    name: imageName
+  };
+
+  try {
+    dispatch(asyncActionStart());
+    //upload the file to firebase storage
+    
+    let uploadedFile = await firebase.uploadFile(path, file, null, options);
+    //get url of image
+    let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
+
+
+    let updatedContractorProfile = contractorProfile || {};
+    updatedContractorProfile.videoUrl = downloadURL
+    let updatedProfile = profile
+    updatedProfile.contractorProfile = updatedContractorProfile
+
+
+
+    await firestore.set(
+      {
+        collection: "users",
+        doc: user.uid,
+        subcollections: [{ collection: "contractorIntroVideo", doc: `${user.uid}` }]
+      },
+      {
+        videoUrl: downloadURL,
+        
+      }
+    );
+
+
+    //get userdoc from firestore
+    // await firestore.set(`users/${user.uid}/contractorVideo/${user.uid}`);
+ 
+    // await firebase.updateProfile({
+    //   contractorProfile: updatedContractorProfile
+    // });
+    toastr.success("Success", "Contractor profile updated");
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    toastr.error("Ooops", "Profile was not Created");
+    console.log(error);
+    dispatch(asyncActionError());
+  }
+};
+
+
+
+
+
+
+
 
 export const uploadContractorPhoto = (contractorProfile, file) => async (
   dispatch,
@@ -1456,6 +1533,55 @@ export const hideHowToPost = () => {
 };
 
 
+
+
+
+export const createSupplierProfile = supplier => async (
+  dispatch,
+  getState,
+  { getFirebase, getFirestore }
+) => {
+  const firebase = getFirebase();
+  //const { isLoaded, isEmpty, ...updatedSkills } = skills;
+
+ console.log('createSupplierProfile', supplier)
+
+  const firestore = getFirestore();
+   const user = firestore.auth().currentUser;
+
+  try {
+    await firestore.set(
+      {
+        collection: "supplier_users",
+        doc: user.uid
+      },
+      {
+        ...supplier,
+        isSupplier:true
+      }
+    );
+
+    await firestore.update(
+      {
+        collection: "users",
+        doc: user.uid
+      },
+      {
+        isSupplier:true
+      }
+    );
+
+
+    dispatch({
+      type: SET_SUPPLIER,
+      payload: { supplier }
+    });
+
+    
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
 

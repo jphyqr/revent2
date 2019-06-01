@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Menu, Responsive, Image, Segment, Dropdown } from "semantic-ui-react";
 import { Link } from "react-router-dom";
-import { firestoreConnect } from "react-redux-firebase";
+import { firestoreConnect, isLoaded } from "react-redux-firebase";
 import { initializePush } from "../../../app/common/util/helpers";
 import { storeDeviceToken } from "../../../features/user/userActions";
 import firebase from "../../../app/config/firebase";
@@ -25,11 +25,11 @@ const query = ({ auth }) => {
         doc: auth.uid,
         storeAs: "onboarder_user_profile"
       },
-      {
-        collection: "supplier_users",
-        doc: auth.uid,
-        storeAs: "supplier_user_profile"
-      },
+      // {
+      //   collection: "supplier_users",
+      //   doc: auth.uid,
+      //   storeAs: "supplier_user_profile"
+      // },
       {
         collection: "join_alpha",
         doc: auth.uid,
@@ -88,11 +88,12 @@ const mapState = state => {
         state.firestore.ordered.onboarder_user_profile[0].isOnboarder) ||
       false,
 
-      isSupplier:
-      (state.firestore.ordered.supplier_user_profile &&
-        state.firestore.ordered.supplier_user_profile[0] &&
-        state.firestore.ordered.supplier_user_profile[0].isSupplier) ||
-      false,
+      // isSupplier:
+      
+      // (isLoaded(state.firestore.ordered.supplier_user_profile) &&
+      //   state.firestore.ordered.supplier_user_profile[0] &&
+      //   state.firestore.ordered.supplier_user_profile[0].isSupplier) ||
+      // false,
 
     isAlpha:
       (state.firestore.ordered.alpha_profile &&
@@ -155,7 +156,7 @@ class SignedInMenu extends Component {
       newNotification,
       isAdmin,
       isOnboarder,
-      isSupplier,
+     // isSupplier,
       isAlpha,
       verified,
       hideHowToPost
@@ -168,7 +169,7 @@ class SignedInMenu extends Component {
       this.props.isOnboarder,
       this.props.isAlpha,
       this.props.verified,
-      this.props.isSupplier
+     // this.props.isSupplier
     );
 
     await this.setState({
@@ -211,7 +212,7 @@ class SignedInMenu extends Component {
         nextProps.isOnboarder,
         nextProps.isAlpha,
         this.props.verified,
-        nextProps.isSupplier
+       // nextProps.isSupplier
       );
     }
 

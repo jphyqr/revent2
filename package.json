@@ -20,6 +20,7 @@
     "public-ip": "^3.1.0",
     "radium": "^0.25.0",
     "react": "^16.3.0",
+    "react-content-loader": "^4.2.1",
     "react-cropper": "^1.0.1",
     "react-datepicker": "^1.4.0",
     "react-dom": "^16.3.0",
@@ -47,7 +48,7 @@
     "redux-thunk": "^2.2.0",
     "revalidate": "^1.2.0",
     "scroll-to-element": "^2.0.2",
-    "semantic-ui-css": "2.2.14",
+    "semantic-ui-css": "^2.2.14",
     "semantic-ui-react": "^0.79.0",
     "slick-carousel": "^1.8.1",
     "stripe": "^6.15.0"

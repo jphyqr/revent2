@@ -13,7 +13,7 @@ import firebase from "../../app/config/firebase";
 import compareAsc from "date-fns/compare_asc";
 import cuid from "cuid"
 import { addMinutes } from "date-fns";
-
+import {objectToArray} from '../../app/common/util/helpers'
 export const dispatchJob = jobId => async (
   dispatch,
   getState,
@@ -36,10 +36,11 @@ export const dispatchJob = jobId => async (
         });
       });
     okay = true;
-
+    toastr.success("Success", "Job Dispatched");
     dispatch(asyncActionFinish());
     return okay;
   } catch (error) {
+    toastr.error("Ooops", "Job was not dispatched");
     console.log(error);
     dispatch(asyncActionError());
   }
@@ -391,7 +392,7 @@ export const updateJobBasic = (draft, values) => {
 };
 
 export const updateJobCustom = (draft, values) => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, {getFirestore}) => {
     dispatch(asyncActionStart());
     const { key: jobId, value: draftValues } = draft;
     console.log({ draft });
@@ -407,9 +408,57 @@ export const updateJobCustom = (draft, values) => {
 
     draftValues.showState = showState;
     const firestore = firebase.firestore();
-    draftValues.customFields = values;
+    const firestore2 = getFirestore();
+
+    let allFieldsArray = objectToArray(values) || []
+    let customFields = []
+    let customMaterials = []
+    
+    //loop over array and split into materials/fields
+
+    for(var i=0; i<allFieldsArray.length; i++){
+      let currentField = allFieldsArray[i]
+      console.log('jobActions currentField', currentField)
+      var patt = new RegExp("material_");
+      var isMaterial = patt.test(currentField);
+      if(isMaterial){
+        customMaterials.push(currentField)
+      }else{
+        customFields.push(currentField)
+      }
+    }
+
+
+
+    console.log({customFields})
+    console.log({customMaterials})
+   
     console.log("draftValues after Add", draftValues);
     try {
+
+
+//Take Values, split it into customFields[] and customMaterials[]
+        let materialsClean = []
+      for(var j=0; j<customMaterials.length; j++){
+        let materialString = customMaterials[j]
+        let materialId = materialString.split('_')[1]
+        let materialDoc = await firestore2.get(`items/${materialId}`);
+        let itemData = materialDoc.data()
+        materialsClean.push({id:materialId, fieldName: customMaterials[j].id, itemData:itemData})
+      }
+
+      let fieldsClean = []
+      for(var j=0; j<customFields.length; j++){
+        
+        fieldsClean.push( {fieldName: customFields[j].id, fieldData:values[customFields[j].id]})
+      }
+
+      console.log({customMaterials})
+      console.log({materialsClean})
+      console.log({fieldsClean})
+      draftValues.customMaterials = materialsClean
+      draftValues.customFields = fieldsClean;
+      console.log({draftValues})
       let jobDocRef = firestore.collection("jobs").doc(jobId);
       //ALERT, changed from check on date switch, should INVESTIGATE from videos what this was done for
       if (true) {

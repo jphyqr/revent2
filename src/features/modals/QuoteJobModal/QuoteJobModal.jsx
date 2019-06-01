@@ -22,6 +22,7 @@ import format from "date-fns/format";
 import Steps from "./Steps";
 import { toastr } from "react-redux-toastr";
 import ActiveStep from "./ActiveSteps/ActiveStep";
+import { firestoreConnect } from "react-redux-firebase";
 import {
   createQuote,
   updateSubmitQuote,
@@ -32,11 +33,24 @@ import {
   updateSchedule,
   goBackToStep,
   updateLineItem,
-  updateLineItemNext
+  updateLineItemNext,
+  uploadCustomVideo
 } from "./quoteActions";
 import { isEmpty, isLoaded } from "react-redux-firebase";
 import MobileSteps from "./Mobile/MobileSteps";
 import MobileActiveStep from "./Mobile/MobileActiveStep";
+
+const query = ({ auth }) => {
+  return [
+    {
+      collection: "users",
+      doc: auth.uid,
+      subcollections: [{ collection: "contractorIntroVideo", doc: auth.uid }],
+      storeAs: "contractor_intro_video"
+    }
+  ];
+};
+
 const actions = {
   closeModal,
   createQuote,
@@ -48,15 +62,20 @@ const actions = {
   goBackToStep,
   updateLineItem,
   updateLineItemNext,
-  updateSchedule
+  updateSchedule,
+  uploadCustomVideo
 };
 
 const mapState = state => {
   return {
     job: state.draft,
-    user: state.auth,
+    auth: state.firebase.auth,
     quote: state.quote,
-    loading: state.async.loading
+    loading: state.async.loading,
+    contractorIntroVideo:
+      (state.firestore.ordered.contractor_intro_video &&
+        state.firestore.ordered.contractor_intro_video[0]) ||
+      {}
   };
 };
 
@@ -77,6 +96,11 @@ class QuoteJobModal extends Component {
   // when the component is not mounted anymore
   componentWillUnmount() {
     window.removeEventListener("resize", this.handleWindowSizeChange);
+  }
+
+
+  handleVideoUpload = async (file) =>{
+this.props.uploadCustomVideo(this.props.quote, file)
   }
 
   handleWindowSizeChange = () => {
@@ -184,6 +208,8 @@ class QuoteJobModal extends Component {
                 handleSelectBidType={this.handleSelectBidType}
                 quote={quote}
                 jobValues={jobValues}
+                contractorIntroVideo={this.props.contractorIntroVideo}
+                handleVideoUpload={this.handleVideoUpload}
               />
             </div>
           ) : (
@@ -208,6 +234,8 @@ class QuoteJobModal extends Component {
                     handleSelectBidType={this.handleSelectBidType}
                     quote={quote}
                     jobValues={jobValues}
+                    contractorIntroVideo={this.props.contractorIntroVideo}
+                    handleVideoUpload={this.handleVideoUpload}
                   />
                 </Grid.Column>
               </Grid>
@@ -222,4 +250,4 @@ class QuoteJobModal extends Component {
 export default connect(
   mapState,
   actions
-)(QuoteJobModal);
+)(firestoreConnect(props => query(props))(QuoteJobModal));

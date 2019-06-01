@@ -73,7 +73,7 @@ class PhotoUpload extends Component {
   };
 
   render() {
-    const { loading } = this.props;
+    const { loading, videoOnly } = this.props;
 
     return (
 
@@ -88,12 +88,13 @@ class PhotoUpload extends Component {
         height: 30,
         backgroundColor: "orange"
       }}
+      onDropRejected={console.log('rejected')}
       onDrop={this.onDrop}
       multiple={false}
-      acceptedFiles={"image/jpeg,image/png,image/gif"}
+      accept={videoOnly? "video/*": "image/jpeg,image/png,image/gif"}
     >
       <div style={{ textAlign: "center" }}>
-        <Header style={{ paddingTop: 4 }} content="+Add Photo" />
+        <Header style={{ paddingTop: 4 }} content={videoOnly?"+Add Video":"+Add Photo"} />
       </div>
     </Dropzone>
      

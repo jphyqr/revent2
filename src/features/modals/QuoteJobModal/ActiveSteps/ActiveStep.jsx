@@ -49,7 +49,7 @@ class ActiveStep extends Component {
         ) : showPayments ? (
           <Payments handleSelectPaymentType={handleSelectPaymentType}/>
         ) : showConfirm ? (
-          <Confirm submitted={submitted} handleSubmitQuote={handleSubmitQuote}/>
+          <Confirm handleVideoUpload={this.props.handleVideoUpload} contractorIntroVideo={this.props.contractorIntroVideo} submitted={submitted} handleSubmitQuote={handleSubmitQuote}/>
         ) : null}
       </div>
     );

@@ -456,6 +456,53 @@ export const updateNotes = (quote, values) => {
   };
 };
 
+
+
+export const uploadCustomVideo = (quote, file) => {
+  return async (dispatch, getState, {getFirestore}) => {
+    dispatch(asyncActionStart());
+
+    const userProfile = getState().firebase.profile;
+    const user = firebase.auth().currentUser;
+    const imageName = cuid();
+    const path = `${user.uid}/user_images`;
+    const options = {
+      name: imageName
+    };
+    const firestore2 = getFirestore();
+    const firestore = firebase.firestore();
+
+    try {
+
+      let uploadedFile = await firebase.uploadFile(path, file, null, options);
+      //get url of image
+      let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
+
+  
+
+      let quoteRef = firestore.collection("quotes").doc(quote.quoteId);
+      if (true) {
+        await quoteRef.update({introVideoUrl: downloadURL});
+      }
+
+      //       const payload = {key: jobId, value:draftValues}
+      quote.introVideoUrl = downloadURL
+      dispatch({
+        type: FETCH_QUOTE,
+        payload: { quote }
+      });
+
+      dispatch(asyncActionFinish());
+       toastr.success("Success", "Intro video uploaded");
+    } catch (error) {
+      dispatch(asyncActionError());
+      console.log(error);
+      toastr.error("Oops", "Something went wrong");
+    }
+  };
+};
+
+
 export const updatePaymentType = (quote, paymentType) => {
   return async (dispatch, getState) => {
     dispatch(asyncActionStart());

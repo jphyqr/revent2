@@ -90,6 +90,7 @@ export default class OpenJobItem extends Component {
         // }
 
       return (
+        
         <div
         ref={index}
         className="ui  image"

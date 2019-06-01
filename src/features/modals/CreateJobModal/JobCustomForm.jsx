@@ -84,7 +84,8 @@ class JobCustomForm extends Component {
               selectItems,
               aboveMessage,
               type,
-              id
+              id,
+              isMaterial
             },
             index
           ) => (
@@ -103,12 +104,15 @@ class JobCustomForm extends Component {
                     type={component.type}
                     placeholder={label}
                     options={selectItems}
+                    fieldId={id}
                     photos={examplePhotos}
                     aboveMessage={aboveMessage}
                     //      value={this.state.required}
                     //   onClick={this.handleChange}
                     label={label}
                     component={
+                      isMaterial?
+                      DropdownInput:
                       component.component === "TextInput"
                         ? TextInput
                         : component.component === "TextArea"

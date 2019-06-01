@@ -17,7 +17,7 @@ import BuilderPane from "./BuilderPane";
 import ContractorPane from "./ContractorPane";
 import LabourPane from "./LabourPane";
 import ProfilePane from "./ProfilePane"
-import { createLabourProfile , uploadLabourPhoto, uploadContractorPhoto, uploadBuilderPhoto} from "../../../user/userActions";
+import { uploadContractorVideo,createLabourProfile , uploadLabourPhoto, uploadContractorPhoto, uploadBuilderPhoto} from "../../../user/userActions";
 
 const query = ({ auth }) => {
   if (auth !== null) {
@@ -45,7 +45,7 @@ const query = ({ auth }) => {
 };
 
 const actions = {
-  openModal,
+  openModal,uploadContractorVideo,
   createLabourProfile,uploadLabourPhoto, uploadContractorPhoto, uploadBuilderPhoto
 };
 const mapState = state => {
@@ -82,6 +82,16 @@ class Profile extends Component {
     this.setState({ profile: this.props.profile });
   }
 
+  
+  handleVideoUpload= async (url)=>{
+    console.log("photo uploaded url", url);
+    let videoUrl = await this.props.uploadContractorVideo(
+      this.props.profile,
+      url
+    );
+    this.setState({ videoUrl: videoUrl });
+  
+  }
   componentWillReceiveProps = nextProps => {
     if (nextProps.profile !== this.state.profile) {
       this.setState({ profile: nextProps.profile });
@@ -128,6 +138,7 @@ class Profile extends Component {
             <ContractorPane
               contractorProfile={contractorProfile}
               openModal={openModal}
+              handleVideoUpload={this.handleVideoUpload}
               uploadProfileImage={uploadProfileImage}
               uploadContractorPhoto={this.props.uploadContractorPhoto}
               compactDisplayMode

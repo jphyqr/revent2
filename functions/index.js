@@ -9,7 +9,7 @@ const stripeEvent = require("./stripe_event.js");
 const SENDGRID_API_KEY = functions.config().sendgrid.key;
 const Distance = require("geo-distance");
 const twilio = require("./twilio");
-
+const sharp = require("sharp");
 const sgClient = require("@sendgrid/client");
 sgClient.setApiKey(SENDGRID_API_KEY);
 const sgMail = require("@sendgrid/mail");
@@ -24,11 +24,25 @@ const sendgridWebhook = require("./sendgrid_webhook.js");
 const axios = require("axios");
 const uploadID = require("./upload_id.js");
 const updateAccount = require("./update_account.js");
+const { tmpdir } = require("os");
+//const fs = require("fs-extra");
+
+const { join, dirname } = require("path");
+const { Storage } = require("@google-cloud/storage");
+
+const gcs = new Storage();
+
+const mkdirp = require("mkdirp-promise");
+const spawn = require("child-process-promise").spawn;
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+const path = require("path");
 const os = require("os");
 const fs = require("fs");
-const path = require("path");
-const { Storage } = require("@google-cloud/storage");
-const gcs = new Storage();
+const fse = require("fs-extra");
+const db = admin.firestore();
+const THUMB_MAX_WIDTH = 300;
+const THUMB_MAX_HEIGHT = 150;
+
 const newFollow = (type, event, id) => {
   return {
     type: type,
@@ -61,6 +75,161 @@ const createMessage = (type, message) => {
     uid: message.uid
   };
 };
+
+exports.generateThumbnail = functions.storage.object().onFinalize(object => {
+  // [END generateThumbnailTrigger]
+  // [START eventAttributes]
+  const fileBucket = object.bucket; // The Storage bucket that contains the file.
+  const filePath = object.name; // File path in the bucket.
+  const contentType = object.contentType; // File content type.
+  const metageneration = object.metageneration; // Number of times metadata has been generated. New objects have a value of 1.
+  // [END eventAttributes]
+
+  // [START stopConditions]
+  // Exit if this is triggered on a file that is not an image.
+  if (!contentType.startsWith("image/")) {
+    return console.log("This is not an image.");
+  }
+
+  // Get the file name.
+  const fileName = path.basename(filePath);
+  // Exit if the image is already a thumbnail.
+  if (fileName.startsWith("thumb_")) {
+    return console.log("Already a Thumbnail.");
+  }
+  // [END stopConditions]
+
+  // [START thumbnailGeneration]
+  // Download file from bucket.
+  const bucket = admin.storage().bucket(fileBucket);
+  const tempFilePath = path.join(os.tmpdir(), fileName);
+  const metadata = {
+    contentType: contentType
+  };
+  return bucket
+    .file(filePath)
+    .download({ destination: tempFilePath })
+    .then(() => {
+      console.log("Image 1 downloaded locally to", tempFilePath);
+      // Generate a thumbnail using ImageMagick.
+      return spawn("convert", [
+        tempFilePath,
+        "-resize",
+        "400X400>",
+        tempFilePath
+      ]);
+    })
+
+    .then(() => {
+      console.log("Thumbnail 1 created at", tempFilePath);
+
+      // We add a 'thumb_' prefix to thumbnails file name. That's where we'll upload the thumbnail.
+      const thumbFileName = `thumb_200_200_${fileName}`;
+      const thumbFilePath = path.join(path.dirname(filePath), thumbFileName);
+      return bucket.upload(tempFilePath, {
+        destination: thumbFilePath,
+        metadata: metadata
+      });
+    })
+    .then(() => {
+      console.log("Image  2 downloaded locally to", tempFilePath);
+      // Generate a thumbnail using ImageMagick.
+      return spawn("convert", [
+        tempFilePath,
+        "-resize",
+        "100x100>",
+        tempFilePath
+      ]);
+    })
+    .then(() => {
+      console.log("Thumbnail 2 created at", tempFilePath);
+
+      // We add a 'thumb_' prefix to thumbnails file name. That's where we'll upload the thumbnail.
+      const thumbFileName = `thumb_400_400_${fileName}`;
+      const thumbFilePath = path.join(path.dirname(filePath), thumbFileName);
+      return bucket.upload(tempFilePath, {
+        destination: thumbFilePath,
+        metadata: metadata
+      });
+    })
+    .then(() => {
+      return fs.unlinkSync(tempFilePath);
+    })
+    .catch(error => {
+      console.log({ error });
+    });
+
+  // Once the thumbnail has been uploaded delete the local file to free up disk space.
+
+  // [END thumbnailGeneration]
+});
+
+exports.generateThumbs = functions.storage
+  .object()
+  .onFinalize((object, context) => {
+    // console.log({ object });
+    // const bucket = gcs.bucket(object.bucket); //tell which bucket to use, use bucket triggered function
+    // const filePath = object.name;
+    // const fileName = filePath.split("/").pop();
+    // const contentType = object.contentType;
+    // console.log({fileName})
+    // const bucketDir = dirname(filePath);
+    // console.log({bucketDir})
+    // //download src file to local directory and store thumbs
+    // const workingDir = join(tmpdir(), "thumbs");
+    // console.log({workingDir})
+    // const tmpFilePath = join(workingDir, fileName);
+    // console.log({tmpFilePath})
+    // //stop infinite loop w name trigger
+    // //exit if triggered from file already resized
+    // if (
+    //   fileName.includes("thumb@") ||
+    //   !(
+    //     object.contentType.includes("image")
+    // ) ){
+    //   console.log("exiing function");
+    //   return false;
+    // }
+    // //ensure dir exists
+    // fse.ensureDir(workingDir)
+    //   .then(dir => {
+    //     //download source file
+    //     return bucket.file(filePath).download({
+    //       destination: tmpFilePath
+    //     });
+    //   })
+    //   .then(download => {
+    //     //resize the images and define array of upload promises
+    //     const sizes = [65, 128, 256];
+    //     for (var i = 0; i < sizes.length; i++) {
+    //       const size = sizes[i];
+    //       const thumbName = `thumb@${size}_${fileName}`;
+    //       const thumbPath = join(workingDir, thumbName);
+    //       const metadata = { contentType : contentType }
+    //       sharp.cache(false)
+    //       console.log({thumbPath})
+    //       console.log('size', size)
+    //        sharp(tmpFilePath)
+    //         .resize(size, size)
+    //         .toFile(thumbPath)
+    //         .then(() => {
+    //           return bucket.upload(thumbPath, {
+    //             destination: join(bucketDir, thumbName),
+    //             metadata:metadata
+    //           });
+    //         })    .catch(error => {
+    //           console.log("error", error);
+    //         });
+    //     }
+    //     return fse.remove(workingDir);
+    //   })
+    //   .catch(error => {
+    //     console.log("error", error);
+    //     // We want to capture errors and render them in a user-friendly way, while
+    //     // still logging an exception with StackDriver
+    //     return snap.ref.child("error").set(userFacingMessage(error));
+    //   });
+  });
 
 exports.sendgridWebhook = functions.https.onRequest(sendgridWebhook);
 
@@ -684,25 +853,114 @@ const renderJobDescription = (job, jobId) => {
     photoList += `<br><img src=${photoUrl} alt="Smiley face" height="200" width="200">`;
   }
 
-  let list = "";
+  let fieldList = "";
 
-  const customFields = objectToArray(job.customFields);
-  console.log({ customFields });
-  for (var i = 0; i < customFields.length; i++) {
-    list += `<br><p> ${customFields[i].key}: ${customFields[i].value}</p>`;
+  for (var i = 0; i < job.customFields.length; i++) {
+    fieldList += `<br><p> ${job.customFields[i].fieldName}: ${
+      job.customFields[i].fieldData
+    }</p>`;
   }
+
+  let customList = "";
+
+  for (var k = 0; k < job.customMaterials.length; k++) {
+    const material = job.customMaterials[k];
+    customList += `<br><p> ${material.fieldName}: ${material.itemData
+      .productName || "No Name"}</p>`;
+    customList += `<br><p> ${material.itemData.price || "No Price"}: ${material
+      .itemData.pricingUnit || "No Unit"}</p>`;
+    customList += `<br><p> ${(material.itemData.supplierData &&
+      material.itemData.supplierData.storeName) ||
+      "No Store"}</p>`;
+  }
+
   return [
     `<div style="width:200px;background:#F9EECF;border:1px dotted black;text-align:center">
      <p>Generic content...</p>
      </div><p>Description: ${
        job.description
-     }</p><br/><h2>Job Details</h2>${list}<h2>Job Photos</h2>${photoList}
+     }</p><br/><h2>Job Details</h2>${fieldList}
+     <h2>Material Details</h2>${customList}<h2>Job Photos</h2>${photoList}
      <br/>
      
      <a href="https://yaybour.com/job/${jobId}">More Info</a>
      `
   ];
 };
+
+exports.dispatchTaskToEmail = functions.firestore
+  .document("jobs/{jobID}")
+  .onWrite((info, context) => {
+    const jobID = context.params.jobID;
+    const after = info.after.data();
+    const before = info.before.data();
+
+    console.log("dispatchTask job id", jobID);
+    console.log("dispatch job info", info.after.data());
+    console.log("beforeInDraft", before.inDraft);
+    console.log("afterInDraft", after.inDraft);
+    if (before.inDraft === true && after.inDraft === false) {
+      return admin
+        .firestore()
+        .collection("task_subscribed")
+        .where("taskId", "==", after.taskID)
+        .get()
+
+        .then(taskSubscirbedQuerySnap => {
+          for (let i = 0; i < taskSubscirbedQuerySnap.docs.length; i++) {
+            console.log(taskSubscirbedQuerySnap.docs[i]);
+            admin
+              .auth()
+              .getUser(taskSubscirbedQuerySnap.docs[i].data().userUid)
+              .then(userRecord => {
+                console.log(userRecord);
+                email = userRecord.email;
+
+                const msg = {
+                  to: email,
+                  from: "admin@yaybour.com",
+                  subject: "New Job!",
+                  //templateId: "d-77320f6599ed4c57acf755099d7c6c6e", //NewJob
+                  reply_to: "admin@yaybour.com",
+                  content: [
+                    {
+                      type: "text/html",
+                      value: `<html><body> ${renderJobDescription(after, jobID)}
+
+                  </body></html>`
+                    }
+                  ],
+                  // html: ' ',
+
+                  //   dynamic_template_data: {"body":"<html><body> -name- </body></html>", "title": info.data().description, "name": userRecord.displayName},
+
+                  substitutionWrappers: ["{{", "}}"],
+                  substitutions: {
+                    title: "Test Title", //info.data().description,
+                    photoURL: after.displayURL,
+                    name: "Test Name" //userRecord.displayName
+                  }
+                };
+
+                return sgMail
+                  .send(msg)
+                  .then(() => console.log("email sent"))
+                  .catch(err => {
+                    const { message, code, response } = error;
+                    const { headers, body } = response;
+                    console.log({ body });
+                    console.log(err.toString());
+                  });
+              })
+
+              .catch(error => {
+                console.log("notification sent failed:", error);
+              });
+          }
+          return;
+        });
+    }
+  });
 
 // exports.notificationToEmail = functions.firestore
 //   .document("users/{userUid}/notifications/{notificationID}")
@@ -1213,5 +1471,4 @@ exports.submitQuote = functions.firestore
       .catch(err => {
         return console.log("Error adding notification", err);
       });
-  
   });

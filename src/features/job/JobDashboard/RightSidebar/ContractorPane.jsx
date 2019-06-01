@@ -9,6 +9,7 @@ import {
   Image
 } from "semantic-ui-react";
 import Dropzone from "react-dropzone";
+import PhotoUpload from "../../../../app/common/form/PhotoUpload/PhotoUpload"
 class ContractorPane extends Component {
   state = { files: [], fileName: "", image: {} };
 
@@ -37,10 +38,10 @@ class ContractorPane extends Component {
       isAContractor,
       rating,
       volumeTotal,
-      contractorPhotos
+      contractorPhotos, videoUrl
     } = contractorProfile || {};
     const { clean, craftsmanship, professionalism, punctuality } = rating || {};
-
+const videoOnly = true;
     const averageRating =
       (rating && (clean + craftsmanship + professionalism + punctuality) / 4) ||
       0;
@@ -131,7 +132,10 @@ class ContractorPane extends Component {
                     <Header style={{ paddingTop: 4 }} content="+Add Photo" />
                   </div>
                 </Dropzone>
+
                 <Divider />
+
+               
                 <div
                   style={{
                     height: 130,
@@ -166,6 +170,24 @@ class ContractorPane extends Component {
                       />
                     ))}
                 </div>
+                <PhotoUpload handlePhotoUploaded={this.props.handleVideoUpload} videoOnly={videoOnly}/>
+             
+              {videoUrl&&  
+              
+              <div>
+                 <Divider />
+                <Header color="teal" as="h3">Introduction Video</Header>
+                <video controls
+            style={{maxHeight:200, maxWidth:200, padding:0, margin:0}}
+            // autoPlay
+             id="contractorVideo"
+            
+             
+           >
+             <source src={videoUrl} type="video/mp4" />
+           </video>
+           </div>
+           }
               </div>
             </Grid.Row>
 
@@ -251,6 +273,7 @@ class ContractorPane extends Component {
                   </div>
                 </Dropzone>
                 <Divider />
+               
                 <div
                   style={{
                     height: 135,
@@ -286,6 +309,25 @@ class ContractorPane extends Component {
                       />
                     ))}
                 </div>
+                <PhotoUpload handlePhotoUploaded={this.props.handleVideoUpload} videoOnly={videoOnly}/>
+              
+                {videoUrl&&  
+              
+              <div>
+                 <Divider />
+                <Header color="teal" as="h3">Introduction Video</Header>
+                <video controls
+            style={{maxHeight:200, maxWidth:200, padding:0, margin:0}}
+            // autoPlay
+             id="contractorVideo"
+            
+             
+           >
+             <source src={videoUrl} type="video/mp4" />
+           </video>
+           </div>
+           }
+
               </div>
             </Grid.Column>
           </Grid>

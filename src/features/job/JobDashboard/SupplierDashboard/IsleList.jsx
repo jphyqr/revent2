@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
-import { firestoreConnect } from "react-redux-firebase";
-import {Button} from 'semantic-ui-react'
+import { firestoreConnect, isLoaded } from "react-redux-firebase";
+import {Button, Loader, Dimmer} from 'semantic-ui-react'
 const query = ({ selectedIsle }) => {
     return [
         {
@@ -19,22 +19,34 @@ const query = ({ selectedIsle }) => {
     const tasksInCategory = state.firestore.ordered.tasksInCategory
      
     return {
-        materialInIsle : state.firestore.ordered.material_in_isle
+        materialInIsle : state.firestore.ordered.material_in_isle,
     };
   };
 
  class IsleList extends Component {
+
     render() {
-        const {materialInIsle} = this.props || []
+        const {materialInIsle, supplierProfile, createItemLoader, clickedItemId, requesting , isleListLoader} = this.props || []
+        const {isSupplier} = supplierProfile || false
+
+
+
         return (
-            <div style={{ backgroundColor:"yellow", width:"100%", height:100, overflowX:"hidden", overflowY:"auto"}}>
+
+            <div style={{  width:"100%", margin:5, height:400, overflowX:"hidden", overflowY:"auto"}}>
+            {(!isLoaded(materialInIsle)) ?  <Dimmer active>
+        <Loader content='Loading' />
+      </Dimmer> : 
+<div>
                 {materialInIsle&&materialInIsle.map(material=>(
 
-                    <div style={{width:"100%", backgroundColor:"green", color:"white"}}>
-                    <Button onClick={()=>this.props.handleCreateItem(material.fieldId)}>+</Button>
+                    <div style={{width:"100%", backgroundColor:"lightgrey",  marginBottom:"5"}}>
+                    <Button positive size='mini' loading={createItemLoader&&(clickedItemId===material.fieldId)} onClick={isSupplier?()=>this.props.handleCreateItem(material.fieldId): () => this.props.openModal("SupplierProfileModal")}>New Item</Button>
                     {material.name}</div>
 
                 ))}
+                </div>
+                }
             </div>
         )
     }

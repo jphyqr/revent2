@@ -53,7 +53,7 @@ class MobileActiveStep extends Component {
           <Notes handleUpdateNotes={handleUpdateNotes}/>
         ) : showPayments ? (
           <MobilePayments handleSelectPaymentType={handleSelectPaymentType}/>
-        ) : <Confirm submitted={submitted} handleSubmitQuote={handleSubmitQuote}/>
+        ) : <Confirm  handleVideoUpload={this.props.handleVideoUpload} contractorIntroVideo={this.props.contractorIntroVideo} submitted={submitted} handleSubmitQuote={handleSubmitQuote}/>
          }
       </div>
     );

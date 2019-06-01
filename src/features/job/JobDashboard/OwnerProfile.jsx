@@ -54,6 +54,10 @@ class OwnerProfile extends Component {
     console.log(this.props.ownerUid);
     console.log(this.props.profile);
     const { profile, compactDisplayMode, profileType } = this.props || {};
+    const {contractorProfile} = profile || {}
+    const {videoUrl} = contractorProfile || {}
+    console.log({contractorProfile})
+    console.log({videoUrl})
     const { showRatingDetail } = this.state || false;
     let specificProfile = {};
     let specificPhotos;
@@ -112,6 +116,7 @@ class OwnerProfile extends Component {
     }
 
     const totalVolume = (specificProfile && specificProfile.volumeTotal) || 0;
+    
     const jobsCompleted =
       (specificProfile && specificProfile.jobsCompleted) || 0;
     const jobsStarted = (specificProfile && specificProfile.jobsStarted) || 0;
@@ -161,6 +166,11 @@ class OwnerProfile extends Component {
           </Card.Header>
         </Card.Content>
         <Card.Content extra>
+
+           
+
+
+
           {specificPhotos && specificPhotos.length > 0 ? (
             <div
               style={{
@@ -260,7 +270,9 @@ class OwnerProfile extends Component {
             )}
           </Transition.Group>
         </Card.Content>
-        <Card.Content extra />
+        <Card.Content extra >
+
+        </Card.Content>
       </Card>
       </div>
     );
