@@ -17,7 +17,7 @@ import BuilderPane from "./BuilderPane";
 import ContractorPane from "./ContractorPane";
 import LabourPane from "./LabourPane";
 import ProfilePane from "./ProfilePane"
-import { uploadContractorVideo,createLabourProfile , uploadLabourPhoto, uploadContractorPhoto, uploadBuilderPhoto} from "../../../user/userActions";
+import { createContractorProfile, deleteLabourPhoto,createLabourProfile , uploadLabourPhoto, uploadContractorPhoto, uploadBuilderPhoto} from "../../../user/userActions";
 
 const query = ({ auth }) => {
   if (auth !== null) {
@@ -45,7 +45,7 @@ const query = ({ auth }) => {
 };
 
 const actions = {
-  openModal,uploadContractorVideo,
+  openModal,deleteLabourPhoto,createContractorProfile,
   createLabourProfile,uploadLabourPhoto, uploadContractorPhoto, uploadBuilderPhoto
 };
 const mapState = state => {
@@ -66,6 +66,7 @@ const mapState = state => {
       (state.firestore.ordered.profile && state.firestore.ordered.profile[0]) ||
       {},
     sources,
+    role: state.role,
     labour_profile:
       (isLoaded(state.firestore.ordered.labourProfile) &&
         state.firestore.ordered.labourProfile) ||
@@ -83,15 +84,11 @@ class Profile extends Component {
   }
 
   
-  handleVideoUpload= async (url)=>{
-    console.log("photo uploaded url", url);
-    let videoUrl = await this.props.uploadContractorVideo(
-      this.props.profile,
-      url
-    );
-    this.setState({ videoUrl: videoUrl });
-  
+  handleCreateContractorProfile = async (first, last, image, date) =>{
+   await this.props.createContractorProfile(first, last, image, date)
   }
+
+
   componentWillReceiveProps = nextProps => {
     if (nextProps.profile !== this.state.profile) {
       this.setState({ profile: nextProps.profile });
@@ -136,12 +133,14 @@ class Profile extends Component {
         render: () => (
           <Tab.Pane attached style={{ height: "100%" }}>
             <ContractorPane
+            isContractor={this.props.role&&this.props.role.isContractor}
               contractorProfile={contractorProfile}
               openModal={openModal}
               handleVideoUpload={this.handleVideoUpload}
               uploadProfileImage={uploadProfileImage}
               uploadContractorPhoto={this.props.uploadContractorPhoto}
               compactDisplayMode
+              handleCreateContractorProfile={this.handleCreateContractorProfile}
             />
           </Tab.Pane>
         )
@@ -157,6 +156,7 @@ class Profile extends Component {
               labour_profile={labour_profile}
               uploadLabourPhoto={this.props.uploadLabourPhoto}
               compactDisplayMode={compactDisplayMode}
+              deleteLabourPhoto={this.props.deleteLabourPhoto}
             />
           </Tab.Pane>
         )

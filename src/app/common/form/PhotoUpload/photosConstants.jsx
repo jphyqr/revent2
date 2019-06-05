@@ -1,0 +1,2 @@
+export const FETCH_PHOTOS = "FETCH_PHOTOS"
+export const CLEAR_PHOTOS = "CLEAR_PHOTOS"

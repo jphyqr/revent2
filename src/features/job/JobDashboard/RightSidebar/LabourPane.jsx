@@ -12,22 +12,77 @@ import {
 import TextInput from "../../../../app/common/form/TextInput";
 import { toastr } from "react-redux-toastr";
 import Dropzone from "react-dropzone";
+import { firestoreConnect, isLoaded } from "react-redux-firebase";
+import { connect } from "react-redux";
+import PhotoUpload from '../../../../app/common/form/PhotoUpload/PhotoUpload'
+const query = ({ auth }) => {
+
+
+    return [
+      {
+        collection: "labour_profiles",
+        doc: auth.uid,
+        storeAs: "labour_profile"
+      },
+
+      {
+        collection: "labour_profiles",
+        doc: auth.uid,
+        subcollections: [{ collection: "labour_photos" }],
+        orderBy: ["date", "desc"],
+        limit:5,
+        storeAs: "labour_photos"
+      }
+    ];
+ 
+};
+
+const mapState = state => ({
+  auth: state.firebase.auth,
+  labourProfile: (state.firestore.ordered.labour_profile&&state.firestore.ordered.labour_profile[0]) || {},
+  labourPhotos: state.firestore.ordered.labour_photos || [],
+  photosLoading: !isLoaded(state.firestore.ordered.labour_photos)
+});
 class LabourPane extends Component {
-  state = { profile: {}, files: [], fileName: "", cropResult: null, image: {} };
+  state = { profile: {}, photos:[], files: [], fileName: "", cropResult: null, image: {} };
 
   componentDidMount() {
-    const { profile } = this.props;
+    const { labourProfile, labourPhotos } = this.props;
 
-    this.setState({ profile: profile });
+    this.setState({ profile: labourProfile, photos: labourPhotos, photosLoading:this.props.photosLoading });
   }
 
+
+componentDidUpdate(prevProps){
+  if(prevProps.photosLoading!==this.props.photosLoading)
+  {
+    console.log('CDU photosLoaded Changed')
+    this.setState({photosLoading:this.props.photosLoading})
+  }
+}
+
   componentWillReceiveProps = nextProps => {
-    if (nextProps.profile !== this.state.profile) {
+    if (nextProps.labourProfile !== this.state.profile||nextProps.labourPhotos !== this.state.photos) {
       this.setState({
-        profile: nextProps.profile
+        profile: nextProps.labourProfile,
+        photos: nextProps.labourPhotos
       });
     }
   };
+
+  handleDeletePhoto= async photo =>{
+    const message = "Are you sure you want to delete this photo?";
+    toastr.confirm(message, {
+      onOk: async () => {
+       await this.props.deleteLabourPhoto(photo.id)
+      }
+    });
+  }
+  
+
+handlePhotoUploaded = async (file) =>{
+  await this.props.uploadLabourPhoto(file)
+}
 
   onDrop = async files => {
     console.log({ files });
@@ -72,7 +127,7 @@ class LabourPane extends Component {
 
   render() {
     // const { profile,createLabourProfile ,skillsHaveBeenUpdated} = this.props;
-    const { profile } = this.state;
+    const { profile , photos, photosLoading} = this.state;
     const { compactDisplayMode } = this.props;
     const { labourProfile, profileListed, isALabourer } = profile;
     const {
@@ -103,6 +158,7 @@ class LabourPane extends Component {
       0;
 
     let volumeTotalString = "";
+
 
     if (volumeTotal < 1000) {
       volumeTotalString = `$${volumeTotal}`;
@@ -198,7 +254,8 @@ class LabourPane extends Component {
             </Grid.Row>
 
             <Grid.Row>
-              <div style={{ width: "100%", height: "auto" }}>
+              <PhotoUpload handlePhotoUploaded={this.handlePhotoUploaded} photos={photos} photosLoading={photosLoading} handleDeletePhoto={this.handleDeletePhoto}/>
+              {/* <div style={{ width: "100%", height: "auto" }}>
                 <Dropzone
                   style={{
                     width: "50%",
@@ -253,7 +310,7 @@ class LabourPane extends Component {
                       />
                     ))}
                 </div>
-              </div>
+              </div> */}
             </Grid.Row>
           </Grid>
         ) : (
@@ -334,7 +391,8 @@ class LabourPane extends Component {
               <Divider />
             </Grid.Column>
             <Grid.Column width={8}>
-              <div
+            <PhotoUpload handlePhotoUploaded={this.handlePhotoUploaded} photos={photos} photosLoading={photosLoading} handleDeletePhoto={this.handleDeletePhoto}/>
+              {/* <div
                 style={{
                   width: "100%",
                   padding: 10,
@@ -389,8 +447,8 @@ class LabourPane extends Component {
                       src={this.state.files[0].preview}
                     />
                   )}
-                  {labourPhotos &&
-                    labourPhotos.map(photo => (
+                  {photos &&
+                    photos.map(photo => (
                       <Image
                         style={{
                           marginLeft: 10,
@@ -398,11 +456,11 @@ class LabourPane extends Component {
                           display: "inline-block",
                           maxWidth: 115
                         }}
-                        src={photo}
+                        src={photo.thumb}
                       />
                     ))}
                 </div>
-              </div>
+              </div> */}
             </Grid.Column>
           </Grid>
         )}
@@ -411,4 +469,8 @@ class LabourPane extends Component {
   }
 }
 
-export default LabourPane;
+
+export default connect(
+  mapState,
+  null
+)(firestoreConnect(props => query(props))(LabourPane));

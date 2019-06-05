@@ -1,15 +1,16 @@
-import { SET_ROLE, CLEAR_ROLE, SET_SUPPLIER } from './roleConstants';
+import { SET_ROLE, CLEAR_ROLE, SET_SUPPLIER, SET_CONTRACTOR } from './roleConstants';
 import { createReducer } from '../../../app/common/util/reducerUtil';
 
 const initialState = {
   isAdmin:false,
   authenticated: false,
   isOnboarder: false,
- // isSupplier:false,
+  isContractor:false,
   verified: false
 }
 
 export const setRole = (state, payload) => {
+  console.log("setRole",  payload)
   return {
     ...state,
     authenticated: true,
@@ -17,7 +18,7 @@ export const setRole = (state, payload) => {
     isOnboarder: payload.role.isOnboarder,
     isAlpha: payload.role.isAlpha,
     verified: payload.role.verified,
-    //isSupplier: payload.role.isSupplier
+    isContractor: payload.role.isContractor
   }
 }
 
@@ -29,6 +30,12 @@ export const setSupplier = (state, payload) => {
   }
 }
 
+export const setContractor = (state, payload) => {
+  return {
+    ...state,
+    isContractor: true
+  }
+}
 
 export const clearRole = (state, payload) => {
   return {
@@ -38,12 +45,13 @@ export const clearRole = (state, payload) => {
     isOnboarder: false,
     isAlpha: false,
     verified: false,
-  //  isSupplier: false
+    isContractor: false
   }
 }
 
 export default createReducer(initialState, {
   [SET_ROLE]: setRole,
   [CLEAR_ROLE]: clearRole,
-  [SET_SUPPLIER]: setSupplier
+  [SET_SUPPLIER]: setSupplier,
+  [SET_CONTRACTOR]: setContractor
 })

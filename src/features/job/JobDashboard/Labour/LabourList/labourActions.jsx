@@ -27,22 +27,26 @@ import {
       let querySnap = await query.get();
       console.log('GET LABOUR FOR LIST', querySnap)
       if (querySnap.docs.length === 0) {
+        console.log('ZERO SNAP LENGTH')
         dispatch(asyncActionFinish());
         return querySnap;
       }
   
       let labour = [];
+      console.log('length', querySnap.docs.length)
       for (let i = 0; i < querySnap.docs.length; i++) {
+        console.log('item', querySnap.docs[i].data())
         let evt = { ...querySnap.docs[i].data(), id: querySnap.docs[i].id };
         labour.push(evt);
       }
-  
+      
+      console.log({labour})
       dispatch({
         type: FETCH_LABOUR,
         payload: { labour }
       });
       dispatch(asyncActionFinish());
-      return querySnap;
+    //  return querySnap;
     } catch (error) {
       console.log(error);
       dispatch(asyncActionError());

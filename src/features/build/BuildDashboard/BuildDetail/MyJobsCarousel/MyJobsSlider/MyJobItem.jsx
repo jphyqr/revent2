@@ -10,7 +10,7 @@ class MyJobItem extends Component {
   };
 
   componentDidMount() {
-    console.log("MyJobItem CDM");
+    
     this.setState({ jobQuotes: this.props.jobQuotes });
     //  {
     //   console.log('MyJobItem CWRP', nextProps)
@@ -18,9 +18,9 @@ class MyJobItem extends Component {
     //  }
   }
   componentWillReceiveProps = nextProps => {
-    console.log({ nextProps });
+
     if (this.state.jobQuotes !== nextProps.jobQuotes) {
-      console.log("MyJobItem CWRP V2", nextProps);
+     
               this.setState({jobQuotes: nextProps.jobQuotes})
     }
     //  {

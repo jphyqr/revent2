@@ -9,7 +9,58 @@ import {
   Image
 } from "semantic-ui-react";
 import Dropzone from "react-dropzone";
-import PhotoUpload from "../../../../app/common/form/PhotoUpload/PhotoUpload"
+import ContractorAgreement from "./ContractorAgreement";
+import PhotoUpload from "../../../../app/common/form/PhotoUpload/PhotoUpload";
+import VideoUpload from "../../../../app/common/form/VideoUpload/VideoUpload";
+
+import { firestoreConnect, isLoaded } from "react-redux-firebase";
+import { connect } from "react-redux";
+import { toastr } from "react-redux-toastr";
+import {
+  uploadContractorPhoto,
+  deleteContractorPhoto,
+  uploadContractorVideo,
+  updateContractorVideoTitle,
+  changeContractorVideoThumbnail,
+  deleteContractorVideo
+} from "../../../user/userActions";
+
+const query = ({ auth }) => {
+  return [
+    {
+      collection: "contractor_profiles",
+      doc: auth.uid,
+      subcollections: [{ collection: "contractor_photos" }],
+      orderBy: ["date", "desc"],
+      storeAs: "contractor_photos"
+    },
+    {
+      collection: "contractor_profiles",
+      doc: auth.uid,
+      subcollections: [{ collection: "contractor_videos" }],
+      orderBy: ["date", "desc"],
+      storeAs: "contractor_videos"
+    }
+  ];
+};
+
+const actions = {
+  deleteContractorVideo,
+  uploadContractorPhoto,
+  deleteContractorPhoto,
+  uploadContractorVideo,updateContractorVideoTitle,changeContractorVideoThumbnail
+};
+
+const mapState = state => ({
+  contractorProfile:
+    (state.firestore.ordered.contractor_profile &&
+      state.firestore.ordered.contractor_profile[0]) ||
+    {},
+  contractorPhotos: state.firestore.ordered.contractor_photos || [],
+  contractorVideos: state.firestore.ordered.contractor_videos || [],
+  
+  auth: state.firebase.auth
+});
 class ContractorPane extends Component {
   state = { files: [], fileName: "", image: {} };
 
@@ -30,18 +81,60 @@ class ContractorPane extends Component {
     });
   };
 
+
+  handleDeleteVideo = async video=>{
+    const message = "Are you sure you want to delete this video?";
+    toastr.confirm(message, {
+      onOk: async () => {
+        await this.props.deleteContractorVideo(video.id)
+      }
+    });
+   
+  }
+  handlePhotoUploaded = async file => {
+    await this.props.uploadContractorPhoto(file);
+  };
+
+  handleChangeThumbnail = async (video, file) => {
+    await this.props.changeContractorVideoThumbnail(video, file);
+  }
+
+  handleUpdateVideoTitle = async (video, title) =>{
+    await this.props.updateContractorVideoTitle(video, title);
+  }
+
+  handleVideoUpload = async url => {
+    this.setState({videoLoading:true})
+    console.log("photo uploaded url", url);
+    let videoUrl = await this.props.uploadContractorVideo(
+ 
+      url
+    );
+    this.setState({ videoUrl: videoUrl });
+    this.setState({videoLoading:false})
+  };
+
+  handleDeletePhoto = async photo => {
+    const message = "Are you sure you want to delete this photo?";
+    toastr.confirm(message, {
+      onOk: async () => {
+        await this.props.deleteContractorPhoto(photo.id);
+      }
+    });
+  };
+
   render() {
-    const { contractorProfile, compactDisplayMode } = this.props;
     const {
-      jobsStarted,
-      jobsCompleted,
-      isAContractor,
-      rating,
-      volumeTotal,
-      contractorPhotos, videoUrl
-    } = contractorProfile || {};
+      contractorProfile,
+      compactDisplayMode,
+      isContractor,
+      contractorPhotos,
+      contractorVideos
+    } = this.props;
+    const { jobsStarted, jobsCompleted, rating, volumeTotal } =
+      contractorProfile || {};
     const { clean, craftsmanship, professionalism, punctuality } = rating || {};
-const videoOnly = true;
+    const videoOnly = true;
     const averageRating =
       (rating && (clean + craftsmanship + professionalism + punctuality) / 4) ||
       0;
@@ -58,164 +151,37 @@ const videoOnly = true;
 
     return (
       <div style={{ padding: "20px" }}>
-        {compactDisplayMode ? (
-          <div>
-            <Grid>
-              <Grid.Row>
-                <Message
-                  style={{ width: "100%" }}
-                  info
-                  size="mini"
-                  attached="top"
-                  content="You must add a connected account."
-                />
-              </Grid.Row>
-              <Grid.Row>
-                <Button
-                  onClick={() =>
-                    this.props.openModal("ConnectBankAccountModal")
-                  }
-                  content="+ bank account"
-                  disabled
-                  icon="stripe card"
-                  labelPosition="left"
-                />
-              </Grid.Row>
-            </Grid>
-            <Divider />
-            {isAContractor ? (
+        <div>
+          {!this.props.isContractor ? (
+            <ContractorAgreement
+              submitContract={this.props.handleCreateContractorProfile}
+            />
+          ) : (
+            <div>
               <Grid>
                 <Grid.Row>
-                  <Grid.Column width={3}>Rating</Grid.Column>
-                  <Grid.Column width={3}>Volume</Grid.Column>
-                  <Grid.Column width={3}>Jobs Started</Grid.Column>
-                  <Grid.Column width={6}>Jobs Completed</Grid.Column>
+                  <Message
+                    style={{ width: "100%" }}
+                    info
+                    size="mini"
+                    attached="top"
+                    content="You must add a connected account."
+                  />
                 </Grid.Row>
-
-                <Grid.Row
-                  style={{ textAlign: "center", paddingTop: 0, marginTop: 0 }}
-                >
-                  <Grid.Column width={3}>{averageRating}</Grid.Column>
-                  <Grid.Column width={3}>{volumeTotalString}</Grid.Column>
-                  <Grid.Column width={3}>{jobsStarted}</Grid.Column>
-                  <Grid.Column width={6}>{jobsCompleted}</Grid.Column>
+                <Grid.Row>
+                  <Button
+                    onClick={() =>
+                      this.props.openModal("ConnectBankAccountModal")
+                    }
+                    content="+ bank account"
+                    disabled
+                    icon="stripe card"
+                    labelPosition="left"
+                  />
                 </Grid.Row>
               </Grid>
-            ) : (
-              <Message style={{ width: "100%" }}>
-                <Message.Header>Become a Contractor</Message.Header>
-                <Message.List>
-                  <Message.Item>Add a Bank Account</Message.Item>
-                  <Message.Item>Subscribe and Quote Jobs</Message.Item>
-                </Message.List>
-              </Message>
-            )}
-            <Divider />
-            <Grid.Row>
-              <div style={{ width: "100%", height: "auto" }}>
-                <Dropzone
-                  style={{
-                    width: "50%",
-                    marginTop: 10,
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                    borderRadius: "20px",
-                    display: "block",
-                    height: 30,
-                    backgroundColor: "orange"
-                  }}
-                  onDrop={this.onDrop}
-                  multiple={false}
-                  acceptedFiles={"image/jpeg,image/png,image/gif"}
-                >
-                  <div style={{ textAlign: "center" }}>
-                    <Header style={{ paddingTop: 4 }} content="+Add Photo" />
-                  </div>
-                </Dropzone>
-
-                <Divider />
-
-               
-                <div
-                  style={{
-                    height: 130,
-                    width: "auto",
-                    whiteSpace: "nowrap",
-                    padding: 5,
-                    backgroundColor: "grey",
-                    overflowY: "hidden",
-                    overflowX: "auto"
-                  }}
-                >
-                  {this.state.files[0] && (
-                    <Image
-                      style={{
-                        display: "inline-block",
-                        opacity: 0.3,
-                        maxHeight: 115,
-                        maxWidth: 115
-                      }}
-                      src={this.state.files[0].preview}
-                    />
-                  )}
-                  {contractorPhotos &&
-                    contractorPhotos.map(photo => (
-                      <Image
-                        style={{
-                          marginLeft: 10,
-                          height: 115,
-                          display: "inline-block"
-                        }}
-                        src={photo}
-                      />
-                    ))}
-                </div>
-                <PhotoUpload handlePhotoUploaded={this.props.handleVideoUpload} videoOnly={videoOnly}/>
-             
-              {videoUrl&&  
-              
-              <div>
-                 <Divider />
-                <Header color="teal" as="h3">Introduction Video</Header>
-                <video controls
-            style={{maxHeight:200, maxWidth:200, padding:0, margin:0}}
-            // autoPlay
-             id="contractorVideo"
-            
-             
-           >
-             <source src={videoUrl} type="video/mp4" />
-           </video>
-           </div>
-           }
-              </div>
-            </Grid.Row>
-
-
-
-
-
-
-          </div>
-        ) : (
-          <Grid>
-            <Grid.Column width={8}>
-              <Message
-                style={{ width: "100%" }}
-                info
-                size="mini"
-                attached="top"
-                content="You must add a connected account."
-              />
-              <Button
-                onClick={() => this.props.openModal("ConnectBankAccountModal")}
-                content="+ bank account"
-                icon="stripe card"
-                labelPosition="left"
-              />
               <Divider />
-
-              {isAContractor ? (
+              {isContractor ? (
                 <Grid>
                   <Grid.Row>
                     <Grid.Column width={3}>Rating</Grid.Column>
@@ -242,99 +208,37 @@ const videoOnly = true;
                   </Message.List>
                 </Message>
               )}
-
               <Divider />
-            </Grid.Column>
-            <Grid.Column width={8}>
-              <div
-                style={{
-                  width: "100%",
-                  padding: 10,
-                  height: 340,
-                  backgroundColor: "grey"
-                }}
-              >
-                <Dropzone
-                  style={{
-                    width: "100%",
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                    display: "block",
-                    height: 150,
-                    borderStyle: "dotted"
-                  }}
-                  onDrop={this.onDrop}
-                  multiple={false}
-                  acceptedFiles={"image/jpeg,image/png,image/gif"}
-                >
-                  <div style={{ paddingTop: "10px", textAlign: "center" }}>
-                    <Icon name="upload" size="huge" />
-                    <Header content="Drop image here or click to add" />
-                  </div>
-                </Dropzone>
-                <Divider />
-               
-                <div
-                  style={{
-                    height: 135,
-                    width: "auto",
-                    whiteSpace: "nowrap",
-                    padding: 5,
-                    backgroundColor: "lightgrey",
-                    overflowY: "hidden",
-                    overflowX: "auto"
-                  }}
-                >
-                  {this.state.files[0] && (
-                    <Image
-                      style={{
-                        display: "inline-block",
-                        opacity: 0.3,
-                        maxHeight: 115,
-                        maxWidth: 115
-                      }}
-                      src={this.state.files[0].preview}
-                    />
-                  )}
-                  {contractorPhotos &&
-                    contractorPhotos.map(photo => (
-                      <Image
-                        style={{
-                          marginLeft: 10,
-                          maxHeight: 115,
-                          display: "inline-block",
-                          maxWidth: 115
-                        }}
-                        src={photo}
-                      />
-                    ))}
-                </div>
-                <PhotoUpload handlePhotoUploaded={this.props.handleVideoUpload} videoOnly={videoOnly}/>
-              
-                {videoUrl&&  
-              
-              <div>
-                 <Divider />
-                <Header color="teal" as="h3">Introduction Video</Header>
-                <video controls
-            style={{maxHeight:200, maxWidth:200, padding:0, margin:0}}
-            // autoPlay
-             id="contractorVideo"
-            
-             
-           >
-             <source src={videoUrl} type="video/mp4" />
-           </video>
-           </div>
-           }
+              <Grid.Row>
+                <div style={{ width: "100%", height: "auto" }}>
+                  <PhotoUpload
+                    handlePhotoUploaded={this.handlePhotoUploaded}
+                    photos={this.props.contractorPhotos}
+                    photosLoading={false}
+                    handleDeletePhoto={this.handleDeletePhoto}
+                  />
 
-              </div>
-            </Grid.Column>
-          </Grid>
-        )}
+                  <VideoUpload 
+                  handleVideoUpload={this.handleVideoUpload}
+                  handleUpdateVideoTitle= {this.handleUpdateVideoTitle}
+                   videos={contractorVideos}
+                   handleChangeThumbnail={this.handleChangeThumbnail}
+                   handleDeleteVideo={this.handleDeleteVideo}
+                   videoLoading={this.state.videoLoading}
+                  />
+
+               
+                </div>
+              </Grid.Row>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 }
 
-export default ContractorPane;
+export default connect(
+  mapState,
+  actions
+)(firestoreConnect(props => query(props))(ContractorPane));

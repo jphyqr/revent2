@@ -1,11 +1,39 @@
 import React, { Component } from 'react'
 import {Button, Image, Grid, Icon} from 'semantic-ui-react'
+import { firestoreConnect, isLoaded } from "react-redux-firebase";
+import { connect } from "react-redux";
+
+
+const query = ({ labourer }) => {
+  const {id} = labourer || {}
+
+
+    return [
+
+      {
+        collection: "labour_profiles",
+        doc: id,
+        subcollections: [{ collection: "labour_photos" }],
+        orderBy: ["date", "desc"],
+        storeAs: "labour_photos"
+        
+      }
+    ];
+ 
+};
+
+const mapState = state => ({
+
+  labourPhotos: state.firestore.ordered.labour_photos || [],
+});
+
+
  class LabourItem extends Component {
     
   render() {
-      const {labourer, newChatLabourer, compactDisplayMode, role} = this.props||{}
+      const {labourer, newChatLabourer, compactDisplayMode, role, labourPhotos} = this.props||{}
       const {authenticated} = role || {}
-      const {displayName, jobsCompleted, jobsStarted,  volumeTotal, photoURL, rating, updatedSkills, labourPhotos} = labourer
+      const {displayName, jobsCompleted, jobsStarted,  volumeTotal, photoURL, rating, updatedSkills} = labourer
       const{rate, coverletter, hasTransportation, hasBasicTools, hasValidLicense} = updatedSkills
 
       const {clean, communication, craftsmanship, professionalism, punctuality} = rating || {}
@@ -153,7 +181,7 @@ import {Button, Image, Grid, Icon} from 'semantic-ui-react'
              <Image
              
              style={{ marginLeft:10, maxHeight: 115, display:"inline-block", maxWidth: 115 }}
-             src={photo}
+             src={photo.thumb || photo.originalURL || ""}
            />
           ))}
           </div>
@@ -280,4 +308,10 @@ primary
   }
 }
 
-export default LabourItem
+
+
+
+export default connect(
+  mapState,
+  null
+)(firestoreConnect(props => query(props))(LabourItem));

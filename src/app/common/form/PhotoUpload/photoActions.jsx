@@ -1,9 +1,11 @@
 import cuid from "cuid";
 import { toastr } from "react-redux-toastr";
-
+import firebase from "../../../../app/config/firebase";
 import axios from "axios";
-
+import {FETCH_PHOTOS, CLEAR_PHOTOS} from './photosConstants'
 import { reset } from "redux-form";
+
+
 
 import {
   asyncActionStart,
@@ -54,3 +56,55 @@ export const uploadPhoto = (file, fileName, userUID, type) => async (
     dispatch(asyncActionError());
   } 
 };
+
+
+
+
+
+
+
+
+
+
+export const openPhotoAlbum = (photos, startIndex) => async (dispatch, getState) =>{
+
+  console.log('selectPhotoalbum')
+  
+    const firestore = firebase.firestore();
+   
+    // let draftUserId= draft.id
+    // let draftId = draftUserId.split('_')[0]
+    try {
+     dispatch(asyncActionStart())
+  
+     const album = {photos:photos, startIndex:startIndex}
+
+    dispatch({
+        type: FETCH_PHOTOS,
+        payload: {album}
+    })
+    dispatch (asyncActionFinish())
+    } catch (error){
+        console.log(error)
+        dispatch(asyncActionError())
+    }
+      }
+
+
+      export const clearAlbum = () => async (dispatch, getState) =>{
+
+
+        
+  
+          try {
+ 
+          dispatch({
+              type: CLEAR_PHOTOS,
+              payload: []
+          })
+          dispatch (asyncActionFinish())
+          } catch (error){
+              console.log(error)
+              dispatch(asyncActionError())
+          }
+            }

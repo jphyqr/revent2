@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+
 admin.initializeApp(functions.config().firebase);
 const stripe = require("stripe")(functions.config().stripe.token);
 const logging = require("@google-cloud/logging");
@@ -79,85 +80,293 @@ const createMessage = (type, message) => {
 exports.generateThumbnail = functions.storage.object().onFinalize(object => {
   // [END generateThumbnailTrigger]
   // [START eventAttributes]
+  console.log({ object });
+
   const fileBucket = object.bucket; // The Storage bucket that contains the file.
   const filePath = object.name; // File path in the bucket.
+
+  const params = filePath.split("/");
+  const entityId = params[0];
+  const entityDescription = params[1];
+
   const contentType = object.contentType; // File content type.
   const metageneration = object.metageneration; // Number of times metadata has been generated. New objects have a value of 1.
   // [END eventAttributes]
 
   // [START stopConditions]
   // Exit if this is triggered on a file that is not an image.
-  if (!contentType.startsWith("image/")) {
-    return console.log("This is not an image.");
+  if (!(contentType.startsWith("image/") || contentType.startsWith("video/"))) {
+    return console.log("This is not an image or video.");
   }
-
+  const fileType = contentType.split("/")[0];
+  console.log({ fileType });
+  var defaultAuth = admin.auth();
   // Get the file name.
   const fileName = path.basename(filePath);
+  const bucket = admin.storage().bucket(fileBucket);
+  const file = bucket.file(object.name);
   // Exit if the image is already a thumbnail.
   if (fileName.startsWith("thumb_")) {
-    return console.log("Already a Thumbnail.");
+    const thumbParams = fileName.split("_");
+    const thumbType = thumbParams[1];
+    const thumbFileKey = thumbParams[2];
+    console.log("already a thumbnail of type", entityDescription);
+    console.log("thumbType:", thumbType);
+    switch (entityDescription) {
+      case "labour_photos":
+        {
+          console.log("IS A LABOUR PHOTO..update labour profile");
+
+          const options = {
+            action: "read",
+            expires: "03-17-2025"
+          };
+
+          switch (thumbType) {
+            case "thumb": {
+              return file.getSignedUrl(options).then(results => {
+                const url = results[0];
+
+                console.log(`The signed url  is ${url}.`);
+                return admin
+                  .firestore()
+                  .collection("labour_profiles")
+                  .doc(entityId)
+                  .collection("labour_photos")
+                  .doc(thumbFileKey)
+                  .update({ thumb: url });
+              });
+            }
+
+            case "regular": {
+              return file.getSignedUrl(options).then(results => {
+                const url = results[0];
+
+                console.log(`The signed url for  is ${url}.`);
+                return admin
+                  .firestore()
+                  .collection("labour_profiles")
+                  .doc(entityId)
+                  .collection("labour_photos")
+                  .doc(thumbFileKey)
+                  .update({ regular: url });
+              });
+            }
+
+            default:
+          }
+        }
+        break;
+
+      case "contractor_photos":
+        {
+          console.log("IS A CONTRACTOR PHOTO..update contractor profile");
+
+          const options = {
+            action: "read",
+            expires: "03-17-2025"
+          };
+
+          switch (thumbType) {
+            case "thumb": {
+              return file.getSignedUrl(options).then(results => {
+                const url = results[0];
+
+                console.log(`The signed url  is ${url}.`);
+                return admin
+                  .firestore()
+                  .collection("contractor_profiles")
+                  .doc(entityId)
+                  .collection("contractor_photos")
+                  .doc(thumbFileKey)
+                  .update({ thumb: url });
+              });
+            }
+
+            case "regular": {
+              return file.getSignedUrl(options).then(results => {
+                const url = results[0];
+
+                console.log(`The signed url for  is ${url}.`);
+                return admin
+                  .firestore()
+                  .collection("contractor_profiles")
+                  .doc(entityId)
+                  .collection("contractor_photos")
+                  .doc(thumbFileKey)
+                  .update({ regular: url });
+              });
+            }
+
+            default:
+          }
+        }
+
+        break;
+      case "contractor_videos":
+        {
+          console.log("IS A CONTRACTOR VIDEO..update contractor profile");
+
+          const options = {
+            action: "read",
+            expires: "03-17-2025"
+          };
+
+          switch (thumbType) {
+            case "thumb": {
+              return file.getSignedUrl(options).then(results => {
+                const url = results[0];
+
+                console.log(`The signed url  is ${url}.`);
+                return admin
+                  .firestore()
+                  .collection("contractor_profiles")
+                  .doc(entityId)
+                  .collection("contractor_videos")
+                  .doc(thumbFileKey)
+                  .update({ thumb: url });
+              });
+            }
+
+            case "regular": {
+              return file.getSignedUrl(options).then(results => {
+                const url = results[0];
+
+                console.log(`The signed url for  is ${url}.`);
+                return admin
+                  .firestore()
+                  .collection("contractor_profiles")
+                  .doc(entityId)
+                  .collection("contractor_videos")
+                  .doc(thumbFileKey)
+                  .update({ regular: url });
+              });
+            }
+
+            default:
+          }
+        }
+        break;
+
+      default:
+    }
+
+    return;
   }
   // [END stopConditions]
 
   // [START thumbnailGeneration]
   // Download file from bucket.
-  const bucket = admin.storage().bucket(fileBucket);
+  const isImage = contentType.startsWith('image/');
+  const isVideo = contentType.startsWith('video/');
   const tempFilePath = path.join(os.tmpdir(), fileName);
+
+
   const metadata = {
-    contentType: contentType
-  };
-  return bucket
-    .file(filePath)
-    .download({ destination: tempFilePath })
-    .then(() => {
-      console.log("Image 1 downloaded locally to", tempFilePath);
-      // Generate a thumbnail using ImageMagick.
-      return spawn("convert", [
-        tempFilePath,
-        "-resize",
-        "400X400>",
-        tempFilePath
-      ]);
-    })
+    contentType: isVideo ? 'image/jpeg' : contentType,
+    // To enable Client-side caching you can set the Cache-Control headers here. Uncomment below.
+    // 'Cache-Control': 'public,max-age=3600',
+};
 
-    .then(() => {
-      console.log("Thumbnail 1 created at", tempFilePath);
 
-      // We add a 'thumb_' prefix to thumbnails file name. That's where we'll upload the thumbnail.
-      const thumbFileName = `thumb_200_200_${fileName}`;
-      const thumbFilePath = path.join(path.dirname(filePath), thumbFileName);
-      return bucket.upload(tempFilePath, {
-        destination: thumbFilePath,
-        metadata: metadata
-      });
-    })
-    .then(() => {
-      console.log("Image  2 downloaded locally to", tempFilePath);
-      // Generate a thumbnail using ImageMagick.
-      return spawn("convert", [
-        tempFilePath,
-        "-resize",
-        "100x100>",
-        tempFilePath
-      ]);
-    })
-    .then(() => {
-      console.log("Thumbnail 2 created at", tempFilePath);
 
-      // We add a 'thumb_' prefix to thumbnails file name. That's where we'll upload the thumbnail.
-      const thumbFileName = `thumb_400_400_${fileName}`;
-      const thumbFilePath = path.join(path.dirname(filePath), thumbFileName);
-      return bucket.upload(tempFilePath, {
-        destination: thumbFilePath,
-        metadata: metadata
-      });
-    })
-    .then(() => {
-      return fs.unlinkSync(tempFilePath);
-    })
-    .catch(error => {
-      console.log({ error });
-    });
+  switch (fileType) {
+    case "image": {
+      return bucket
+        .file(filePath)
+        .download({ destination: tempFilePath })
+        .then(() => {
+          console.log("Image 1 downloaded locally to", tempFilePath);
+          // Generate a thumbnail using ImageMagick.
+          return spawn("convert", [
+            tempFilePath,
+            "-resize",
+            "400X400>",
+            tempFilePath
+          ]);
+        })
+
+        .then(() => {
+          console.log("Thumbnail 1 created at", tempFilePath);
+
+          // We add a 'thumb_' prefix to thumbnails file name. That's where we'll upload the thumbnail.
+          const thumbFileName = `thumb_regular_${fileName}`;
+          const thumbFilePath = path.join(
+            path.dirname(filePath),
+            thumbFileName
+          );
+          return bucket.upload(tempFilePath, {
+            destination: thumbFilePath,
+            metadata: metadata
+          });
+        })
+        .then(() => {
+          console.log("Image  2 downloaded locally to", tempFilePath);
+          // Generate a thumbnail using ImageMagick.
+          return spawn("convert", [
+            tempFilePath,
+            "-resize",
+            "115x115>",
+            tempFilePath
+          ]);
+        })
+        .then(() => {
+          console.log("Thumbnail 2 created at", tempFilePath);
+
+          // We add a 'thumb_' prefix to thumbnails file name. That's where we'll upload the thumbnail.
+          const thumbFileName = `thumb_thumb_${fileName}`;
+          const thumbFilePath = path.join(
+            path.dirname(filePath),
+            thumbFileName
+          );
+          return bucket.upload(tempFilePath, {
+            destination: thumbFilePath,
+            metadata: metadata
+          });
+        })
+        .then(() => {
+          return fs.unlinkSync(tempFilePath);
+        })
+        .catch(error => {
+          console.log({ error });
+        });
+    }
+
+    case "video": {
+      return bucket
+        .file(filePath)
+        .getSignedUrl({action: 'read', expires: '05-24-2999'})
+        .then(signedUrl => {
+          const fileUrl = signedUrl[0];
+          const promise = spawn(ffmpegPath, ['-ss', '0', '-i', fileUrl, '-f', 'image2', '-vframes', '1', '-vf', `scale=w='min(115, iw*3/2):h=-1'`, tempFilePath]);
+          return promise;
+        })
+
+        .then(() => {
+          console.log("video 1Thumbnail 1 created at", tempFilePath);
+
+          // We add a 'thumb_' prefix to thumbnails file name. That's where we'll upload the thumbnail.
+          const thumbFileName = `thumb_thumb_${fileName}`;
+          const thumbFilePath = path.join(
+            path.dirname(filePath),
+            thumbFileName
+          );
+          return bucket.upload(tempFilePath, {
+            destination: thumbFilePath,
+            metadata: metadata
+          });
+        })
+       
+        .then(() => {
+          return fs.unlinkSync(tempFilePath);
+        })
+        .catch(error => {
+          console.log({ error });
+        });
+    }
+    default:
+      return;
+  }
 
   // Once the thumbnail has been uploaded delete the local file to free up disk space.
 

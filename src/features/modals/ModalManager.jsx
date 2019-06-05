@@ -19,6 +19,7 @@ import BuildModal from './MobileModals/BuildModal/BuildModal'
 import SupplierProfileModal from './SupplierProfileModal/SupplierProfileModal'
 import OnboardingModal from './OnboardingModal/OnboardingModal'
 import VideoModal from './VideoModal/VideoModal'
+import PhotoAlbumModal from './PhotoAlbumModal/PhotoAlbumModal'
 import ManageItemModal from './ManageItemModal/ManageItemModal'
 const modalLookup = {
   TestModal,
@@ -40,7 +41,8 @@ const modalLookup = {
   OnboardingModal,
   VideoModal,
   SupplierProfileModal,
-  ManageItemModal
+  ManageItemModal,
+  PhotoAlbumModal
 }
 
 const mapState = (state) => ({

@@ -39,7 +39,13 @@ const query = ({ auth }) => {
         collection: "users",
         doc: auth.uid,
         storeAs: "user_profile"
-      }
+      },
+      {
+        collection: "contractor_profiles",
+        doc: auth.uid,
+        storeAs: "contractor_profile"
+      },
+      
     ];
   } else {
     return [];
@@ -99,7 +105,14 @@ const mapState = state => {
       (state.firestore.ordered.alpha_profile &&
         state.firestore.ordered.alpha_profile[0] &&
         state.firestore.ordered.alpha_profile[0].isAlpha) ||
-      false
+      false,
+
+      isContractor:
+      (state.firestore.ordered.contractor_profile &&
+        state.firestore.ordered.contractor_profile[0] &&
+        state.firestore.ordered.contractor_profile[0].isContractor) ||
+      false,
+
   };
 };
 
@@ -169,7 +182,7 @@ class SignedInMenu extends Component {
       this.props.isOnboarder,
       this.props.isAlpha,
       this.props.verified,
-     // this.props.isSupplier
+      this.props.isContractor
     );
 
     await this.setState({
@@ -197,14 +210,14 @@ class SignedInMenu extends Component {
       newNotification,
       isAdmin,
       isOnboarder,
-      isSupplier,
+      isContractor,
       isAlpha, hideHowToPost
     } = nextProps || {};
 
     if (
       isAdmin !== this.props.isAdmin ||
       isOnboarder !== this.props.isOnboarder ||
-      isAlpha !== this.props.isAlpha
+      isAlpha !== this.props.isAlpha ||isContractor!== this.props.isContractor
     ) {
       console.log("SETTING ROLE");
       await this.props.setRole(
@@ -212,7 +225,7 @@ class SignedInMenu extends Component {
         nextProps.isOnboarder,
         nextProps.isAlpha,
         this.props.verified,
-       // nextProps.isSupplier
+        nextProps.isContractor
       );
     }
 

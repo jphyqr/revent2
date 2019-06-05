@@ -19,6 +19,7 @@ import {firestoreReducer} from 'redux-firestore'
 import {reducer as toastrRedcer} from 'react-redux-toastr';
 import draftReducer from '../../features/build/draftReducer'
 import roleReducer from '../../features/nav/Menus/roleReducer'
+import photosReducer from '../../app/common/form/PhotoUpload/photosReducer'
 import quoteReducer from '../../features/modals/QuoteJobModal/quoteReducer'
 import labourReducer from '../../features/job/JobDashboard/Labour/LabourList/labourReducer'
 import contractsReducer from '../../features/build/BuildDashboard/BuildDetail/MyContractsCarousel/contractReducer'
@@ -46,7 +47,8 @@ const rootReducer = combineReducers({
   role: roleReducer,
   notifications: notificationReducer,
   video:videoReducer,
-  item:itemReducer
+  item:itemReducer,
+  album: photosReducer
 })
 
 export default rootReducer
