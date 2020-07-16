@@ -24,7 +24,7 @@
     "firebase-functions": "^2.1.0",
     "fs-extra": "^8.0.1",
     "geo-distance": "^0.2.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "mkdir-promise": "^1.0.0",
     "mkdirp": "^0.5.1",
     "mkdirp-promise": "^5.0.1",
