@@ -16,7 +16,7 @@
     "@sendgrid/client": "^6.3.0",
     "@sendgrid/mail": "^6.3.1",
     "assign-deep": "^1.0.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "child-process-promise": "^2.2.1",
     "cors": "^2.8.5",
     "cuid": "^2.1.4",
