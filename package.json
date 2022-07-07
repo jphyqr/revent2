@@ -15,7 +15,7 @@
     "ip": "^1.1.5",
     "local-ip-url": "^1.0.1",
     "lodash": "^4.17.11",
-    "moment": "^2.22.0",
+    "moment": "^2.29.4",
     "popmotion": "^8.5.4",
     "public-ip": "^3.1.0",
     "radium": "^0.25.0",
